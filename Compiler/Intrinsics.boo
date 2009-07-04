@@ -26,12 +26,12 @@ static class Intrinsics:
 			case 'new':
 				func = inst[1]
 				if func.DeclaringType.Namespace == 'Renraku.Core.Memory' and func.DeclaringType.Name == 'Pointer`1':
-					return ['conv', false, 'u4']
+					return ['conv', false, uint]
 				return inst
 			case 'callvirt':
 				func = inst[1]
 				if func.DeclaringType.Namespace == 'Renraku.Core.Memory' and func.DeclaringType.Name == 'Pointer`1' and func.Name == 'set_Item':
-					return ['popderef']
+					return ['popderef', func.DeclaringType.GenericArguments[0]]
 				return inst
 			otherwise:
 				return inst
