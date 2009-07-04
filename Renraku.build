@@ -1,0 +1,52 @@
+<?xml version="1.0"?>
+<project name="Renraku" default="Build" basedir=".">
+	<description>Renraku research OS</description>
+	<property name="debug" value="true" overwrite="false" />
+	<target name="clean" description="Clean build directory">
+		<delete failonerror="false">
+			<fileset>
+				<include name="Obj\*.dll" />
+				<include name="Obj\*.so" />
+				<include name="Obj\*.exe" />
+				<include name="Obj\*.obj" />
+				<include name="Obj\*.*db" />
+			</fileset>
+		</delete>
+	</target>
+	
+	<target name="Core" description="Build the core" depends="">
+		<mkdir dir="Obj" />
+		<booc target="library" output="Obj/Core.dll">
+			<sources>
+				<include name="Core/*.boo" />
+			</sources>
+			<references>
+			</references>
+		</booc>
+	</target>
+	
+	<target name="Compiler" description="Build the compiler" depends="Core">
+		<booc target="exe" output="Obj/Compiler.exe">
+			<sources>
+				<include name="Compiler/*.boo" />
+			</sources>
+			<references>
+				<include name="Compiler/Mono.Cecil.dll" />
+				<include name="Obj/Core.dll" />
+			</references>
+		</booc>
+	</target>
+	
+	<target name="TestKernel" description="Build the test kernel" depends="Core">
+		<booc target="library" output="Obj/TestKernel.dll">
+			<sources>
+				<include name="TestKernel/*.boo" />
+			</sources>
+			<references>
+				<include name="Obj/Core.dll" />
+			</references>
+		</booc>
+	</target>
+	
+	<target name="Build" description="Build Renraku" depends="Core, Compiler, TestKernel" />
+</project>
