@@ -24,9 +24,11 @@ static class Frontend:
 	
 	def FromMethod(method as MethodDefinition):
 		body = ['body']
-		for inst in method.Body.Instructions:
+		for inst as Instruction in method.Body.Instructions:
+			iblock = ['inst', inst.Offset]
 			for elem in FromInst(inst):
-				body.Add(elem)
+				iblock.Add(elem)
+			body.Add(iblock)
 		
 		return ['method', 
 				method, 
