@@ -50,6 +50,10 @@ static class Frontend:
 			case OpCodes.Ldc_I4_7: yield ['push', 7]
 			case OpCodes.Ldc_I4_8: yield ['push', 8]
 			
+			case OpCodes.Ldarg_0: yield ['pusharg', 0]
+			case OpCodes.Ldarg_1: yield ['pusharg', 1]
+			case OpCodes.Ldarg_2: yield ['pusharg', 2]
+			
 			case OpCodes.Ldloc_S: yield ['pushloc', inst.Operand]
 			case OpCodes.Ldloc_0: yield ['pushloc', 0]
 			case OpCodes.Ldloc_1: yield ['pushloc', 1]
@@ -59,8 +63,10 @@ static class Frontend:
 			case OpCodes.Conv_Ovf_I4: yield ['conv', true, int]
 			case OpCodes.Conv_Ovf_U2: yield ['conv', true, ushort]
 			
-			case OpCodes.Or: yield ['binary', 'or']
-			case OpCodes.Shl: yield ['binary', 'shl']
+			case OpCodes.Add_Ovf: yield ['binary', 'add', true]
+			case OpCodes.Mul_Ovf: yield ['binary', 'mul', true]
+			case OpCodes.Or: yield ['binary', 'or', false]
+			case OpCodes.Shl: yield ['binary', 'shl', false]
 			
 			case OpCodes.Newobj: yield ['new', inst.Operand]
 			case OpCodes.Call: yield ['call', inst.Operand]

@@ -2,12 +2,14 @@ namespace Renraku.TestKernel
 
 import Renraku.Core.Memory
 
-def Main():
+def SetChar(x as int, y as int, ch as char):
 	vmem = Pointer of ushort(0xB8000)
-	color = cast(ushort, 0x0F << 8)
-	vmem[0] = color | cast(ushort, char('H'))
-	vmem[1] = color | cast(ushort, char('i'))
-	vmem[2] = color | cast(ushort, char('!'))
+	vmem[x+(y*320)] = cast(ushort, 0x0F00 | cast(int, ch))
+
+def Main():
+	SetChar(0, 0, char('H'))
+	SetChar(1, 0, char('i'))
+	SetChar(2, 0, char('!'))
 	
 	#vmem[ 0] = color | cast(ushort, char('H'))
 	#vmem[ 1] = color | cast(ushort, char('e'))

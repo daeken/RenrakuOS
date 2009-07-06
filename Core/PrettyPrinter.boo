@@ -11,14 +11,21 @@ static class PrettyPrinter:
 				return '[]'
 			elif len(obj) == 1:
 				return '[' + Print(obj[0], level+1) + ']'
-			elif len(obj) == 2:
-				return '[' + Print(obj[0], level+1) + ', ' + Print(obj[1], level+1) + ']'
+			elif len(obj) == 2 or len(obj) == 3:
+				newlines = false
+			else:
+				newlines = true
 			
 			ret = '['
 			for elem in obj:
-				ret += Print(elem, level+1) + ', \n'
-				ret += '  ' * level
-			return ret[:-3-(level*2)] + ']'
+				ret += Print(elem, level+1) + ', '
+				if newlines:
+					ret += '\n'
+					ret += '  ' * level
+			if newlines:
+				return ret[:-3-(level*2)] + ']'
+			else:
+				return ret[:-2] + ']'
 		else:
 			return obj.ToString()
 
