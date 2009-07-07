@@ -4,7 +4,9 @@ import Boo.Lang.PatternMatching
 
 static class PrettyPrinter:
 	def Print(obj as duck, level as int) as string:
-		if obj isa string:
+		if obj == null:
+			return 'null'
+		elif obj isa string:
 			return obj
 		elif obj isa IEnumerable:
 			if len(obj) == 0:

@@ -57,12 +57,17 @@ static class Frontend:
 			case OpCodes.Ldloc_S: yield ['pushloc', inst.Operand]
 			case OpCodes.Ldloc_0: yield ['pushloc', 0]
 			case OpCodes.Ldloc_1: yield ['pushloc', 1]
+			case OpCodes.Ldloc_2: yield ['pushloc', 2]
 			case OpCodes.Stloc_0: yield ['poploc', 0]
 			case OpCodes.Stloc_1: yield ['poploc', 1]
+			case OpCodes.Stloc_2: yield ['poploc', 2]
+			
+			case OpCodes.Ldstr: yield ['pushstr', inst.Operand]
 			
 			case OpCodes.Conv_Ovf_I4: yield ['conv', true, int]
 			case OpCodes.Conv_Ovf_U2: yield ['conv', true, ushort]
 			
+			case OpCodes.Add: yield ['binary', 'add', false]
 			case OpCodes.Add_Ovf: yield ['binary', 'add', true]
 			case OpCodes.Mul_Ovf: yield ['binary', 'mul', true]
 			case OpCodes.Or: yield ['binary', 'or', false]
@@ -72,7 +77,12 @@ static class Frontend:
 			case OpCodes.Call: yield ['call', inst.Operand]
 			case OpCodes.Callvirt: yield ['callvirt', inst.Operand]
 			
+			case OpCodes.Br: yield ['branch', null, (inst.Operand as Instruction).Offset, -1]
+			case OpCodes.Blt: yield ['branch', '<', (inst.Operand as Instruction).Offset, NextInst(inst)]
 			case OpCodes.Ret: yield ['return']
 			
 			otherwise:
 				print 'Unhandled instruction:', inst.OpCode
+	
+	def NextInst(inst as Instruction):
+		return inst.Next.Offset

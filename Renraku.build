@@ -29,6 +29,7 @@
 		<booc target="exe" output="Obj/Compiler.exe">
 			<sources>
 				<include name="Compiler/*.boo" />
+				<include name="Compiler/Intrinsics/*.boo" />
 			</sources>
 			<references>
 				<include name="Compiler/Mono.Cecil.dll" />
