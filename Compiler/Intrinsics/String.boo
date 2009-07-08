@@ -6,4 +6,4 @@ class StringIntrinsics(ClassIntrinsic):
 		RegisterCall('get_Chars', GetChars)
 	
 	def GetChars() as duck:
-		yield ['pushelem', string]
+		yield ['pushelem', 'Char']

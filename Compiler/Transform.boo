@@ -30,9 +30,9 @@ static class Transform:
 	
 	def MethodBodies(assembly as duck, func as duck) as duck:
 		def transformMethods(method as duck) as duck:
-			subret = func(method[4])
+			subret = func(method[5])
 			if subret != null:
-				method[4] = subret
+				method[5] = subret
 			return method
 		
 		return Methods(assembly, transformMethods)

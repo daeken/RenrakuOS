@@ -7,4 +7,5 @@ StringIntrinsics()
 cilExp = Frontend.FromAssembly(argv[0])
 cilExp = Blockifier.Blockify(cilExp)
 cilExp = IntrinsicRunner.Apply(cilExp)
-pprint cilExp
+asmExp = X86.Compile(cilExp)
+pprint asmExp

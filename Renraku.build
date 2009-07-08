@@ -30,6 +30,7 @@
 			<sources>
 				<include name="Compiler/*.boo" />
 				<include name="Compiler/Intrinsics/*.boo" />
+				<include name="Compiler/X86/*.boo" />
 			</sources>
 			<references>
 				<include name="Compiler/Mono.Cecil.dll" />

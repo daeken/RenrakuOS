@@ -33,6 +33,7 @@ static class Frontend:
 		return ['method', 
 				method, 
 				method.Name, 
+				method.Body.Variables.Count, 
 				['type', method.ReturnType.ReturnType], 
 				body
 			]

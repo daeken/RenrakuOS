@@ -9,4 +9,4 @@ class PointerIntrinsics(ClassIntrinsic):
 		yield ['conv', false, uint]
 	
 	def SetItem(types as duck) as duck:
-		yield ['popderef', types[0]]
+		yield ['popderef', types[0].Name]
