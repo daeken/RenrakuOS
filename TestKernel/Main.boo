@@ -9,7 +9,7 @@ static class TestKernel:
 			vmem[i*2] = 0
 	
 	Position = 0
-	def Print(size as int, str as string):
+	def Print(str as string):
 		vmem = Pointer of ushort(0xB8000)
 		if Position == 25:
 			Position = 24
@@ -19,12 +19,14 @@ static class TestKernel:
 					vmem[y+x] = vmem[y+x+80]
 		
 		i = 0
-		while i < size:
+		while str[i] != char(0):
 			vmem[(Position*80+i)*2] = cast(ushort, 0x0F00 | cast(int, str[i]))
 			i++
 		Position++
 	
 	def Main():
 		ClearScreen()
-		Print(19, 'Hello from Renraku!')
-		Print(28, 'Hello from Renraku part two.')
+		Print('Hello from Renraku!')
+		Print('Hello from Renraku part two.')
+		
+		Print ('Now this is how a managed kernel is done.')

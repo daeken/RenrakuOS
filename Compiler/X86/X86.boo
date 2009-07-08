@@ -29,6 +29,8 @@ static class X86:
 						mnem = 'jmp'
 					case 'false':
 						mnem = 'jz'
+					case 'true':
+						mnem = 'jnz'
 					case '<':
 						mnem = 'jl'
 					otherwise:
@@ -41,7 +43,7 @@ static class X86:
 						yield ['pop', 'eax']
 						yield ['cmp', 'eax', 'ebx']
 						yield [mnem, '.block_' + inst[2]]
-					case 'jz':
+					case 'jz' | 'jnz':
 						yield ['pop', 'eax']
 						yield ['test', 'eax', 'eax']
 						yield [mnem, '.block_' + inst[2]]
@@ -108,15 +110,16 @@ static class X86:
 					yield ['push', 'ecx']
 			
 			case 'pushelem':
+				yield ['pop', 'ecx']
 				yield ['pop', 'ebx']
-				yield ['pop', 'eax']
+				yield ['xor', 'eax', 'eax']
 				
 				if inst[1] == 'Char':
 					reg = 'al'
 				else:
 					print 'Unknown type for pushelem:', inst[1]
 				
-				yield ['mov', reg, ['deref', 'eax', 'ebx']]
+				yield ['mov', reg, ['deref', 'ebx', 'ecx']]
 				yield ['push', 'eax']
 			
 			case 'popstaticfield':
