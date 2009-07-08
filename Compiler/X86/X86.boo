@@ -27,19 +27,26 @@ static class X86:
 				match inst[1]:
 					case null:
 						mnem = 'jmp'
+					case 'false':
+						mnem = 'jz'
 					case '<':
 						mnem = 'jl'
 					otherwise:
 						print 'Unhandled branch type:', inst[1]
 				
-				if mnem != 'jmp':
-					yield ['pop', 'ebx']
-					yield ['pop', 'eax']
-					yield ['cmp', 'eax', 'ebx']
-					yield [mnem, '.block_' + inst[2]]
-					fallthrough = inst[3]
-				else:
-					fallthrough = inst[2]
+				fallthrough = inst[3]
+				match mnem:
+					case 'jl':
+						yield ['pop', 'ebx']
+						yield ['pop', 'eax']
+						yield ['cmp', 'eax', 'ebx']
+						yield [mnem, '.block_' + inst[2]]
+					case 'jz':
+						yield ['pop', 'eax']
+						yield ['test', 'eax', 'eax']
+						yield [mnem, '.block_' + inst[2]]
+					otherwise:
+						fallthrough = inst[2]
 				yield ['jmp', '.block_' + fallthrough]
 			
 			case 'call':
@@ -52,12 +59,17 @@ static class X86:
 			
 			case 'cmp':
 				match inst[1]:
+					case '==':
+						mnem = 'setz'
 					case '<':
-						mnem = 'setcf'
+						mnem = 'setc'
 					otherwise:
 						print 'Unknown cmp type:', inst[1]
+				yield ['pop', 'ecx']
+				yield ['pop', 'ebx']
 				yield ['xor', 'eax', 'eax']
-				yield ['setcc', 'al']
+				yield ['cmp', 'ebx', 'ecx']
+				yield [mnem, 'al']
 				yield ['push eax']
 			
 			case 'conv':
@@ -81,6 +93,19 @@ static class X86:
 				
 				if reg != null:
 					yield ['mov', ['deref', 'eax', 'ebx'], reg]
+			case 'pushderef':
+				yield ['xor', 'ecx', 'ecx']
+				yield ['pop', 'ebx']
+				yield ['pop', 'eax']
+				
+				if inst[1] == 'UInt16':
+					reg = 'cx'
+				else:
+					print 'Unknown type for popderef:', inst[1]
+				
+				if reg != null:
+					yield ['mov', reg, ['deref', 'eax', 'ebx']]
+					yield ['push', 'ecx']
 			
 			case 'pushelem':
 				yield ['pop', 'ebx']
@@ -92,6 +117,14 @@ static class X86:
 					print 'Unknown type for pushelem:', inst[1]
 				
 				yield ['mov', reg, ['deref', 'eax', 'ebx']]
+				yield ['push', 'eax']
+			
+			case 'popstaticfield':
+				yield ['pop', 'eax']
+				yield ['mov', ['deref', inst[1].Name], 'eax']
+			
+			case 'pushstaticfield':
+				yield ['mov', 'eax', ['deref', inst[1].Name]]
 				yield ['push', 'eax']
 			
 			case 'poploc':
@@ -139,6 +172,7 @@ static class X86:
 		print '\t.forever:'
 		print '\t\tjmp .forever'
 		assembly = Transform.BlockInstructions(assembly, EmitInstruction)
+		Transform.Fields(assembly, Field)
 		Transform.Methods(assembly, Method)
 		
 		for id, str in Strings:
@@ -174,6 +208,13 @@ static class X86:
 			return AllocString(expr[1])
 		else:
 			return expr.ToString()
+	
+	def Field(field as duck) as duck:
+		match field[2].ToString():
+			case 'System.Int32':
+				print field[1], ': dd 0'
+			otherwise:
+				print 'Unknown field type:', field[2]
 	
 	def Method(method as duck) as duck:
 		_, meth as duck, name as string, varcount as int, _, body as duck = method

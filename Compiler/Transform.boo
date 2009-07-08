@@ -14,15 +14,37 @@ static class Transform:
 		
 		return ret
 	
+	def Fields(assembly as duck, func as duck) as duck:
+		def transformTypes(type as duck) as duck:
+			ret = ['type', type[1], type[2]]
+			for i in range(len(type) - 3):
+				member = type[i+3]
+				if member[0] == 'field':
+					subret = func(member)
+					if subret == null:
+						ret.Add(member)
+					else:
+						ret.Add(subret)
+				else:
+					ret.Add(member)
+			
+			return ret
+		
+		return Types(assembly, transformTypes)
+	
 	def Methods(assembly as duck, func as duck) as duck:
 		def transformTypes(type as duck) as duck:
 			ret = ['type', type[1], type[2]]
 			for i in range(len(type) - 3):
-				subret = func(type[i+3])
-				if subret == null:
-					ret.Add(type[i+3])
+				member = type[i+3]
+				if member[0] == 'method':
+					subret = func(member)
+					if subret == null:
+						ret.Add(member)
+					else:
+						ret.Add(subret)
 				else:
-					ret.Add(subret)
+					ret.Add(member)
 			
 			return ret
 		
