@@ -4,7 +4,7 @@ import Renraku.Core.Memory
 
 def SetChar(x as int, y as int, ch as char):
 	vmem = Pointer of ushort(0xB8000)
-	vmem[x+(y*320)] = cast(ushort, 0x0F00 | cast(int, ch))
+	vmem[(x+(y*320))*2] = cast(ushort, 0x0F00 | cast(int, ch))
 
 def Main():
 	chars = 'Hello world!'

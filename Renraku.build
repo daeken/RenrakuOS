@@ -48,6 +48,8 @@
 				<include name="Obj/Core.dll" />
 			</references>
 		</booc>
+		<exec program="Obj/Compiler.exe" commandline="Obj/TestKernel.dll" output="Obj/kernel.asm" />
+		<exec program="Compiler/nasm.exe" commandline="-o Obj/kernel.bin Obj/kernel.asm" />
 	</target>
 	
 	<target name="Build" description="Build Renraku" depends="Core, Compiler, TestKernel" />

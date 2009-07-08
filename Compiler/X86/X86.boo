@@ -56,20 +56,21 @@ static class X86:
 			case 'push': yield ['push', inst[1]]
 			
 			case 'pusharg':
-				yield ['mov', 'eax', ['deref', 'ebp', -inst[1]*4-4]]
+				yield ['mov', 'eax', ['deref', 'esi', -inst[1]*4]]
 				yield ['push', 'eax']
 			
 			case 'popderef':
+				yield ['pop', 'ecx']
 				yield ['pop', 'ebx']
 				yield ['pop', 'eax']
 				
 				if inst[1] == 'UInt16':
-					reg = 'bx'
+					reg = 'cx'
 				else:
 					print 'Unknown type for popderef:', inst[1]
 				
 				if reg != null:
-					yield ['mov', ['deref', 'eax'], reg]
+					yield ['mov', ['deref', 'eax', 'ebx'], reg]
 			
 			case 'pushelem':
 				yield ['pop', 'ebx']
@@ -85,9 +86,9 @@ static class X86:
 			
 			case 'poploc':
 				yield ['pop', 'eax']
-				yield ['mov', ['deref', 'ebp', inst[1]*4], 'eax']
+				yield ['mov', ['deref', 'ebp', -inst[1]*4], 'eax']
 			case 'pushloc':
-				yield ['mov', 'eax', ['deref', 'ebp', inst[1]*4]]
+				yield ['mov', 'eax', ['deref', 'ebp', -inst[1]*4]]
 				yield ['push', 'eax']
 			
 			case 'pushstr':
@@ -97,20 +98,43 @@ static class X86:
 			case 'return':
 				yield ['pop', 'eax']
 				yield ['mov', 'esp', 'ebp']
+				yield ['pop esi']
+				yield ['pop ebp']
 				yield ['ret']
 			
 			otherwise:
 				print 'Unhandled instruction:', inst[0]
 	
+	def Multiboot():
+		print 'align 4'
+		print 'dd 0x1BADB002' # Magic
+		print 'dd 0x10003'
+		print 'dd -(0x1BADB002 + 0x10003)'
+		
+		# Memory header
+		print 'dd 0x100000' # header_addr == 1MB
+		print 'dd 0x100000' # load_addr == 1MB
+		print 'dd end+4' # load_end_addr == none
+		print 'dd end+4' # bss_end_addr == none
+		print 'dd start'
+	
 	Strings as List = []
 	def Emit(assembly as duck) as duck:
 		print 'bits 32'
-		print 'jmp Main'
+		print 'org 0x100000'
+		Multiboot()
+		print 'start:'
+		print '\tmov esp, 0x00400000'
+		print '\tcall Main'
+		print '\t.forever:'
+		print '\t\tjmp .forever'
 		assembly = Transform.BlockInstructions(assembly, EmitInstruction)
 		Transform.Methods(assembly, Method)
 		
 		for id, str in Strings:
 			print 'str_' + id + ': db "' + str + '",0'
+		
+		print 'end: dd 0'
 	
 	def AllocString(str as string) as string:
 		Strings.Add((len(Strings), str))
@@ -142,11 +166,17 @@ static class X86:
 			return expr.ToString()
 	
 	def Method(method as duck) as duck:
-		_, _, name as string, varcount as int, _, body as duck = method
+		_, meth as duck, name as string, varcount as int, _, body as duck = method
 		print name + ':'
+		print '\tpush ebp'
+		print '\tpush esi'
+		print '\tmov esi, esp'
+		if len(meth.Parameters):
+			print '\tadd esi,8+', len(meth.Parameters)*4
 		print '\tmov ebp, esp'
 		if varcount:
-			print '\tadd esp,', varcount*4
+			print '\tsub esp,', varcount*4
+		print '\tpush 0'
 		print '\tjmp .block_0'
 		
 		for i in range(len(body)-1):
