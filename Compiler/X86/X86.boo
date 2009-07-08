@@ -50,6 +50,16 @@ static class X86:
 				if inst[1].ReturnType.ReturnType.ToString() != 'System.Void':
 					yield ['push', 'eax']
 			
+			case 'cmp':
+				match inst[1]:
+					case '<':
+						mnem = 'setcf'
+					otherwise:
+						print 'Unknown cmp type:', inst[1]
+				yield ['xor', 'eax', 'eax']
+				yield ['setcc', 'al']
+				yield ['push eax']
+			
 			case 'conv':
 				pass # Nop for now
 			
