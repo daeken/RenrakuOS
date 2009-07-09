@@ -52,7 +52,7 @@ static class X86:
 				yield ['jmp', '.block_' + fallthrough]
 			
 			case 'call':
-				yield ['call', inst[1].Name]
+				yield ['call', inst[1].DeclaringType.Name + '.' + inst[1].Name]
 				if len(inst[1].Parameters):
 					yield ['sub', 'esp', len(inst[1].Parameters)*4]
 				
@@ -221,7 +221,10 @@ static class X86:
 	
 	def Method(method as duck) as duck:
 		_, meth as duck, name as string, varcount as int, _, body as duck = method
-		print name + ':'
+		if name == 'Main':
+			print 'Main:'
+		else:
+			print meth.DeclaringType.Name + '.' + name + ':'
 		print '\tpush ebp'
 		print '\tpush esi'
 		print '\tmov esi, esp'
