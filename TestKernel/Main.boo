@@ -2,26 +2,45 @@ namespace Renraku.TestKernel
 
 import Renraku.Core.Memory
 
+struct VChar:
+	Ch as byte
+	Color as byte
+
 static class TestKernel:
+	def Memcpy(destaddr as int, srcaddr as int, size as int):
+		dest = Pointer of byte(destaddr)
+		src = Pointer of byte(srcaddr)
+		
+		i = 0
+		while i < size:
+			dest[i] = src[i]
+			++i
+	
 	def ClearScreen():
-		vmem = Pointer of ushort(0xB8000)
-		for i in range(89600):
-			vmem[i*2] = 0
+		vmem = Pointer of VChar(0xB8000)
+		for i in range(2000): # 80x25
+			vmem.Value.Color = 0
+			vmem += 1
 	
 	Position = 0
 	def Print(str as string):
-		vmem = Pointer of ushort(0xB8000)
 		if Position == 25:
 			Position = 24
-			for y in range(24):
-				y *= 160
-				for x in range(160):
-					vmem[y+x] = vmem[y+x+160]
+			#dest = Pointer of byte(0xB8000)
+			#src = Pointer of byte(0xB8000+160)
+			#i = 0
+			#while i < 80*24*2:
+			#	dest[i] = src[i]
+			#	++i
+			Memcpy(0xB8000, 0xB8000+160, 80*24*2)
 		
+		vmem = Pointer of VChar(0xB8000 + Position*160)
 		i = 0
 		while str[i] != char(0):
-			vmem[(Position*80+i)*2] = cast(ushort, 0x0F00 | cast(int, str[i]))
+			vmem.Value.Color = 0x0F
+			vmem.Value.Ch = cast(byte, str[i])
 			i++
+			vmem += 1
 		Position++
 	
 	def Main():

@@ -23,6 +23,21 @@ static class IntrinsicRunner:
 						break
 				if not found:
 					yield inst
+			case 'call':
+				func = inst[1]
+				found = false
+				for ns, cname, targs, name, ifunc as duck in ClassIntrinsic.Calls:
+					if func.DeclaringType.Namespace == ns and func.DeclaringType.Name == cname and func.Name == name:
+						if func.DeclaringType isa GenericInstanceType:
+							for elem in ifunc(ArgsToList(func.DeclaringType.GenericArguments)):
+								yield elem
+						else:
+							for elem in ifunc():
+								yield elem
+						found = true
+						break
+				if not found:
+					yield inst
 			case 'callvirt':
 				func = inst[1]
 				found = false

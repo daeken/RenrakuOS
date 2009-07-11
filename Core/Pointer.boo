@@ -20,3 +20,12 @@ class Pointer [of T]:
 			raise Exception()
 		set:
 			pass
+	
+	Value as T:
+		get:
+			raise Exception()
+		set:
+			pass
+	
+	static def op_Addition(left as Pointer of T, right as int) as Pointer of T:
+		return left

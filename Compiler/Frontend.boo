@@ -26,7 +26,7 @@ static class Frontend:
 		return exp
 	
 	def FromField(field as FieldDefinition):
-		return ['field', field.Name, field.FieldType]
+		return ['field', field.IsStatic, field.Name, field.FieldType]
 	
 	def FromMethod(method as MethodDefinition):
 		body = ['body']
@@ -61,6 +61,8 @@ static class Frontend:
 			case OpCodes.Ldarg_1: yield ['pusharg', 1]
 			case OpCodes.Ldarg_2: yield ['pusharg', 2]
 			
+			case OpCodes.Stfld: yield ['popfield', inst.Operand]
+			
 			case OpCodes.Ldsfld: yield ['pushstaticfield', inst.Operand]
 			case OpCodes.Stsfld: yield ['popstaticfield', inst.Operand]
 			
@@ -75,13 +77,18 @@ static class Frontend:
 			case OpCodes.Stloc_3: yield ['poploc', 3]
 			case OpCodes.Stloc_S: yield ['poploc', (inst.Operand as duck).Index]
 			
+			case OpCodes.Ldloca_S: yield ['pushloc', (inst.Operand as duck).Index]
+			
 			case OpCodes.Ldstr: yield ['pushstr', inst.Operand]
 			
 			case OpCodes.Conv_Ovf_I4: yield ['conv', true, int]
+			case OpCodes.Conv_Ovf_U1: yield ['conv', true, byte]
 			case OpCodes.Conv_Ovf_U2: yield ['conv', true, ushort]
 			
 			case OpCodes.Add: yield ['binary', 'add', false]
+			case OpCodes.Sub: yield ['binary', 'sub', false]
 			case OpCodes.Add_Ovf: yield ['binary', 'add', true]
+			case OpCodes.Sub_Ovf: yield ['binary', 'sub', true]
 			case OpCodes.Mul_Ovf: yield ['binary', 'mul', true]
 			case OpCodes.Or: yield ['binary', 'or', false]
 			case OpCodes.Shl: yield ['binary', 'shl', false]
@@ -92,6 +99,9 @@ static class Frontend:
 			
 			case OpCodes.Ceq: yield ['cmp', '==']
 			case OpCodes.Clt: yield ['cmp', '<']
+			
+			case OpCodes.Dup: yield ['dup']
+			case OpCodes.Pop: yield ['pop']
 			
 			case OpCodes.Br: yield ['branch', null, (inst.Operand as Instruction).Offset, -1]
 			case OpCodes.Brfalse: yield ['branch', 'false', (inst.Operand as Instruction).Offset, NextInst(inst)]

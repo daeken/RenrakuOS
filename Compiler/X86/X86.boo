@@ -10,7 +10,7 @@ static class X86:
 		match inst[0]:
 			case 'binary':
 				match inst[1]:
-					case 'add' | 'or':
+					case 'add' | 'sub' | 'or':
 						yield ['pop', 'ebx']
 						yield ['pop', 'eax']
 						yield [inst[1], 'eax', 'ebx']
@@ -77,36 +77,67 @@ static class X86:
 			case 'conv':
 				pass # Nop for now
 			
+			case 'copy':
+				yield ['pop', 'eax']
+				yield ['pop', 'edi']
+				yield ['push', 'esi']
+				yield ['mov', 'esi', 'eax']
+				yield ['mov', 'ecx', inst[1]]
+				yield ['rep', 'movsb']
+				yield ['pop', 'esi']
+			
+			case 'dup':
+				yield ['pop', 'eax']
+				yield ['push', 'eax']
+				yield ['push', 'eax']
+			
+			case 'nop': pass
+			
 			case 'push': yield ['push', inst[1]]
+			case 'pop': yield ['add', 'esp', 4]
 			
 			case 'pusharg':
 				yield ['mov', 'eax', ['deref', 'esi', -inst[1]*4]]
 				yield ['push', 'eax']
 			
 			case 'popderef':
+				isIndexed = inst[2]
 				yield ['pop', 'ecx']
-				yield ['pop', 'ebx']
+				
+				if isIndexed:
+					yield ['pop', 'ebx']
 				yield ['pop', 'eax']
 				
-				if inst[1] == 'UInt16':
-					reg = 'cx'
-				else:
-					print 'Unknown type for popderef:', inst[1]
+				match inst[1]:
+					case 'Byte': reg = 'cl'
+					case 'UInt16': reg = 'cx'
+					otherwise:
+						print 'Unknown type for popderef:', inst[1]	
 				
 				if reg != null:
-					yield ['mov', ['deref', 'eax', 'ebx'], reg]
+					if isIndexed:
+						yield ['mov', ['deref', 'eax', 'ebx', inst[3]], reg]
+					else:
+						yield ['mov', ['deref', 'eax'], reg]
 			case 'pushderef':
+				isIndexed = inst[2]
 				yield ['xor', 'ecx', 'ecx']
-				yield ['pop', 'ebx']
+				
+				if isIndexed:
+					yield ['pop', 'ebx']
 				yield ['pop', 'eax']
 				
-				if inst[1] == 'UInt16':
-					reg = 'cx'
-				else:
-					print 'Unknown type for popderef:', inst[1]
+				match inst[1]:
+					case 'Byte': reg = 'cl'
+					case 'UInt16': reg = 'cx'
+					otherwise:
+						print 'Unknown type for pushderef:', inst[1]	
 				
 				if reg != null:
-					yield ['mov', reg, ['deref', 'eax', 'ebx']]
+					if isIndexed:
+						yield ['mov', reg, ['deref', 'eax', 'ebx', inst[3]]]
+					else:
+						yield ['mov', reg, ['deref', 'eax']]
 					yield ['push', 'ecx']
 			
 			case 'pushelem':
@@ -122,10 +153,33 @@ static class X86:
 				yield ['mov', reg, ['deref', 'ebx', 'ecx']]
 				yield ['push', 'eax']
 			
+			case 'popfield':
+				off = 0
+				for field as duck in inst[1].DeclaringType.Fields:
+					if field == inst[1]:
+						break
+					else:
+						match field.FieldType.ToString():
+							case 'System.Byte': off += 1
+							case 'System.UInt16': off += 2
+							case 'System.UInt32': off += 4
+							otherwise:
+								print 'Unknown field type in popfield:', field.FieldType
+				
+				match inst[1].FieldType.ToString():
+					case 'System.Byte': reg = 'bl'
+					case 'System.UInt16': reg = 'bx'
+					case 'System.UInt32': reg = 'ebx'
+					otherwise:
+						print 'Unknown field type in popfield:', inst[1].FieldType
+				
+				yield ['pop', 'ebx']
+				yield ['pop', 'eax']
+				yield ['mov', ['deref', 'eax', off], reg]
+			
 			case 'popstaticfield':
 				yield ['pop', 'eax']
 				yield ['mov', ['deref', inst[1].Name], 'eax']
-			
 			case 'pushstaticfield':
 				yield ['mov', 'eax', ['deref', inst[1].Name]]
 				yield ['push', 'eax']
@@ -147,6 +201,12 @@ static class X86:
 				yield ['pop esi']
 				yield ['pop ebp']
 				yield ['ret']
+			
+			case 'swap':
+				yield ['pop', 'eax']
+				yield ['pop', 'ebx']
+				yield ['push', 'eax']
+				yield ['push', 'ebx']
 			
 			otherwise:
 				print 'Unhandled instruction:', inst[0]
@@ -203,19 +263,25 @@ static class X86:
 	
 	def Deref(expr as duck) as string:
 		if expr isa List and expr[0] == 'deref':
-			if len(expr) == 2:
-				return '[' + expr[1].ToString() + ']'
-			else:
-				return '[' + expr[1].ToString() + ' + ' + expr[2].ToString() + ']'
+			match len(expr):
+				case 2:
+					return '[' + expr[1].ToString() + ']'
+				case 3:
+					return '[' + expr[1].ToString() + ' + ' + expr[2].ToString() + ']'
+				case 4:
+					return '[' + expr[1].ToString() + ' + ' + expr[2].ToString() + ' * ' + expr[3].ToString() + ']'
 		elif expr isa List and expr[0] == 'str':
 			return AllocString(expr[1])
 		else:
 			return expr.ToString()
 	
 	def Field(field as duck) as duck:
-		match field[2].ToString():
+		if not field[1]:
+			return
+		
+		match field[3].ToString():
 			case 'System.Int32':
-				print field[1], ': dd 0'
+				print field[2], ': dd 0'
 			otherwise:
 				print 'Unknown field type:', field[2]
 	
