@@ -39,18 +39,28 @@
 		</booc>
 	</target>
 	
-	<target name="TestKernel" description="Build the test kernel" depends="Core">
-		<booc target="library" output="Obj/TestKernel.dll">
+	<target name="Kernel" description="Build the kernel" depends="Core">
+		<booc target="library" output="Obj/Kernel.Macros.dll">
 			<sources>
-				<include name="TestKernel/*.boo" />
+				<include name="Kernel/Macros/*.boo" />
+			</sources>
+			<references>
+			</references>
+		</booc>
+		<booc target="library" output="Obj/Kernel.dll">
+			<sources>
+				<include name="Kernel/*.boo" />
+				<include name="Kernel/MemManager/*.boo" />
+				<include name="Kernel/ObjManager/*.boo" />
 			</sources>
 			<references>
 				<include name="Obj/Core.dll" />
+				<include name="Obj/Kernel.Macros.dll" />
 			</references>
 		</booc>
-		<exec program="Obj/Compiler.exe" commandline="Obj/TestKernel.dll" output="Obj/kernel.asm" />
+		<exec program="Obj/Compiler.exe" commandline="Obj/Kernel.dll" output="Obj/kernel.asm" />
 		<exec program="Compiler/nasm.exe" commandline="-o Obj/kernel.bin Obj/kernel.asm" />
 	</target>
 	
-	<target name="Build" description="Build Renraku" depends="Core, Compiler, TestKernel" />
+	<target name="Build" description="Build Renraku" depends="Core, Compiler, Kernel" />
 </project>

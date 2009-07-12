@@ -179,9 +179,9 @@ static class X86:
 			
 			case 'popstaticfield':
 				yield ['pop', 'eax']
-				yield ['mov', ['deref', inst[1].Name], 'eax']
+				yield ['mov', ['deref', inst[1].DeclaringType.Name + '.' + inst[1].Name], 'eax']
 			case 'pushstaticfield':
-				yield ['mov', 'eax', ['deref', inst[1].Name]]
+				yield ['mov', 'eax', ['deref', inst[1].DeclaringType.Name + '.' + inst[1].Name]]
 				yield ['push', 'eax']
 			
 			case 'poploc':

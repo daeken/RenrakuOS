@@ -26,7 +26,7 @@ static class Frontend:
 		return exp
 	
 	def FromField(field as FieldDefinition):
-		return ['field', field.IsStatic, field.Name, field.FieldType]
+		return ['field', field.IsStatic, field.DeclaringType.Name + '.' + field.Name, field.FieldType]
 	
 	def FromMethod(method as MethodDefinition):
 		body = ['body']
