@@ -186,9 +186,9 @@ static class X86:
 			
 			case 'poploc':
 				yield ['pop', 'eax']
-				yield ['mov', ['deref', 'ebp', -inst[1]*4], 'eax']
+				yield ['mov', ['deref', 'ebp', -inst[1]*4-4], 'eax']
 			case 'pushloc':
-				yield ['mov', 'eax', ['deref', 'ebp', -inst[1]*4]]
+				yield ['mov', 'eax', ['deref', 'ebp', -inst[1]*4-4]]
 				yield ['push', 'eax']
 			
 			case 'pushstr':
@@ -230,7 +230,7 @@ static class X86:
 		print 'org 0x100000'
 		Multiboot()
 		print 'start:'
-		print '\tmov esp, 0x00400000'
+		print '\tmov esp, 0x00800000'
 		print '\tcall Main'
 		print '\t.forever:'
 		print '\t\tjmp .forever'
@@ -298,7 +298,7 @@ static class X86:
 			print '\tadd esi,8+', len(meth.Parameters)*4
 		print '\tmov ebp, esp'
 		if varcount:
-			print '\tsub esp,', varcount*4
+			print '\tsub esp,', varcount*4+4
 		print '\tpush 0'
 		print '\tjmp .block_0'
 		

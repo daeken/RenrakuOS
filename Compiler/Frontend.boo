@@ -46,6 +46,7 @@ static class Frontend:
 	
 	def FromInst(inst as Instruction):
 		match inst.OpCode:
+			case OpCodes.Ldnull: yield ['push', 0]
 			case OpCodes.Ldc_I4: yield ['push', inst.Operand]
 			case OpCodes.Ldc_I4_0: yield ['push', 0]
 			case OpCodes.Ldc_I4_1: yield ['push', 1]

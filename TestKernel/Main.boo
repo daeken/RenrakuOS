@@ -26,12 +26,6 @@ static class TestKernel:
 	def Print(str as string):
 		if Position == 25:
 			Position = 24
-			#dest = Pointer of byte(0xB8000)
-			#src = Pointer of byte(0xB8000+160)
-			#i = 0
-			#while i < 80*24*2:
-			#	dest[i] = src[i]
-			#	++i
 			Memcpy(0xB8000, 0xB8000+160, 80*24*2)
 		
 		vmem = Pointer of VChar(0xB8000 + Position*160)
