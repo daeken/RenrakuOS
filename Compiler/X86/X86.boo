@@ -108,17 +108,11 @@ static class X86:
 					yield ['pop', 'ebx']
 				yield ['pop', 'eax']
 				
-				match inst[1]:
-					case 'Byte': reg = 'cl'
-					case 'UInt16': reg = 'cx'
-					otherwise:
-						print 'Unknown type for popderef:', inst[1]	
-				
-				if reg != null:
-					if isIndexed:
-						yield ['mov', ['deref', 'eax', 'ebx', inst[3]], reg]
-					else:
-						yield ['mov', ['deref', 'eax'], reg]
+				reg = TypeHelper.ToRegister('c', inst[1])
+				if isIndexed:
+					yield ['mov', ['deref', 'eax', 'ebx', inst[3]], reg]
+				else:
+					yield ['mov', ['deref', 'eax'], reg]
 			case 'pushderef':
 				isIndexed = inst[2]
 				yield ['xor', 'ecx', 'ecx']
@@ -127,18 +121,12 @@ static class X86:
 					yield ['pop', 'ebx']
 				yield ['pop', 'eax']
 				
-				match inst[1]:
-					case 'Byte': reg = 'cl'
-					case 'UInt16': reg = 'cx'
-					otherwise:
-						print 'Unknown type for pushderef:', inst[1]	
-				
-				if reg != null:
-					if isIndexed:
-						yield ['mov', reg, ['deref', 'eax', 'ebx', inst[3]]]
-					else:
-						yield ['mov', reg, ['deref', 'eax']]
-					yield ['push', 'ecx']
+				reg = TypeHelper.ToRegister('c', inst[1])
+				if isIndexed:
+					yield ['mov', reg, ['deref', 'eax', 'ebx', inst[3]]]
+				else:
+					yield ['mov', reg, ['deref', 'eax']]
+				yield ['push', 'ecx']
 			
 			case 'pushelem':
 				yield ['pop', 'ecx']
@@ -159,23 +147,11 @@ static class X86:
 					if field == inst[1]:
 						break
 					else:
-						match field.FieldType.ToString():
-							case 'System.Byte': off += 1
-							case 'System.UInt16': off += 2
-							case 'System.UInt32': off += 4
-							otherwise:
-								print 'Unknown field type in popfield:', field.FieldType
-				
-				match inst[1].FieldType.ToString():
-					case 'System.Byte': reg = 'bl'
-					case 'System.UInt16': reg = 'bx'
-					case 'System.UInt32': reg = 'ebx'
-					otherwise:
-						print 'Unknown field type in popfield:', inst[1].FieldType
+						off += TypeHelper.GetSize(field.FieldType)
 				
 				yield ['pop', 'ebx']
 				yield ['pop', 'eax']
-				yield ['mov', ['deref', 'eax', off], reg]
+				yield ['mov', ['deref', 'eax', off], TypeHelper.ToRegister('b', inst[1].FieldType)]
 			
 			case 'popstaticfield':
 				yield ['pop', 'eax']
