@@ -21,7 +21,7 @@ static class Console:
 	def PrintLine(str as string):
 		if Position == 25:
 			Position = 24
-			MemManager.Copy(0xB8000, 0xB8000+160, 80*24*2)
+			MemoryManager.Copy(0xB8000, 0xB8000+160, 80*24*2)
 		
 		vmem = Pointer of VChar(0xB8000 + Position*160)
 		i = 0

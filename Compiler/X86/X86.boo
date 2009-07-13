@@ -96,7 +96,7 @@ static class X86:
 			
 			case 'new':
 				yield ['push', 'TypeDef.' + inst[1].DeclaringType.Name]
-				yield ['call', 'ObjManager.NewObj']
+				yield ['call', 'ObjectManager.NewObj']
 				yield ['add', 'esp', 4]
 				yield ['push', 'eax']
 			

@@ -50,8 +50,8 @@
 		<booc target="library" output="Obj/Kernel.dll">
 			<sources>
 				<include name="Kernel/*.boo" />
-				<include name="Kernel/MemManager/*.boo" />
-				<include name="Kernel/ObjManager/*.boo" />
+				<include name="Kernel/MemoryManager/*.boo" />
+				<include name="Kernel/ObjectManager/*.boo" />
 			</sources>
 			<references>
 				<include name="Obj/Core.dll" />

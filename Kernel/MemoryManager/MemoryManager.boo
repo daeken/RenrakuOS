@@ -2,7 +2,7 @@ namespace Renraku.Kernel
 
 import Renraku.Core.Memory
 
-static class MemManager:
+static class MemoryManager:
 	CurAddr as uint
 	
 	def Init():
