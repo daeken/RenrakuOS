@@ -51,10 +51,13 @@ static class X86:
 						fallthrough = inst[2]
 				yield ['jmp', '.block_' + fallthrough]
 			
-			case 'call':
+			case 'call' | 'callvirt':
 				yield ['call', inst[1].DeclaringType.Name + '.' + inst[1].Name]
-				if len(inst[1].Parameters):
-					yield ['sub', 'esp', len(inst[1].Parameters)*4]
+				paramcount = len(inst[1].Parameters)
+				if inst[0] == 'callvirt':
+					paramcount++
+				if paramcount:
+					yield ['sub', 'esp', paramcount*4]
 				
 				if inst[1].ReturnType.ReturnType.ToString() != 'System.Void':
 					yield ['push', 'eax']
@@ -89,6 +92,12 @@ static class X86:
 			case 'dup':
 				yield ['pop', 'eax']
 				yield ['push', 'eax']
+				yield ['push', 'eax']
+			
+			case 'new':
+				yield ['push', 'TypeDef.' + inst[1].DeclaringType.Name]
+				yield ['call', 'ObjManager.NewObj']
+				yield ['add', 'esp', 4]
 				yield ['push', 'eax']
 			
 			case 'nop': pass
@@ -225,6 +234,7 @@ static class X86:
 		assembly = Transform.BlockInstructions(assembly, EmitInstruction)
 		Transform.Fields(assembly, Field)
 		Transform.Methods(assembly, Method)
+		Transform.Types(assembly, Type)
 		
 		for id, str in Strings:
 			print 'str_' + id + ': db "' + str + '",0'
@@ -296,3 +306,17 @@ static class X86:
 			print '\t.block_' + id + ':'
 			for j in range(len(block)-2):
 				print '\t\t' + block[j+2]
+	
+	def Type(type as duck) as duck:
+		name as string = type[2]
+		if name == '<Module>':
+			return
+		
+		print 'TypeDef.' + name + ':'
+		
+		size = 0
+		for i in range(len(type)-3):
+			member = type[i+3]
+			if member[0] == 'field' and not member[1]:
+				size += TypeHelper.GetSize(member[3])
+		print '\tdd', size
