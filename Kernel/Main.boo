@@ -2,14 +2,11 @@ namespace Renraku.Kernel
 
 class Test:
 	Counter as int
-	
-	def Foo():
+	def constructor():
 		print 'Test works!'
 		Counter = 0
 	
 	def Bar(newval as int):
-		print 'Bar works!'
-		
 		if newval != 0:
 			Counter = newval
 		
@@ -30,7 +27,6 @@ static class Kernel:
 		print 'Renraku initialized.'
 		
 		obj = Test()
-		obj.Foo()
 		obj.Bar(0)
 		obj.Bar(0)
 		obj.Bar(0)

@@ -99,6 +99,7 @@ static class X86:
 				yield ['call', 'ObjectManager.NewObj']
 				yield ['add', 'esp', 4]
 				yield ['push', 'eax']
+				yield ['call', inst[1].DeclaringType.Name + '.' + inst[1].Name]
 			
 			case 'nop': pass
 			

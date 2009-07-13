@@ -20,6 +20,9 @@ static class Frontend:
 		for field as FieldDefinition in type.Fields:
 			exp.Add(FromField(field))
 		
+		for ctor as MethodDefinition in type.Constructors:
+			exp.Add(FromMethod(ctor))
+		
 		for method as MethodDefinition in type.Methods:
 			exp.Add(FromMethod(method))
 		
