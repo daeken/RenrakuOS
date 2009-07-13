@@ -7,8 +7,12 @@ class Test:
 		print 'Test works!'
 		Counter = 0
 	
-	def Bar():
+	def Bar(newval as int):
 		print 'Bar works!'
+		
+		if newval != 0:
+			Counter = newval
+		
 		if Counter == 0:
 			print 'Counter == 0'
 		elif Counter == 1:
@@ -27,7 +31,7 @@ static class Kernel:
 		
 		obj = Test()
 		obj.Foo()
-		obj.Bar()
-		obj.Bar()
-		obj.Bar()
-		obj.Bar()
+		obj.Bar(0)
+		obj.Bar(0)
+		obj.Bar(0)
+		obj.Bar(1)

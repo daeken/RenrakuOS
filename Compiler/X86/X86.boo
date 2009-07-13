@@ -292,8 +292,11 @@ static class X86:
 		print '\tpush ebp'
 		print '\tpush esi'
 		print '\tmov esi, esp'
-		if len(meth.Parameters):
-			print '\tadd esi,8+', len(meth.Parameters)*4
+		paramcount = len(meth.Parameters)
+		if meth.This != null:
+			paramcount++
+		if paramcount > 0:
+			print '\tadd esi,8+', paramcount*4
 		print '\tmov ebp, esp'
 		if varcount:
 			print '\tsub esp,', varcount*4+4
