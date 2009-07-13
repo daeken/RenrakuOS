@@ -48,3 +48,14 @@ class PointerIntrinsics(ClassIntrinsic):
 		yield ['push', TypeHelper.GetSize(types[0])]
 		yield ['binary', 'mul', false]
 		yield ['binary', 'add', false]
+
+class ObjPointerIntrinsics(ClassIntrinsic):
+	def constructor():
+		Register('Renraku.Core.Memory::ObjPointer[]')
+		RegisterCall('get_Obj', GetObj)
+	
+	def CtorTypes(types as duck) as duck:
+		yield ['conv', false, uint]
+	
+	def GetObj(types as duck) as duck:
+		yield ['nop']

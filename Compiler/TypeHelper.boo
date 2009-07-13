@@ -14,7 +14,7 @@ static class TypeHelper:
 			match type.ToString():
 				case 'System.Byte': return 1
 				case 'System.UInt16': return 2
-				case 'System.UInt32': return 4
+				case 'System.Int32' | 'System.UInt32': return 4
 				otherwise:
 					print 'Unknown type in GetTypeSize:', type
 	

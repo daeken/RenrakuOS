@@ -2,6 +2,7 @@ namespace Renraku.Compiler
 
 # Set up intrinsics
 PointerIntrinsics()
+ObjPointerIntrinsics()
 StringIntrinsics()
 
 cilExp = Frontend.FromAssembly(argv[0])

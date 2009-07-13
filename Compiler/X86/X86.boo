@@ -152,6 +152,18 @@ static class X86:
 				yield ['pop', 'ebx']
 				yield ['pop', 'eax']
 				yield ['mov', ['deref', 'eax', off], TypeHelper.ToRegister('b', inst[1].FieldType)]
+			case 'pushfield':
+				off = 0
+				for field as duck in inst[1].DeclaringType.Fields:
+					if field == inst[1]:
+						break
+					else:
+						off += TypeHelper.GetSize(field.FieldType)
+				
+				yield ['pop', 'eax']
+				yield ['xor', 'ebx', 'ebx']
+				yield ['mov', TypeHelper.ToRegister('b', inst[1].FieldType), ['deref', 'eax', off]]
+				yield ['push', 'ebx']
 			
 			case 'popstaticfield':
 				yield ['pop', 'eax']
@@ -255,15 +267,15 @@ static class X86:
 		if not field[1]:
 			return
 		
-		match field[3].ToString():
-			case 'System.Int32':
+		match TypeHelper.GetSize(field[3]):
+			case 4:
 				print field[2], ': dd 0'
 			otherwise:
 				print 'Unknown field type:', field[2]
 	
 	def Method(method as duck) as duck:
 		_, meth as duck, name as string, varcount as int, _, body as duck = method
-		if name == 'Main':
+		if name == 'Main' and meth.DeclaringType.Name == 'Kernel':
 			print 'Main:'
 		else:
 			print meth.DeclaringType.Name + '.' + name + ':'

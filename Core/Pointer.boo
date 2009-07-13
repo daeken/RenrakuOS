@@ -29,3 +29,20 @@ class Pointer [of T]:
 	
 	static def op_Addition(left as Pointer of T, right as int) as Pointer of T:
 		return left
+	
+	static def GetObject [of T](addr as int) as T:
+		pass
+	
+	static def GetObject [of T](addr as uint) as T:
+		pass
+
+class ObjPointer [of T]:
+	def constructor(addr as int):
+		pass
+	
+	def constructor(addr as uint):
+		pass
+	
+	Obj as T:
+		get:
+			pass

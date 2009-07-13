@@ -58,10 +58,12 @@ static class Frontend:
 			case OpCodes.Ldc_I4_7: yield ['push', 7]
 			case OpCodes.Ldc_I4_8: yield ['push', 8]
 			
+			case OpCodes.Ldarga: yield ['pusharg', (inst.Operand as duck).Sequence]
 			case OpCodes.Ldarg_0: yield ['pusharg', 0]
 			case OpCodes.Ldarg_1: yield ['pusharg', 1]
 			case OpCodes.Ldarg_2: yield ['pusharg', 2]
 			
+			case OpCodes.Ldfld: yield ['pushfield', inst.Operand]
 			case OpCodes.Stfld: yield ['popfield', inst.Operand]
 			
 			case OpCodes.Ldsfld: yield ['pushstaticfield', inst.Operand]
@@ -85,6 +87,7 @@ static class Frontend:
 			case OpCodes.Conv_Ovf_I4: yield ['conv', true, int]
 			case OpCodes.Conv_Ovf_U1: yield ['conv', true, byte]
 			case OpCodes.Conv_Ovf_U2: yield ['conv', true, ushort]
+			case OpCodes.Conv_Ovf_U4: yield ['conv', true, uint]
 			
 			case OpCodes.Add: yield ['binary', 'add', false]
 			case OpCodes.Sub: yield ['binary', 'sub', false]
@@ -103,6 +106,8 @@ static class Frontend:
 			
 			case OpCodes.Dup: yield ['dup']
 			case OpCodes.Pop: yield ['pop']
+			case OpCodes.Nop:
+				pass
 			
 			case OpCodes.Br: yield ['branch', null, (inst.Operand as Instruction).Offset, -1]
 			case OpCodes.Brfalse: yield ['branch', 'false', (inst.Operand as Instruction).Offset, NextInst(inst)]
