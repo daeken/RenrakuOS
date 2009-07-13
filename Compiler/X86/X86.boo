@@ -175,6 +175,10 @@ static class X86:
 				yield ['mov', TypeHelper.ToRegister('b', inst[1].FieldType), ['deref', 'eax', off]]
 				yield ['push', 'ebx']
 			
+			case 'popidt':
+				yield ['pop', 'eax']
+				yield ['lidt', ['deref', 'eax']]
+			
 			case 'popstaticfield':
 				yield ['pop', 'eax']
 				yield ['mov', ['deref', inst[1].DeclaringType.Name + '.' + inst[1].Name], 'eax']
@@ -247,7 +251,9 @@ static class X86:
 		return 'str_' + (len(Strings)-1)
 	
 	def EmitInstruction(inst as duck) as duck:
-		if inst[0] == 'mov':
+		if inst[0] == 'lidt':
+			yield 'lidt ' + Deref(inst[1])
+		elif inst[0] == 'mov':
 			_, a, b = inst
 			yield 'mov ' + Deref(a) + ', ' + Deref(b)
 		elif inst[0] == 'push':
@@ -278,11 +284,7 @@ static class X86:
 		if not field[1]:
 			return
 		
-		match TypeHelper.GetSize(field[3]):
-			case 4:
-				print field[2], ': dd 0'
-			otherwise:
-				print 'Unknown field type:', field[2]
+		print field[2], ': dd 0'
 	
 	def Method(method as duck) as duck:
 		_, meth as duck, name as string, varcount as int, _, body as duck = method

@@ -8,14 +8,21 @@ static class TypeHelper:
 		if type isa TypeDefinition:
 			size = 0
 			for field as FieldDefinition in type.Fields:
-				size += GetSize(field.FieldType)
+				subtype = field.FieldType
+				if subtype isa TypeDefinition:
+					size += 4
+				else:
+					size += GetSize(subtype)
 			return size
+		elif type.Name == 'Pointer`1':
+			return 4
 		else:
 			match type.ToString():
 				case 'System.Byte': return 1
 				case 'System.UInt16': return 2
 				case 'System.Int32' | 'System.UInt32': return 4
 				otherwise:
+					print type.Name
 					print 'Unknown type in GetTypeSize:', type
 	
 	def ToRegister(letter as string, type as duck) as string:

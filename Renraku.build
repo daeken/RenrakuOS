@@ -50,6 +50,7 @@
 		<booc target="library" output="Obj/Kernel.dll">
 			<sources>
 				<include name="Kernel/*.boo" />
+				<include name="Kernel/InterruptManager/*.boo" />
 				<include name="Kernel/MemoryManager/*.boo" />
 				<include name="Kernel/ObjectManager/*.boo" />
 			</sources>

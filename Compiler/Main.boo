@@ -1,6 +1,7 @@
 namespace Renraku.Compiler
 
 # Set up intrinsics
+InterruptIntrinsics()
 ObjectIntrinsics()
 PointerIntrinsics()
 ObjPointerIntrinsics()

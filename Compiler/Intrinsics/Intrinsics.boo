@@ -5,6 +5,7 @@ import System
 class ClassIntrinsic:
 	Ns as string = null
 	CName as string = null
+	HasCtor as bool = true
 	TypeArgs = 0
 	public static Ctors = []
 	public static Calls = []
@@ -20,10 +21,11 @@ class ClassIntrinsic:
 			TypeArgs = len(rest.Split((char(','), ), StringSplitOptions.None))
 			CName += '`' + TypeArgs.ToString()
 		
-		if TypeArgs:
-			Ctors.Add((Ns, CName, TypeArgs, CtorTypes))
-		else:
-			Ctors.Add((Ns, CName, TypeArgs, Ctor))
+		if HasCtor:
+			if TypeArgs:
+				Ctors.Add((Ns, CName, TypeArgs, CtorTypes))
+			else:
+				Ctors.Add((Ns, CName, TypeArgs, Ctor))
 	
 	def RegisterCall(name as string, func as duck) as duck:
 		Calls.Add((Ns, CName, TypeArgs, name, func))
