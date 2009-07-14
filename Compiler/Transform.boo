@@ -6,9 +6,28 @@ static class Transform:
 	def Types(assembly as duck, func as duck) as duck:
 		ret = ['top']
 		for i in range(len(assembly) - 1):
-			subret = func(assembly[i+1])
+			type = assembly[i+1]
+			if type[0] != 'type':
+				ret.Add(type)
+				continue
+			subret = func(type)
 			if subret == null:
-				ret.Add(assembly[i+1])
+				ret.Add(type)
+			else:
+				ret.Add(subret)
+		
+		return ret
+	
+	def Interfaces(assembly as duck, func as duck) as duck:
+		ret = ['top']
+		for i in range(len(assembly) - 1):
+			type = assembly[i+1]
+			if type[0] != 'interface':
+				ret.Add(type)
+				continue
+			subret = func(type)
+			if subret == null:
+				ret.Add(type)
 			else:
 				ret.Add(subret)
 		
@@ -49,6 +68,24 @@ static class Transform:
 			return ret
 		
 		return Types(assembly, transformTypes)
+	
+	def InterfaceMethods(assembly as duck, func as duck) as duck:
+		def transformTypes(type as duck) as duck:
+			ret = ['interface', type[1], type[2]]
+			for i in range(len(type) - 3):
+				member = type[i+3]
+				if member[0] == 'method':
+					subret = func(member)
+					if subret == null:
+						ret.Add(member)
+					else:
+						ret.Add(subret)
+				else:
+					ret.Add(member)
+			
+			return ret
+		
+		return Interfaces(assembly, transformTypes)
 	
 	def MethodBodies(assembly as duck, func as duck) as duck:
 		def transformMethods(method as duck) as duck:

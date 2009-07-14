@@ -100,6 +100,11 @@ static class X86:
 				yield ['add', 'esp', 4]
 				yield ['push', 'eax']
 				yield ['call', inst[1].DeclaringType.Name + '.' + inst[1].Name]
+			case 'newarr':
+				yield ['push', 'TypeDef.' + inst[1].Name]
+				yield ['call', 'ObjectManager.NewArr']
+				yield ['add', 'esp', 8]
+				yield ['push', 'eax']
 			
 			case 'nop': pass
 			
@@ -138,15 +143,20 @@ static class X86:
 					yield ['mov', reg, ['deref', 'eax']]
 				yield ['push', 'ecx']
 			
+			case 'popelem':
+				yield ['pop', 'eax']
+				yield ['pop', 'ecx']
+				yield ['pop', 'ebx']
+				
+				reg = TypeHelper.ToRegister('a', inst[1])
+				yield ['mov', reg, ['deref', 'ebx', 'ecx']]
+				yield ['push', 'eax']
 			case 'pushelem':
 				yield ['pop', 'ecx']
 				yield ['pop', 'ebx']
 				yield ['xor', 'eax', 'eax']
 				
-				if inst[1] == 'Char':
-					reg = 'al'
-				else:
-					print 'Unknown type for pushelem:', inst[1]
+				reg = TypeHelper.ToRegister('a', inst[1])
 				
 				yield ['mov', reg, ['deref', 'ebx', 'ecx']]
 				yield ['push', 'eax']
@@ -237,9 +247,10 @@ static class X86:
 		print '\t.forever:'
 		print '\t\tjmp .forever'
 		assembly = Transform.BlockInstructions(assembly, EmitInstruction)
-		Transform.Fields(assembly, Field)
-		Transform.Methods(assembly, Method)
-		Transform.Types(assembly, Type)
+		Transform.Fields(assembly, EmitField)
+		Transform.Methods(assembly, EmitMethod)
+		Transform.Types(assembly, EmitTypeDef)
+		Transform.Interfaces(assembly, EmitTypeDef)
 		
 		for id, str in Strings:
 			print 'str_' + id + ': db "' + str + '",0'
@@ -277,16 +288,18 @@ static class X86:
 					return '[' + expr[1].ToString() + ' + ' + expr[2].ToString() + ' * ' + expr[3].ToString() + ']'
 		elif expr isa List and expr[0] == 'str':
 			return AllocString(expr[1])
+		elif expr == null:
+			return 'null'
 		else:
 			return expr.ToString()
 	
-	def Field(field as duck) as duck:
+	def EmitField(field as duck) as duck:
 		if not field[1]:
 			return
 		
 		print field[2], ': dd 0'
 	
-	def Method(method as duck) as duck:
+	def EmitMethod(method as duck) as duck:
 		_, meth as duck, name as string, varcount as int, _, body as duck = method
 		if name == 'Main' and meth.DeclaringType.Name == 'Kernel':
 			print 'Main:'
@@ -313,7 +326,7 @@ static class X86:
 			for j in range(len(block)-2):
 				print '\t\t' + block[j+2]
 	
-	def Type(type as duck) as duck:
+	def EmitTypeDef(type as duck) as duck:
 		name as string = type[2]
 		if name == '<Module>':
 			return

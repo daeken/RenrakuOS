@@ -10,21 +10,29 @@ static class Frontend:
 		exp = ['top']
 		for module as ModuleDefinition in assembly.Modules:
 			for type as TypeDefinition in module.Types:
-				exp.Add(FromType(type))
+				tyexpr = FromType(type)
+				if tyexpr != null:
+					exp.Add(tyexpr)
 		
 		return exp
 	
 	def FromType(type as TypeDefinition):
-		exp = ['type', type, type.Name]
-		
-		for field as FieldDefinition in type.Fields:
-			exp.Add(FromField(field))
-		
-		for ctor as MethodDefinition in type.Constructors:
-			exp.Add(FromMethod(ctor))
-		
-		for method as MethodDefinition in type.Methods:
-			exp.Add(FromMethod(method))
+		if type.IsClass or type.IsValueType:
+			exp = ['type', type, type.Name]
+			
+			for field as FieldDefinition in type.Fields:
+				exp.Add(FromField(field))
+			
+			for ctor as MethodDefinition in type.Constructors:
+				exp.Add(FromMethod(ctor))
+			
+			for method as MethodDefinition in type.Methods:
+				exp.Add(FromMethod(method))
+		elif type.IsInterface:
+			exp = ['interface', type, type.Name]
+			
+			for method as MethodDefinition in type.Methods:
+				exp.Add(FromInterfaceMethod(method))
 		
 		return exp
 	
@@ -47,6 +55,14 @@ static class Frontend:
 				body
 			]
 	
+	def FromInterfaceMethod(method as MethodDefinition):
+		return ['method', 
+				method, 
+				method.Name, 
+				0, 
+				['type', method.ReturnType.ReturnType], 
+			]
+	
 	def FromInst(inst as Instruction):
 		match inst.OpCode:
 			case OpCodes.Ldnull: yield ['push', 0]
@@ -65,6 +81,8 @@ static class Frontend:
 			case OpCodes.Ldarg_0: yield ['pusharg', 0]
 			case OpCodes.Ldarg_1: yield ['pusharg', 1]
 			case OpCodes.Ldarg_2: yield ['pusharg', 2]
+			
+			case OpCodes.Stelem_Ref: yield ['popelem', 'System.Object']
 			
 			case OpCodes.Ldfld: yield ['pushfield', inst.Operand]
 			case OpCodes.Stfld: yield ['popfield', inst.Operand]
@@ -88,6 +106,7 @@ static class Frontend:
 			case OpCodes.Ldstr: yield ['pushstr', inst.Operand]
 			
 			case OpCodes.Conv_Ovf_I4: yield ['conv', true, int]
+			case OpCodes.Conv_Ovf_I8: yield ['conv', true, long]
 			case OpCodes.Conv_Ovf_U1: yield ['conv', true, byte]
 			case OpCodes.Conv_Ovf_U2: yield ['conv', true, ushort]
 			case OpCodes.Conv_Ovf_U4: yield ['conv', true, uint]
@@ -100,6 +119,7 @@ static class Frontend:
 			case OpCodes.Or: yield ['binary', 'or', false]
 			case OpCodes.Shl: yield ['binary', 'shl', false]
 			
+			case OpCodes.Newarr: yield ['newarr', inst.Operand]
 			case OpCodes.Newobj: yield ['new', inst.Operand]
 			case OpCodes.Call: yield ['call', inst.Operand]
 			case OpCodes.Callvirt: yield ['callvirt', inst.Operand]
