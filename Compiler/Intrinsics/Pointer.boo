@@ -52,3 +52,12 @@ class PointerIntrinsics(ClassIntrinsic):
 	
 	def GetAddr(types as duck) as duck:
 		yield ['nop']
+
+class ObjPointerIntrinsics(ClassIntrinsic):
+	def constructor():
+		HasCtor = false
+		Register('Renraku.Core.Memory::ObjPointer[]')
+		RegisterCall('Get', Get)
+	
+	def Get(types as duck) as duck:
+		yield ['nop']

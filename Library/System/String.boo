@@ -1,5 +1,7 @@
 namespace System
 
+import Renraku.Core.Memory
+
 public class String:
 	_Length as int
 	Val as (char)
@@ -38,4 +40,20 @@ public class String:
 		return String(newarr)
 	
 	static def op_Equality(left as uint, right as uint):
-		return left == right
+		if left == right:
+			return true
+		elif left == 0 or right == 0:
+			return false
+		
+		lstr = ObjPointer [of string].Get(left)
+		rstr = ObjPointer [of string].Get(right)
+		
+		if lstr.Length != rstr.Length:
+			return false
+		
+		i = 0
+		while i < lstr.Length:
+			if lstr[i] != rstr[i]:
+				return false
+			++i
+		return true

@@ -2,21 +2,15 @@ namespace Renraku.Apps
 
 import System
 
-public class Shell(Application):
+class Echo(Application):
 	override Name as string:
 		get:
-			return 'shell'
+			return 'echo'
 	
 	def Run(_ as (string)):
-		Apps = (
-				Shell(), 
-				Echo(), 
-			)
-		
-		print 'Welcome to Renrakushell'
+		print 'Renraku echo terminal'
 		
 		while true:
-			Console.Write('R> ')
 			line as string = null
 			while true:
 				ch = cast(char, Console.Read())
@@ -32,15 +26,4 @@ public class Shell(Application):
 			if line == 'exit':
 				break
 			
-			i = 0
-			app as Application = null
-			while i < Apps.Length:
-				if Apps[i].Name == line:
-					app = Apps[i]
-					break
-				++i
-			
-			if app == null:
-				print 'Unknown command'
-			else:
-				app.Run(null)
+			print line

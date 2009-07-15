@@ -59,6 +59,7 @@
 				
 				<include name="Library/*/*.boo" />
 				
+				<include name="Apps/*.boo" />
 				<include name="Apps/*/*.boo" />
 			</sources>
 			<references>

@@ -14,7 +14,7 @@ static class Kernel:
 		print 'Renraku initialized.'
 		
 		print 'Launching default app...'
-		Shell()
+		Shell().Run(null)
 	
 	def Fault():
 		print 'Fault.'
