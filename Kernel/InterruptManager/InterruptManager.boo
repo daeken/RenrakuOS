@@ -58,17 +58,11 @@ class InterruptManager:
 		print 'Adding ISR number:'
 		printhex handler.Number
 		Isrs[handler.Number] = handler
-		if Isrs[handler.Number] == null:
-			print 'Fail'
-		else:
-			print 'Success'
-			printhex Isrs[handler.Number].Number
 	
 	def Handle(num as int) as int:
 		if Isrs[num] == null:
-			if num != 32:
-				print 'Unhandled interrupt:'
-				printhex num
+			print 'Unhandled interrupt:'
+			printhex num
 		else:
 			Isrs[num].Handle()
 		

@@ -12,3 +12,4 @@ class Keyboard(IInterruptHandler):
 	
 	def Handle():
 		print 'Keyboard interrupt fired.'
+		PortIO.InByte(0x60)

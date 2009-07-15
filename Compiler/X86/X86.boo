@@ -128,7 +128,7 @@ static class X86:
 				yield ['call', inst[1].DeclaringType.Name + '.' + inst[1].Name]
 				paramcount = len(inst[1].Parameters)
 				if paramcount:
-					yield ['sub', 'esp', paramcount*4]
+					yield ['add', 'esp', paramcount*4]
 				
 				if inst[1].ReturnType.ReturnType.ToString() != 'System.Void':
 					yield ['push', 'eax']
@@ -138,21 +138,19 @@ static class X86:
 				yield ['mov', 'eax', ['deref', 'eax']]
 				yield ['call', ['deref', 'eax', cast(int, VTable[inst[1].Name]) * 4]]
 				paramcount = len(inst[1].Parameters) + 1
-				yield ['sub', 'esp', paramcount*4]
+				yield ['add', 'esp', paramcount*4]
 				
 				if inst[1].ReturnType.ReturnType.ToString() != 'System.Void':
 					yield ['push', 'eax']
 			
 			case 'cmp':
-				flip = false
 				match inst[1]:
 					case '==':
-						mnem = 'setz'
+						mnem = 'sete'
 					case '<':
-						mnem = 'setc'
+						mnem = 'setl'
 					case '>':
-						mnem = 'setc'
-						flip = true
+						mnem = 'setg'
 					otherwise:
 						print 'Unknown cmp type:', inst[1]
 				yield ['pop', 'ecx']
@@ -160,8 +158,6 @@ static class X86:
 				yield ['xor', 'eax', 'eax']
 				yield ['cmp', 'ebx', 'ecx']
 				yield [mnem, 'al']
-				if flip:
-					yield ['xor', 'al', 1]
 				yield ['push eax']
 			
 			case 'conv':
@@ -181,6 +177,14 @@ static class X86:
 				yield ['push', 'eax']
 				yield ['push', 'eax']
 			
+			case 'in':
+				yield ['pop', 'edx']
+				yield ['xor', 'eax', 'eax']
+				match TypeHelper.GetSize(inst[1]):
+					case 1: yield ['in', 'al', 'dx']
+					case 2: yield ['in', 'ax', 'dx']
+					case 4: yield ['in', 'eax', 'dx']
+			
 			case 'new':
 				yield ['push', 'TypeDef.' + inst[1].DeclaringType.Name]
 				yield ['call', 'ObjectManager.NewObj']
@@ -188,7 +192,7 @@ static class X86:
 				yield ['push', 'eax']
 				yield ['call', inst[1].DeclaringType.Name + '.' + inst[1].Name]
 			case 'newarr':
-				yield ['push', 'TypeDef.' + inst[1].Name]
+				yield ['push', TypeHelper.GetSize(inst[1])]
 				yield ['call', 'ObjectManager.NewArr']
 				yield ['add', 'esp', 8]
 				yield ['push', 'eax']
@@ -346,7 +350,7 @@ static class X86:
 	Strings as List = []
 	def Emit(assembly as duck) as duck:
 		print 'bits 32'
-		print 'org 0x100000'
+		print 'org 0x00100000'
 		Multiboot()
 		print 'start:'
 		print '\tmov esp, 0x00800000'

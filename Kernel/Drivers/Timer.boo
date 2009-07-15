@@ -11,4 +11,4 @@ class Timer(IInterruptHandler):
 		print 'Timer initialized.'
 	
 	def Handle():
-		print 'Timer interrupt fired.'
+		pass

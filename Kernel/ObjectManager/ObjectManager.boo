@@ -10,8 +10,8 @@ static class ObjectManager:
 	def Init():
 		print 'Object manager initialized.'
 	
-	def NewArr(size as int, type as TypeDef) as uint:
-		return MemoryManager.Allocate(type.Size * size)
+	def NewArr(size as int, elemsize as int) as uint:
+		return MemoryManager.Allocate(size * elemsize)
 	
 	def NewObj(type as TypeDef) as uint:
 		addr = MemoryManager.Allocate(4+type.Size)

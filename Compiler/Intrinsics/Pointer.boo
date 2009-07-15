@@ -10,6 +10,7 @@ class PointerIntrinsics(ClassIntrinsic):
 		RegisterCall('get_Value', GetValue)
 		RegisterCall('set_Value', SetValue)
 		RegisterCall('op_Addition', Addition)
+		RegisterCall('GetAddr', GetAddr)
 	
 	def CtorTypes(types as duck) as duck:
 		yield ['conv', false, uint]
@@ -48,3 +49,6 @@ class PointerIntrinsics(ClassIntrinsic):
 		yield ['push', TypeHelper.GetSize(types[0])]
 		yield ['binary', 'mul', false]
 		yield ['binary', 'add', false]
+	
+	def GetAddr(types as duck) as duck:
+		yield ['nop']

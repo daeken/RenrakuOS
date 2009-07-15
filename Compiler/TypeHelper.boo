@@ -6,6 +6,9 @@ import Mono.Cecil
 static class TypeHelper:
 	def GetSize(type as duck) as int:
 		if type isa TypeDefinition:
+			if not type.IsValueType:
+				return 4
+			
 			size = 0
 			for field as FieldDefinition in type.Fields:
 				subtype = field.FieldType

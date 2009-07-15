@@ -9,3 +9,6 @@ macro print(str as string):
 
 macro printhex(num as Expression):
 	yield [| Console.PrintHex($num) |]
+
+macro printaddr(obj as Expression):
+	yield [| Console.PrintHex(Pointer [of uint].GetAddr($obj)) |]
