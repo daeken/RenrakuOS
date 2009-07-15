@@ -64,7 +64,7 @@
 				<include name="Obj/Kernel.Macros.dll" />
 			</references>
 		</booc>
-		<exec program="Obj/Compiler.exe" commandline="Obj/Kernel.dll" output="Obj/kernel.asm" />
+		<exec program="Obj/Compiler.exe" commandline="Obj/Kernel.dll" />
 		<exec program="Compiler/nasm.exe" commandline="-o Obj/kernel.bin Obj/kernel.asm" />
 	</target>
 	
