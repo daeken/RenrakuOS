@@ -2,7 +2,7 @@ import Boo.Lang.Compiler
 import Boo.Lang.Compiler.Ast
 import Boo.Lang.PatternMatching
 
-macro print(str as string):
+macro print(str as Expression):
 	yield [| System.Console.WriteLine($str) |]
 
 macro printhex(num as Expression):

@@ -32,3 +32,7 @@ class Pointer [of T]:
 	
 	static def GetAddr(obj as object) as uint:
 		return 0
+
+static class ObjPointer [of T]:
+	def Get(addr as uint) as T:
+		raise Exception()

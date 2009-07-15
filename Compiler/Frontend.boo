@@ -83,6 +83,10 @@ static class Frontend:
 			case OpCodes.Ldarg_1: yield ['pusharg', 1]
 			case OpCodes.Ldarg_2: yield ['pusharg', 2]
 			
+			case OpCodes.Ldelem_I1: yield ['pushelem', 'System.SByte']
+			case OpCodes.Stelem_I1: yield ['popelem', 'System.SByte']
+			case OpCodes.Ldelem_I2: yield ['pushelem', 'System.Int16']
+			case OpCodes.Stelem_I2: yield ['popelem', 'System.Int16']
 			case OpCodes.Ldelem_I4: yield ['pushelem', 'System.Int32']
 			case OpCodes.Stelem_I4: yield ['popelem', 'System.Int32']
 			case OpCodes.Ldelem_U1: yield ['pushelem', 'System.Byte']
