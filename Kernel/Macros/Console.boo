@@ -1,14 +1,12 @@
-namespace Renraku.Kernel
-
 import Boo.Lang.Compiler
 import Boo.Lang.Compiler.Ast
 import Boo.Lang.PatternMatching
 
 macro print(str as string):
-	yield [| Console.PrintLine($str) |]
+	yield [| System.Console.WriteLine($str) |]
 
 macro printhex(num as Expression):
-	yield [| Console.PrintHex($num) |]
+	yield [| System.Console.WriteHex($num) |]
 
 macro printaddr(obj as Expression):
-	yield [| Console.PrintHex(Pointer [of uint].GetAddr($obj)) |]
+	yield [| System.Console.WriteHex(Pointer [of uint].GetAddr($obj)) |]

@@ -5,7 +5,10 @@ class Keyboard(IInterruptHandler):
 		get:
 			return 33
 	
+	public static Instance as Keyboard
+	
 	def constructor():
+		Instance = self
 		InterruptManager.Instance.AddHandler(self)
 		
 		print 'Keyboard initialized.'

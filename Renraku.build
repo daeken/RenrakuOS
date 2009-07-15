@@ -47,13 +47,17 @@
 			<references>
 			</references>
 		</booc>
-		<booc target="library" output="Obj/Kernel.dll">
+		<booc target="library" output="Obj/Kernel.dll" nostdlib="true">
 			<sources>
 				<include name="Kernel/*.boo" />
 				<include name="Kernel/InterruptManager/*.boo" />
 				<include name="Kernel/MemoryManager/*.boo" />
 				<include name="Kernel/ObjectManager/*.boo" />
 				<include name="Kernel/Drivers/*.boo" />
+				
+				<include name="Library/*/*.boo" />
+				
+				<include name="Apps/*/*.boo" />
 			</sources>
 			<references>
 				<include name="Obj/Core.dll" />

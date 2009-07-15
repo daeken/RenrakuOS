@@ -55,8 +55,6 @@ class InterruptManager:
 		PortIO.OutByte(0xA1, 0x0)
 	
 	def AddHandler(handler as IInterruptHandler):
-		print 'Adding ISR number:'
-		printhex handler.Number
 		Isrs[handler.Number] = handler
 	
 	def Handle(num as int) as int:
