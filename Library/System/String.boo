@@ -39,6 +39,48 @@ public class String:
 		
 		return String(newarr)
 	
+	def Split(glue as (char), opt as StringSplitOptions) as (String):
+		if glue.Length != 1 or opt != StringSplitOptions.RemoveEmptyEntries:
+			return null
+		gluechar = glue[0]
+		
+		count = 1
+		i = 0
+		while i < Length:
+			if i != 0 and Val[i] == gluechar:
+				while Val[i++] == gluechar:
+					pass
+				--i
+				count++
+			++i
+		
+		ret = array(String, count)
+		
+		i = 0
+		idx = 0
+		while idx < count:
+			size = 0
+			while i < Length and Val[i] != gluechar:
+				++size
+				++i
+			i -= size
+			
+			arr = array(char, size)
+			j = 0
+			while size > 0:
+				arr[j++] = Val[i]
+				--size
+				++i
+			ret[idx] = String(arr)
+			
+			while Val[i++] == gluechar:
+				pass
+			--i
+			
+			++idx
+		
+		return ret
+	
 	static def op_Equality(left as uint, right as uint):
 		if left == right:
 			return true

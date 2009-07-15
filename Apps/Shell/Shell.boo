@@ -9,8 +9,9 @@ public class Shell(Application):
 	
 	def Run(_ as (string)):
 		Apps = (
-				Shell(), 
 				Echo(), 
+				Reverse(), 
+				Shell(), 
 			)
 		
 		print 'Welcome to Renrakushell'
@@ -32,10 +33,12 @@ public class Shell(Application):
 			if line == 'exit':
 				break
 			
+			args = line.Split((char(' '), ), StringSplitOptions.RemoveEmptyEntries)
+			
 			i = 0
 			app as Application = null
 			while i < Apps.Length:
-				if Apps[i].Name == line:
+				if Apps[i].Name == args[0]:
 					app = Apps[i]
 					break
 				++i
@@ -43,4 +46,4 @@ public class Shell(Application):
 			if app == null:
 				print 'Unknown command'
 			else:
-				app.Run(null)
+				app.Run(args)
