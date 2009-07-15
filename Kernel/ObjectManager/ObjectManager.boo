@@ -10,11 +10,17 @@ static class ObjectManager:
 	def Init():
 		print 'Object manager initialized.'
 	
-	def NewArr(size as int, elemsize as int) as uint:
-		return MemoryManager.Allocate(size * elemsize)
+	def NewArr(size as int, elemsize as int, vtable as int) as uint:
+		addr = MemoryManager.Allocate(8 + size * elemsize)
+		
+		arr = Pointer of int(addr)
+		arr[0] = vtable
+		arr[1] = size
+		
+		return addr
 	
 	def NewObj(type as TypeDef) as uint:
-		addr = MemoryManager.Allocate(4+type.Size)
+		addr = MemoryManager.Allocate(4 + type.Size)
 		
 		obj = Pointer of uint(addr)
 		obj.Value = type.VTable

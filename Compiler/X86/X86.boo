@@ -190,12 +190,22 @@ static class X86:
 				yield ['push', 'TypeDef.' + inst[1].DeclaringType.Name]
 				yield ['call', 'ObjectManager.NewObj']
 				yield ['add', 'esp', 4]
-				yield ['push', 'eax']
+				if len(inst[1].Parameters):
+					yield ['sub', 'esp', 4]
+					for i in range(len(inst[1].Parameters)):
+						yield ['mov', 'ebx', ['deref', 'esp', 4 + i*4]]
+						yield ['mov', ['deref', 'esp', i*4], 'ebx']
+					yield ['mov', ['deref', 'esp', len(inst[1].Parameters) * 4], 'eax']
+				else:
+					yield ['push', 'eax']
 				yield ['call', inst[1].DeclaringType.Name + '.' + inst[1].Name]
+				if len(inst[1].Parameters):
+					yield ['add', 'esp', len(inst[1].Parameters)*4]
 			case 'newarr':
 				yield ['push', TypeHelper.GetSize(inst[1])]
+				yield ['push', 'VTable.Array']
 				yield ['call', 'ObjectManager.NewArr']
-				yield ['add', 'esp', 8]
+				yield ['add', 'esp', 12]
 				yield ['push', 'eax']
 			
 			case 'nop': pass
@@ -249,15 +259,14 @@ static class X86:
 				yield ['pop', 'ebx']
 				
 				reg = TypeHelper.ToRegister('a', inst[1])
-				yield ['mov', ['deref', 'ebx', 'ecx', TypeHelper.GetSize(inst[1])], reg]
+				yield ['mov', ['deref', 'ebx', 'ecx', TypeHelper.GetSize(inst[1]), 8], reg]
 			case 'pushelem':
 				yield ['pop', 'ecx']
 				yield ['pop', 'ebx']
 				yield ['xor', 'eax', 'eax']
 				
 				reg = TypeHelper.ToRegister('a', inst[1])
-				
-				yield ['mov', reg, ['deref', 'ebx', 'ecx', TypeHelper.GetSize(inst[1])]]
+				yield ['mov', reg, ['deref', 'ebx', 'ecx', TypeHelper.GetSize(inst[1]), 8]]
 				yield ['push', 'eax']
 			
 			case 'popfield':
@@ -368,9 +377,15 @@ static class X86:
 		for id, str in Strings:
 			print 'str_' + id + ':'
 			print '\tdd VTable.String'
-			print '\tdd ' + len(str)
+			print '\tdd', len(str)
 			print '\tdd .val'
-			print '\t.val: db "' + str + '"'
+			print '\t.val:'
+			print '\t\tdd VTable.Array'
+			print '\t\tdd', len(str)
+			dstr = '\t\tdb '
+			for ch in str:
+				dstr += cast(int, ch) + ', 0,'
+			print dstr, '0'
 		
 		print 'end: dd 0'
 	
@@ -398,13 +413,14 @@ static class X86:
 	
 	def Deref(expr as duck) as string:
 		if expr isa List and expr[0] == 'deref':
-			match len(expr):
-				case 2:
-					return '[' + expr[1].ToString() + ']'
-				case 3:
-					return '[' + expr[1].ToString() + ' + ' + expr[2].ToString() + ']'
-				case 4:
-					return '[' + expr[1].ToString() + ' + ' + expr[2].ToString() + ' * ' + expr[3].ToString() + ']'
+			ret = '[' + expr[1].ToString()
+			if len(expr) >= 3:
+				ret += ' + ' + expr[2].ToString()
+				if len(expr) >= 4:
+					ret += ' * ' + expr[3].ToString()
+					if len(expr) >= 5:
+						ret += ' + ' + expr[4].ToString()
+			return ret + ']'
 		elif expr isa List and expr[0] == 'str':
 			return AllocString(expr[1])
 		elif expr == null:

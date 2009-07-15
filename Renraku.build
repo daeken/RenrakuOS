@@ -47,7 +47,7 @@
 			<references>
 			</references>
 		</booc>
-		<booc target="library" output="Obj/Kernel.dll" nostdlib="true">
+		<booc target="library" output="Obj/Kernel.dll">
 			<sources>
 				<include name="Kernel/*.boo" />
 				<include name="Kernel/InterruptManager/*.boo" />
