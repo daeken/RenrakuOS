@@ -36,13 +36,13 @@ class PointerIntrinsics(ClassIntrinsic):
 		if types[0] isa TypeDefinition:
 			yield ['nop']
 		else:
-			yield ['popderef', types[0], false]
+			yield ['pushderef', types[0], false]
 	
 	def SetValue(types as duck) as duck:
 		if types[0] isa TypeDefinition:
 			yield ['copy', TypeHelper.GetSize(types[0])]
 		else:
-			yield ['pushderef', types[0], false]
+			yield ['popderef', types[0], false]
 	
 	def Addition(types as duck) as duck:
 		yield ['push', TypeHelper.GetSize(types[0])]

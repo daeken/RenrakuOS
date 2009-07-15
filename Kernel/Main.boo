@@ -6,5 +6,6 @@ static class Kernel:
 		MemoryManager.Init()
 		ObjectManager.Init()
 		InterruptManager()
+		Drivers.Load()
 		
 		print 'Renraku initialized.'

@@ -18,11 +18,11 @@ interface IInterruptHandler:
 		get:
 			pass
 	
-	def Handle():
+	def Handle() as void:
 		pass
 
 class InterruptManager:
-	static Instance as InterruptManager = null
+	public static Instance as InterruptManager = null
 	Idt as Pointer of IdtEntry
 	
 	Isrs as (IInterruptHandler)
@@ -42,7 +42,8 @@ class InterruptManager:
 		print 'Interrupt manager initialized.'
 	
 	def AddHandler(handler as IInterruptHandler):
-		Isrs[0] = handler
+		print 'zomg?!'
+		#Isrs[0] = handler
 	
 	static def Load(idt as Pointer [of IdtPointer]):
 		pass # Intrinsic away!

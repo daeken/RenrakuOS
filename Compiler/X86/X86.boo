@@ -4,7 +4,17 @@ import Boo.Lang.PatternMatching
 
 static class X86:
 	def Compile(assembly as duck) as duck:
+		Transform.Types(assembly, BuildVTable)
+		Transform.Interfaces(assembly, BuildVTable)
 		return Transform.BlockInstructions(assembly, Instruction)
+	
+	VTable = {}
+	def BuildVTable(type as duck) as duck:
+		for i in range(len(type)-3):
+			member = type[i+3]
+			if member[0] == 'method':
+				if member[1].Name not in VTable:
+					VTable[member[1].Name] = len(VTable)
 	
 	def Instruction(inst as duck) as duck:
 		match inst[0]:
@@ -51,13 +61,22 @@ static class X86:
 						fallthrough = inst[2]
 				yield ['jmp', '.block_' + fallthrough]
 			
-			case 'call' | 'callvirt':
+			case 'call':
 				yield ['call', inst[1].DeclaringType.Name + '.' + inst[1].Name]
 				paramcount = len(inst[1].Parameters)
-				if inst[0] == 'callvirt':
-					paramcount++
 				if paramcount:
 					yield ['sub', 'esp', paramcount*4]
+				
+				if inst[1].ReturnType.ReturnType.ToString() != 'System.Void':
+					yield ['push', 'eax']
+			
+			case 'callvirt':
+				yield ['mov', 'eax', ['deref', 'esp', len(inst[1].Parameters)*4]]
+				yield ['mov', 'eax', ['deref', 'eax']]
+				yield ['mov', 'eax', ['deref', 'eax', cast(int, VTable[inst[1].Name]) * 4]]
+				yield ['call', 'eax']
+				paramcount = len(inst[1].Parameters) + 1
+				yield ['sub', 'esp', paramcount*4]
 				
 				if inst[1].ReturnType.ReturnType.ToString() != 'System.Void':
 					yield ['push', 'eax']
@@ -162,8 +181,13 @@ static class X86:
 				yield ['push', 'eax']
 			
 			case 'popfield':
-				off = 0
+				if inst[1].DeclaringType.IsValueType:
+					off = 0
+				else:
+					off = 4
 				for field as duck in inst[1].DeclaringType.Fields:
+					if field.IsStatic:
+						continue
 					if field == inst[1]:
 						break
 					else:
@@ -173,8 +197,13 @@ static class X86:
 				yield ['pop', 'eax']
 				yield ['mov', ['deref', 'eax', off], TypeHelper.ToRegister('b', inst[1].FieldType)]
 			case 'pushfield':
-				off = 0
+				if inst[1].DeclaringType.IsValueType:
+					off = 0
+				else:
+					off = 4
 				for field as duck in inst[1].DeclaringType.Fields:
+					if field.IsStatic:
+						continue
 					if field == inst[1]:
 						break
 					else:
@@ -243,7 +272,7 @@ static class X86:
 		Multiboot()
 		print 'start:'
 		print '\tmov esp, 0x00800000'
-		print '\tcall Main'
+		print '\tcall Kernel.Main'
 		print '\t.forever:'
 		print '\t\tjmp .forever'
 		assembly = Transform.BlockInstructions(assembly, EmitInstruction)
@@ -301,10 +330,7 @@ static class X86:
 	
 	def EmitMethod(method as duck) as duck:
 		_, meth as duck, name as string, varcount as int, _, body as duck = method
-		if name == 'Main' and meth.DeclaringType.Name == 'Kernel':
-			print 'Main:'
-		else:
-			print meth.DeclaringType.Name + '.' + name + ':'
+		print meth.DeclaringType.Name + '.' + name + ':'
 		print '\tpush ebp'
 		print '\tpush esi'
 		print '\tmov esi, esp'
@@ -327,6 +353,8 @@ static class X86:
 				print '\t\t' + block[j+2]
 	
 	def EmitTypeDef(type as duck) as duck:
+		isInterface = type[0] == 'interface'
+		
 		name as string = type[2]
 		if name == '<Module>':
 			return
@@ -339,3 +367,25 @@ static class X86:
 			if member[0] == 'field' and not member[1]:
 				size += TypeHelper.GetSize(member[3])
 		print '\tdd', size
+		
+		if isInterface:
+			print '\tdd', 0
+		else:
+			print '\tdd .vtable'
+			print '\t.vtable:'
+			
+			names = []
+			for i in range(len(type)-3):
+				member = type[i+3]
+				if member[0] == 'method':
+					names.Add(member[2])
+			
+			vtable = array(string, len(VTable))
+			for ent in VTable:
+				vtable[ent.Value] = ent.Key
+			
+			for vname in vtable:
+				if vname in names:
+					print '\t\tdd', name + '.' + vname
+				else:
+					print '\t\tdd 0'

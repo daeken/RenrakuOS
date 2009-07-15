@@ -4,6 +4,7 @@ import Renraku.Core.Memory
 
 struct TypeDef:
 	Size as uint
+	VTable as uint
 
 static class ObjectManager:
 	def Init():
@@ -12,5 +13,10 @@ static class ObjectManager:
 	def NewArr(size as int, type as TypeDef) as uint:
 		return MemoryManager.Allocate(type.Size * size)
 	
-	def NewObj [of T](type as TypeDef) as T:
-		return ObjPointer of T(MemoryManager.Allocate(type.Size)).Obj
+	def NewObj(type as TypeDef) as uint:
+		addr = MemoryManager.Allocate(4+type.Size)
+		
+		obj = Pointer of uint(addr)
+		obj.Value = type.VTable
+		
+		return addr
