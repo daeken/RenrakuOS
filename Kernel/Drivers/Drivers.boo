@@ -3,6 +3,6 @@ namespace Renraku.Kernel
 static class Drivers:
 	def Load():
 		Timer()
-		Keyboard()
+		Keyboard().Keymap = USEnglish()
 		
 		print 'Drivers loaded.'

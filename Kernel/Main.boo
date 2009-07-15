@@ -14,7 +14,6 @@ static class Kernel:
 		print 'Renraku initialized.'
 		
 		print 'Launching default app...'
-		
 		Shell()
 	
 	def Fault():

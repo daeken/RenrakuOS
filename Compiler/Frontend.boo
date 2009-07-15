@@ -83,6 +83,8 @@ static class Frontend:
 			case OpCodes.Ldarg_1: yield ['pusharg', 1]
 			case OpCodes.Ldarg_2: yield ['pusharg', 2]
 			
+			case OpCodes.Ldelem_I4: yield ['pushelem', 'System.Int32']
+			case OpCodes.Stelem_I4: yield ['popelem', 'System.Int32']
 			case OpCodes.Ldelem_Ref: yield ['pushelem', 'System.Object']
 			case OpCodes.Stelem_Ref: yield ['popelem', 'System.Object']
 			

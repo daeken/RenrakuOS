@@ -36,7 +36,7 @@ static class Console:
 		Position = 0
 	
 	def Read() as int:
-		return 0 # Keyboard.Instance.Read()
+		return Keyboard.Instance.Read()
 	
 	def WriteChar(ch as char):
 		CheckBounds()
