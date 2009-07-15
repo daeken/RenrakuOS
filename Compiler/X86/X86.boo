@@ -184,6 +184,7 @@ static class X86:
 					case 1: yield ['in', 'al', 'dx']
 					case 2: yield ['in', 'ax', 'dx']
 					case 4: yield ['in', 'eax', 'dx']
+				yield ['push', 'eax']
 			
 			case 'new':
 				yield ['push', 'TypeDef.' + inst[1].DeclaringType.Name]

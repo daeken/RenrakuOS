@@ -11,5 +11,10 @@ class Keyboard(IInterruptHandler):
 		print 'Keyboard initialized.'
 	
 	def Handle():
-		print 'Keyboard interrupt fired.'
-		PortIO.InByte(0x60)
+		scancode = PortIO.InByte(0x60)
+		if scancode & 0x80 == 0:
+			print 'Key down:'
+		else:
+			print 'Key up:'
+			scancode &= 0x7F
+		printhex scancode
