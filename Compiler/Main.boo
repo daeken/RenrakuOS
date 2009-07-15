@@ -13,7 +13,6 @@ InterruptIntrinsics()
 ObjectIntrinsics()
 PointerIntrinsics()
 PortIntrinsics()
-StringIntrinsics()
 
 cilExp = Frontend.FromAssembly(argv[0])
 cilExp = Blockifier.Blockify(cilExp)

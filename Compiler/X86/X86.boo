@@ -366,7 +366,11 @@ static class X86:
 		Transform.Interfaces(assembly, EmitTypeDef)
 		
 		for id, str in Strings:
-			print 'str_' + id + ': db "' + str + '",0'
+			print 'str_' + id + ':'
+			print '\tdd VTable.String'
+			print '\tdd ' + len(str)
+			print '\tdd .val'
+			print '\t.val: db "' + str + '"'
 		
 		print 'end: dd 0'
 	
@@ -457,8 +461,8 @@ static class X86:
 		if isInterface:
 			print '\tdd', 0
 		else:
-			print '\tdd .vtable.' + name
-			print '\t.vtable.' + name + ':'
+			print '\tdd VTable.' + name
+			print '\tVTable.' + name + ':'
 			
 			names = []
 			for i in range(len(type)-3):

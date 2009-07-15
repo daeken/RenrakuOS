@@ -38,6 +38,11 @@ static class Console:
 	def Read() as int:
 		return Keyboard.Instance.Read()
 	
+	def Write(str as string):
+		i = 0
+		while i < str.Length:
+			WriteChar(str[i++])
+	
 	def WriteChar(ch as char):
 		CheckBounds()
 		
@@ -68,7 +73,7 @@ static class Console:
 	
 	def WriteLine(str as string):
 		i = 0
-		while str[i] != char(0):
+		while i < str.Length:
 			WriteChar(str[i++])
 		WriteChar(char('\n'))
 	

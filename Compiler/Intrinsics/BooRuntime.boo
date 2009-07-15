@@ -7,4 +7,5 @@ class BooRuntimeIntrinsics(ClassIntrinsic):
 		RegisterCall('NormalizeArrayIndex', NormalizeArrayIndex)
 	
 	def NormalizeArrayIndex():
-		yield ['nop']
+		yield ['swap']
+		yield ['pop']
