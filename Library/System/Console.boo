@@ -46,6 +46,18 @@ static class Console:
 			Line++
 		elif ch == char('\t'):
 			Position += 8
+		elif ch == char('\b'):
+			if Position == 0:
+				if Line > 0:
+					Position = 79
+					Line--
+					WriteChar(char(' '))
+					Position = 79
+					Line--
+			else:
+				Position--
+				WriteChar(char(' '))
+				Position--
 		else:
 			vmem = Pointer of VChar(0xB8000 + Line*160 + Position*2)
 			vmem.Value.Color = 7
