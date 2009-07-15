@@ -67,7 +67,13 @@
 			</references>
 		</booc>
 		<exec program="Obj/Compiler.exe" commandline="Obj/Kernel.dll" />
-		<exec program="Compiler/nasm.exe" commandline="-o Obj/kernel.bin Obj/kernel.asm" />
+		<if test="${platform::is-win32()}">
+			<exec program="Compiler/nasm.exe" commandline="-o Obj/kernel.bin Obj/kernel.asm" />
+		</if>
+		<if test="${not platform::is-win32()}">
+			<exec program="nasm" commandline="-o Obj/kernel.bin Obj/kernel.asm" />
+		</if>
+
 	</target>
 	
 	<target name="Build" description="Build Renraku" depends="Core, Compiler, Kernel" />
