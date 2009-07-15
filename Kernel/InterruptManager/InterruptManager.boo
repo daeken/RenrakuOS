@@ -42,8 +42,9 @@ class InterruptManager:
 		print 'Interrupt manager initialized.'
 	
 	def AddHandler(handler as IInterruptHandler):
-		print 'zomg?!'
-		#Isrs[0] = handler
+		print 'Adding ISR number:'
+		printhex handler.Number
+		Isrs[handler.Number] = handler
 	
 	static def Load(idt as Pointer [of IdtPointer]):
 		pass # Intrinsic away!

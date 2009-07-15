@@ -31,3 +31,17 @@ static class Console:
 			i++
 			vmem += 1
 		Position++
+	
+	def PrintHex(num as uint):
+		if Position == 25:
+			Position = 24
+			MemoryManager.Copy(0xB8000, 0xB8000+160, 80*24*2)
+		
+		hexchars = '0123456789ABCDEF'
+		vmem = Pointer of VChar(0xB8000 + Position*160)
+		for i in range(8):
+			val = (num >> (28 - i*4)) & 0xF
+			vmem.Value.Color = 0x0F
+			vmem.Value.Ch = cast(byte, hexchars[val])
+			vmem += 1
+		Position++

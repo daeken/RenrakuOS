@@ -9,3 +9,9 @@ static class Kernel:
 		Drivers.Load()
 		
 		print 'Renraku initialized.'
+	
+	def Fault():
+		print 'Fault.'
+		
+		while true:
+			pass

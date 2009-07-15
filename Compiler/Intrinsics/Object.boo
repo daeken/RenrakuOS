@@ -6,4 +6,4 @@ class ObjectIntrinsics(ClassIntrinsic):
 		RegisterCall('.ctor', Ctor)
 	
 	def Ctor() as duck:
-		yield ['nop']
+		yield ['pop']

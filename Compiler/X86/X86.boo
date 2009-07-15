@@ -20,7 +20,7 @@ static class X86:
 		match inst[0]:
 			case 'binary':
 				match inst[1]:
-					case 'add' | 'sub' | 'or':
+					case 'add' | 'sub' | 'and' | 'or':
 						yield ['pop', 'ebx']
 						yield ['pop', 'eax']
 						yield [inst[1], 'eax', 'ebx']
@@ -29,6 +29,11 @@ static class X86:
 						yield ['pop', 'ebx']
 						yield ['pop', 'eax']
 						yield ['mul', 'ebx']
+						yield ['push', 'eax']
+					case 'shr':
+						yield ['pop', 'ecx']
+						yield ['pop', 'eax']
+						yield ['shr', 'eax', 'cl']
 						yield ['push', 'eax']
 					otherwise:
 						print 'Unhandled binary operator:', inst[1]
@@ -73,8 +78,7 @@ static class X86:
 			case 'callvirt':
 				yield ['mov', 'eax', ['deref', 'esp', len(inst[1].Parameters)*4]]
 				yield ['mov', 'eax', ['deref', 'eax']]
-				yield ['mov', 'eax', ['deref', 'eax', cast(int, VTable[inst[1].Name]) * 4]]
-				yield ['call', 'eax']
+				yield ['call', ['deref', 'eax', cast(int, VTable[inst[1].Name]) * 4]]
 				paramcount = len(inst[1].Parameters) + 1
 				yield ['sub', 'esp', paramcount*4]
 				
@@ -291,7 +295,9 @@ static class X86:
 		return 'str_' + (len(Strings)-1)
 	
 	def EmitInstruction(inst as duck) as duck:
-		if inst[0] == 'lidt':
+		if inst[0] == 'call':
+			yield 'call ' + Deref(inst[1])
+		elif inst[0] == 'lidt':
 			yield 'lidt ' + Deref(inst[1])
 		elif inst[0] == 'mov':
 			_, a, b = inst
@@ -371,8 +377,8 @@ static class X86:
 		if isInterface:
 			print '\tdd', 0
 		else:
-			print '\tdd .vtable'
-			print '\t.vtable:'
+			print '\tdd .vtable.' + name
+			print '\t.vtable.' + name + ':'
 			
 			names = []
 			for i in range(len(type)-3):
@@ -388,4 +394,4 @@ static class X86:
 				if vname in names:
 					print '\t\tdd', name + '.' + vname
 				else:
-					print '\t\tdd 0'
+					print '\t\tdd Kernel.Fault'

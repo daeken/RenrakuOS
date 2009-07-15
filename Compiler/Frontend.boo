@@ -76,8 +76,9 @@ static class Frontend:
 			case OpCodes.Ldc_I4_6: yield ['push', 6]
 			case OpCodes.Ldc_I4_7: yield ['push', 7]
 			case OpCodes.Ldc_I4_8: yield ['push', 8]
+			case OpCodes.Ldc_I8: yield ['push', cast(uint, cast(long, inst.Operand))]
 			
-			case OpCodes.Ldarga: yield ['pusharg', (inst.Operand as duck).Sequence]
+			case OpCodes.Ldarga: yield ['pusharg', (inst.Operand as duck).Sequence-1]
 			case OpCodes.Ldarg_0: yield ['pusharg', 0]
 			case OpCodes.Ldarg_1: yield ['pusharg', 1]
 			case OpCodes.Ldarg_2: yield ['pusharg', 2]
@@ -116,8 +117,10 @@ static class Frontend:
 			case OpCodes.Add_Ovf: yield ['binary', 'add', true]
 			case OpCodes.Sub_Ovf: yield ['binary', 'sub', true]
 			case OpCodes.Mul_Ovf: yield ['binary', 'mul', true]
+			case OpCodes.And: yield ['binary', 'and', false]
 			case OpCodes.Or: yield ['binary', 'or', false]
 			case OpCodes.Shl: yield ['binary', 'shl', false]
+			case OpCodes.Shr_Un: yield ['binary', 'shr', false]
 			
 			case OpCodes.Newarr: yield ['newarr', inst.Operand]
 			case OpCodes.Newobj: yield ['new', inst.Operand]
