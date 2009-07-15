@@ -5,7 +5,7 @@ BooRuntimeIntrinsics()
 InterruptIntrinsics()
 ObjectIntrinsics()
 PointerIntrinsics()
-ObjPointerIntrinsics()
+PortIntrinsics()
 StringIntrinsics()
 
 cilExp = Frontend.FromAssembly(argv[0])

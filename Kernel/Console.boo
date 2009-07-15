@@ -17,11 +17,18 @@ static class Console:
 			vmem.Value.Color = 0
 			vmem += 1
 	
+	def ClearLine(num as int):
+		vmem = Pointer of VChar(0xB8000 + num*160)
+		for i in range(160):
+			vmem.Value.Color = 0
+			vmem += 1
+	
 	Position = 0
 	def PrintLine(str as string):
 		if Position == 25:
 			Position = 24
 			MemoryManager.Copy(0xB8000, 0xB8000+160, 80*24*2)
+			ClearLine(24)
 		
 		vmem = Pointer of VChar(0xB8000 + Position*160)
 		i = 0
@@ -36,6 +43,7 @@ static class Console:
 		if Position == 25:
 			Position = 24
 			MemoryManager.Copy(0xB8000, 0xB8000+160, 80*24*2)
+			ClearLine(24)
 		
 		hexchars = '0123456789ABCDEF'
 		vmem = Pointer of VChar(0xB8000 + Position*160)

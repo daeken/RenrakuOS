@@ -83,6 +83,7 @@ static class Frontend:
 			case OpCodes.Ldarg_1: yield ['pusharg', 1]
 			case OpCodes.Ldarg_2: yield ['pusharg', 2]
 			
+			case OpCodes.Ldelem_Ref: yield ['pushelem', 'System.Object']
 			case OpCodes.Stelem_Ref: yield ['popelem', 'System.Object']
 			
 			case OpCodes.Ldfld: yield ['pushfield', inst.Operand]
@@ -129,6 +130,7 @@ static class Frontend:
 			
 			case OpCodes.Ceq: yield ['cmp', '==']
 			case OpCodes.Clt: yield ['cmp', '<']
+			case OpCodes.Cgt: yield ['cmp', '>']
 			
 			case OpCodes.Dup: yield ['dup']
 			case OpCodes.Pop: yield ['pop']
@@ -138,6 +140,8 @@ static class Frontend:
 			case OpCodes.Br: yield ['branch', null, (inst.Operand as Instruction).Offset, -1]
 			case OpCodes.Brfalse: yield ['branch', 'false', (inst.Operand as Instruction).Offset, NextInst(inst)]
 			case OpCodes.Brtrue: yield ['branch', 'true', (inst.Operand as Instruction).Offset, NextInst(inst)]
+			case OpCodes.Beq: yield ['branch', '==', (inst.Operand as Instruction).Offset, NextInst(inst)]
+			case OpCodes.Bgt: yield ['branch', '>', (inst.Operand as Instruction).Offset, NextInst(inst)]
 			case OpCodes.Blt: yield ['branch', '<', (inst.Operand as Instruction).Offset, NextInst(inst)]
 			case OpCodes.Ret: yield ['return']
 			

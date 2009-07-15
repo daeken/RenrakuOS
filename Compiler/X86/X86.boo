@@ -16,6 +16,11 @@ static class X86:
 				if member[1].Name not in VTable:
 					VTable[member[1].Name] = len(VTable)
 	
+	Label = 0
+	def MakeLabel():
+		++Label
+		return '.temp_' + Label
+	
 	def Instruction(inst as duck) as duck:
 		match inst[0]:
 			case 'binary':
@@ -46,14 +51,18 @@ static class X86:
 						mnem = 'jz'
 					case 'true':
 						mnem = 'jnz'
+					case '==':
+						mnem = 'je'
 					case '<':
 						mnem = 'jl'
+					case '>':
+						mnem = 'jg'
 					otherwise:
 						print 'Unhandled branch type:', inst[1]
 				
 				fallthrough = inst[3]
 				match mnem:
-					case 'jl':
+					case 'je' | 'jg' | 'jl':
 						yield ['pop', 'ebx']
 						yield ['pop', 'eax']
 						yield ['cmp', 'eax', 'ebx']
@@ -65,6 +74,55 @@ static class X86:
 					otherwise:
 						fallthrough = inst[2]
 				yield ['jmp', '.block_' + fallthrough]
+			
+			case 'buildisr':
+				yield ['pop', 'ecx'] # Isr num
+				yield ['pop', 'ebx'] # Idt
+				
+				yield ['mov', 'eax', 8]
+				yield ['mul', 'ecx']
+				yield ['add', 'ebx', 'eax']
+				
+				isrLabel = MakeLabel()
+				numLabel = MakeLabel()
+				noerrLabel = MakeLabel()
+				retLabel = MakeLabel()
+				endLabel = MakeLabel()
+				yield ['mov', 'eax', isrLabel]
+				yield ['mov', ['deref', 'ebx'], 'ax'] # BaseLow
+				yield ['shr', 'eax', 16]
+				yield ['mov', ['deref', 'ebx', 6], 'ax'] # BaseHigh
+				yield ['xor', 'eax', 'eax']
+				yield ['mov', ['deref', 'ebx', 4], 'al'] # Empty
+				yield ['mov', 'ax', 'cs']
+				yield ['mov', ['deref', 'ebx', 2], 'ax'] # Segment
+				yield ['mov', 'al', 0x8E]
+				yield ['mov', ['deref', 'ebx', 5], 'al'] # Flags
+				
+				yield ['mov', ['deref', numLabel, -4], 'ecx']
+				yield ['jmp', endLabel]
+				
+				yield [isrLabel + ':']
+				yield ['cli']
+				yield ['pusha']
+				yield ['mov', 'eax', ['deref', 'InterruptManager.Instance']]
+				yield ['push', 'eax']
+				yield ['push', 0xDEADBEEF]
+				yield [numLabel + ':']
+				yield ['call', 'InterruptManager.Handle']
+				yield ['add', 'esp', 8]
+				yield ['test', 'eax', 'eax']
+				yield ['jz', noerrLabel]
+				yield ['popa']
+				yield ['add', 'esp', 4]
+				yield ['jmp', retLabel]
+				yield [noerrLabel + ':']
+				yield ['popa']
+				yield [retLabel + ':']
+				yield ['sti']
+				yield ['iret']
+				
+				yield [endLabel + ':']
 			
 			case 'call':
 				yield ['call', inst[1].DeclaringType.Name + '.' + inst[1].Name]
@@ -86,11 +144,15 @@ static class X86:
 					yield ['push', 'eax']
 			
 			case 'cmp':
+				flip = false
 				match inst[1]:
 					case '==':
 						mnem = 'setz'
 					case '<':
 						mnem = 'setc'
+					case '>':
+						mnem = 'setc'
+						flip = true
 					otherwise:
 						print 'Unknown cmp type:', inst[1]
 				yield ['pop', 'ecx']
@@ -98,6 +160,8 @@ static class X86:
 				yield ['xor', 'eax', 'eax']
 				yield ['cmp', 'ebx', 'ecx']
 				yield [mnem, 'al']
+				if flip:
+					yield ['xor', 'al', 1]
 				yield ['push eax']
 			
 			case 'conv':
@@ -130,6 +194,14 @@ static class X86:
 				yield ['push', 'eax']
 			
 			case 'nop': pass
+			
+			case 'out':
+				yield ['pop', 'eax']
+				yield ['pop', 'edx']
+				match TypeHelper.GetSize(inst[1]):
+					case 1: yield ['out', 'dx', 'al']
+					case 2: yield ['out', 'dx', 'ax']
+					case 4: yield ['out', 'dx', 'eax']
 			
 			case 'push': yield ['push', inst[1]]
 			case 'pop': yield ['add', 'esp', 4]
@@ -172,8 +244,7 @@ static class X86:
 				yield ['pop', 'ebx']
 				
 				reg = TypeHelper.ToRegister('a', inst[1])
-				yield ['mov', reg, ['deref', 'ebx', 'ecx']]
-				yield ['push', 'eax']
+				yield ['mov', ['deref', 'ebx', 'ecx', TypeHelper.GetSize(inst[1])], reg]
 			case 'pushelem':
 				yield ['pop', 'ecx']
 				yield ['pop', 'ebx']
@@ -181,7 +252,7 @@ static class X86:
 				
 				reg = TypeHelper.ToRegister('a', inst[1])
 				
-				yield ['mov', reg, ['deref', 'ebx', 'ecx']]
+				yield ['mov', reg, ['deref', 'ebx', 'ecx', TypeHelper.GetSize(inst[1])]]
 				yield ['push', 'eax']
 			
 			case 'popfield':
@@ -247,6 +318,9 @@ static class X86:
 				yield ['pop ebp']
 				yield ['ret']
 			
+			case 'sti':
+				yield ['sti']
+			
 			case 'swap':
 				yield ['pop', 'eax']
 				yield ['pop', 'ebx']
@@ -278,6 +352,7 @@ static class X86:
 		print '\tmov esp, 0x00800000'
 		print '\tcall Kernel.Main'
 		print '\t.forever:'
+		print '\t\thlt'
 		print '\t\tjmp .forever'
 		assembly = Transform.BlockInstructions(assembly, EmitInstruction)
 		Transform.Fields(assembly, EmitField)

@@ -19,7 +19,18 @@ static class MemoryManager:
 			dest[i] = src[i]
 			++i
 	
+	def Zero(addr as uint, size as uint):
+		ptr = Pointer of byte(addr)
+		
+		i = size
+		while i-- > 0:
+			ptr.Value = 0
+			ptr += 1
+	
 	def Allocate(size as uint) as uint:
 		addr = CurAddr
 		CurAddr += size
+		
+		Zero(addr, size)
+		
 		return addr

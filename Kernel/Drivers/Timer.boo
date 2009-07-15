@@ -1,14 +1,14 @@
 namespace Renraku.Kernel
 
-class Keyboard(IInterruptHandler):
+class Timer(IInterruptHandler):
 	override Number:
 		get:
-			return 33
+			return 32
 	
 	def constructor():
 		InterruptManager.Instance.AddHandler(self)
 		
-		print 'Keyboard initialized.'
+		print 'Timer initialized.'
 	
 	def Handle():
-		print 'Keyboard interrupt fired.'
+		print 'Timer interrupt fired.'
