@@ -7,12 +7,16 @@ class InterruptIntrinsics(ClassIntrinsic):
 		RegisterCall('Load', Load)
 		RegisterCall('BuildIsrStub', BuildIsrStub)
 		RegisterCall('Enable', Enable)
+		RegisterCall('Disable', Disable)
 	
 	def Load():
 		yield ['popidt']
 	
 	def BuildIsrStub():
 		yield ['buildisr']
-	
+
+	def Disable():
+		yield ['cli']
+
 	def Enable():
 		yield ['sti']

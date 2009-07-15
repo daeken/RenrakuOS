@@ -325,6 +325,9 @@ static class X86:
 			
 			case 'sti':
 				yield ['sti']
+
+			case 'cli':
+				yield ['cli']
 			
 			case 'swap':
 				yield ['pop', 'eax']

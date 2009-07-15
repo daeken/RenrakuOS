@@ -14,6 +14,9 @@ class Keyboard(IInterruptHandler):
 	Waiting as bool
 	Ready as bool
 	Ch as int
+
+	DATA_PORT = 0x60
+	COMMAND_PORT = 0x64
 	
 	public Keymap as IKeymap
 	
@@ -22,15 +25,40 @@ class Keyboard(IInterruptHandler):
 		Waiting = false
 		Ready = false
 		Keymap = null
+
+		cmd_byte = ReadCmdByte()
 		InterruptManager.Instance.AddHandler(self)
-		
 		print 'Keyboard initialized.'
+		if cmd_byte & 0x40:
+			print "Running in translate mode."
+		else:
+			print "No translate mode."
 	
+	def ReadStatus() as byte:
+		return PortIO.InByte(COMMAND_PORT)
+
+	def WriteCmdByte(cmd as byte):
+		PortIO.OutByte(COMMAND_PORT, cmd)
+
+	def ReadData() as byte:
+		return PortIO.InByte(DATA_PORT)
+
+	def ReadCmdByte() as byte:
+		while (ReadStatus() & 0x2) == 1:
+			pass
+		WriteCmdByte(0x20)
+
+		# Wait until data is ready
+		while (ReadStatus() & 0x1) == 0:
+			pass
+
+		return ReadData()
+
 	def Handle():
 		if not Waiting or Ready:
-			PortIO.InByte(0x60) # Drop key
+			ReadData() # Drop key
 		
-		scancode = PortIO.InByte(0x60)
+		scancode = ReadData()
 		if scancode & 0x80 == 0: # Key down
 			pass
 		else:
