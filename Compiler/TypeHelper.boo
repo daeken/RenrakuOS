@@ -27,7 +27,7 @@ static class TypeHelper:
 			case 'System.Boolean' | 'System.Byte' | 'System.SByte': return 1
 			case 'System.Char' | 'System.Int16' | 'System.UInt16': return 2
 			case 'System.Int32' | 'System.UInt32': return 4
-			case 'System.Object': return 4
+			case 'System.String' | 'System.Object': return 4
 			otherwise:
 				print type.Name
 				print 'Unknown type in GetTypeSize:', type

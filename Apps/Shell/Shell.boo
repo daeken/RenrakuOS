@@ -8,9 +8,16 @@ public class Shell:
 		
 		while true:
 			Console.Write('R> ')
+			line as string = null
 			while true:
-				ch = Console.Read()
+				ch = cast(char, Console.Read())
 				if ch != 0:
-					Console.WriteChar(cast(char, ch))
+					Console.WriteChar(ch)
 					if ch == char('\n'):
 						break
+					if line == null:
+						line = string((ch, ))
+					else:
+						line = string.Concat((line, string((ch, ))))
+			print 'You typed:'
+			print line
