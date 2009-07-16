@@ -30,7 +30,8 @@ class Pci:
 			PortIO.OutShort(0xCFA, 0)
 			for i in range(16):
 				tmp = PortIO.InLong(i*256 + 0xC000)
-				PrintDevice(tmp)
+				if (tmp & 0xFFFF) != 0xFFFF and (tmp >> 16) != 0xFFFF:
+					PrintDevice(tmp)
 		else:
 			print 'No PCI?'
 	
