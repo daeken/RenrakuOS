@@ -35,6 +35,11 @@ static class X86:
 						yield ['pop', 'eax']
 						yield ['mul', 'ebx']
 						yield ['push', 'eax']
+					case 'shl':
+						yield ['pop', 'ecx']
+						yield ['pop', 'eax']
+						yield ['shl', 'eax', 'cl']
+						yield ['push', 'eax']
 					case 'shr':
 						yield ['pop', 'ecx']
 						yield ['pop', 'eax']

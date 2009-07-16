@@ -82,6 +82,7 @@ static class Frontend:
 			case OpCodes.Ldarg_0: yield ['pusharg', 0]
 			case OpCodes.Ldarg_1: yield ['pusharg', 1]
 			case OpCodes.Ldarg_2: yield ['pusharg', 2]
+			case OpCodes.Ldarg_3: yield ['pusharg', 3]
 			
 			case OpCodes.Ldelem_I1: yield ['pushelem', 'System.SByte']
 			case OpCodes.Stelem_I1: yield ['popelem', 'System.SByte']
@@ -129,6 +130,7 @@ static class Frontend:
 			case OpCodes.And: yield ['binary', 'and', false]
 			case OpCodes.Or: yield ['binary', 'or', false]
 			case OpCodes.Shl: yield ['binary', 'shl', false]
+			case OpCodes.Shr: yield ['binary', 'shr', true]
 			case OpCodes.Shr_Un: yield ['binary', 'shr', false]
 			
 			case OpCodes.Newarr: yield ['newarr', inst.Operand]
