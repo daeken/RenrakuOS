@@ -55,8 +55,8 @@
 				<include name="Kernel/ObjectManager/*.boo" />
 				<include name="Kernel/Hal/*.boo" />
 				<include name="Kernel/Drivers/*.boo" />
-				<include name="Kernel/Drivers/Input/*.boo" />
-				<include name="Kernel/Drivers/Input/Keymaps/*.boo" />
+				<include name="Kernel/Drivers/*/*.boo" />
+				<include name="Kernel/Drivers/*/*/*.boo" />
 				
 				<include name="Library/*/*.boo" />
 				

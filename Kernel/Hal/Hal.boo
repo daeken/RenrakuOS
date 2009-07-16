@@ -5,6 +5,7 @@ namespace Renraku.Kernel
 enum DriverClass:
 	Timer
 	Keyboard
+	Network
 
 interface IDriver:
 	Class as DriverClass:
@@ -22,7 +23,7 @@ class Hal:
 	def constructor():
 		Instance = self
 		
-		Drivers = array(IDriver, 4) # XXX: Use Enum.GetValues(DriverClass).Length
+		Drivers = array(IDriver, 3) # XXX: Use Enum.GetValues(DriverClass).Length
 		
 		print 'HAL initialized.'
 	
@@ -34,7 +35,7 @@ class Hal:
 	
 	static def PrintStatus():
 		print 'Printing HAL status.'
-		for i in range(4):
+		for i in range(3):
 			driver = Instance.Drivers[i]
 			if driver != null:
 				driver.PrintStatus()

@@ -485,11 +485,13 @@ static class X86:
 			print '\tdd VTable.' + name
 			print '\tVTable.' + name + ':'
 			
-			names = []
+			names = {}
 			for i in range(len(type)-3):
 				member = type[i+3]
 				if member[0] == 'method':
-					names.Add(member[2])
+					names[member[2]] = name + '.' + member[2]
+				elif member[0] == 'inherits':
+					names[member[2].Name] = member[1].Name + '.' + member[2].Name
 			
 			vtable = array(string, len(VTable))
 			for ent in VTable:
@@ -497,6 +499,6 @@ static class X86:
 			
 			for vname in vtable:
 				if vname in names:
-					print '\t\tdd', name + '.' + vname
+					print '\t\tdd', names[vname]
 				else:
 					print '\t\tdd Kernel.Fault'

@@ -26,8 +26,21 @@ static class Frontend:
 			for ctor as MethodDefinition in type.Constructors:
 				exp.Add(FromMethod(ctor))
 			
+			methodNames = []
 			for method as MethodDefinition in type.Methods:
+				methodNames.Add(method.Name)
 				exp.Add(FromMethod(method))
+			
+			if type.BaseType != null:
+				basetype as TypeDefinition = null
+				for subtype as TypeDefinition in type.BaseType.Module.Types:
+					if subtype.FullName == type.BaseType.FullName:
+						basetype = subtype
+						break
+				if basetype != null:
+					for method as MethodDefinition in basetype.Methods:
+						if method.Name not in methodNames:
+							exp.Add(['inherits', basetype, method])
 		elif type.IsInterface:
 			exp = ['interface', type, type.Name]
 			
