@@ -24,7 +24,7 @@ class Pci:
 				tmp = PortIO.InLong(0xCFC)
 				if (tmp & 0xFFFF) != 0xFFFF and (tmp >> 16) != 0xFFFF:
 					PrintDevice(tmp)
-		elif type == 1:
+		elif type == 2:
 			print 'PCI type 2'
 			PortIO.OutShort(0xCF8, 0x80)
 			PortIO.OutShort(0xCFA, 0)
