@@ -114,6 +114,7 @@ static class Frontend:
 			
 			case OpCodes.Ldstr: yield ['pushstr', inst.Operand]
 			
+			case OpCodes.Castclass: yield ['conv', false, inst.Operand]
 			case OpCodes.Conv_Ovf_I4: yield ['conv', true, int]
 			case OpCodes.Conv_Ovf_I8: yield ['conv', true, long]
 			case OpCodes.Conv_Ovf_U1: yield ['conv', true, byte]

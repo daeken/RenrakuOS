@@ -10,6 +10,7 @@ static class Kernel:
 		ObjectManager.Init()
 		InterruptManager.Disable()
 		InterruptManager()
+		Hal()
 		Drivers.Load()
 		InterruptManager.Enable()
 		

@@ -22,7 +22,7 @@ interface IInterruptHandler:
 		pass
 
 class InterruptManager:
-	public static Instance as InterruptManager = null
+	static Instance as InterruptManager = null
 	Isrs as (IInterruptHandler)
 	
 	def constructor():
@@ -53,8 +53,8 @@ class InterruptManager:
 		PortIO.OutByte(0x21, 0x0)
 		PortIO.OutByte(0xA1, 0x0)
 	
-	def AddHandler(handler as IInterruptHandler):
-		Isrs[handler.Number] = handler
+	static def AddHandler(handler as IInterruptHandler):
+		Instance.Isrs[handler.Number] = handler
 	
 	def Handle(num as int) as int:
 		if Isrs[num] == null:

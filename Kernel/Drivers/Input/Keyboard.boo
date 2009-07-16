@@ -4,7 +4,11 @@ interface IKeymap:
 	def Map(scancode as int) as int:
 		pass
 
-class Keyboard(IInterruptHandler):
+class Keyboard(IKeyboard, IInterruptHandler):
+	override Class:
+		get:
+			return DriverClass.Keyboard
+	
 	override Number:
 		get:
 			return 33
@@ -25,9 +29,9 @@ class Keyboard(IInterruptHandler):
 		Waiting = false
 		Ready = false
 		Keymap = null
-
 		cmd_byte = ReadCmdByte()
-		InterruptManager.Instance.AddHandler(self)
+		InterruptManager.AddHandler(self)
+		Hal.Register(self)
 		print 'Keyboard initialized.'
 		if cmd_byte & 0x40:
 			print "Running in translate mode."
@@ -66,7 +70,10 @@ class Keyboard(IInterruptHandler):
 			Ch = scancode
 			Ready = true
 	
-	def Read() as int:
+	def PrintStatus():
+		print 'Keyboard: OK'
+	
+	def Read() as char:
 		Ready = false
 		Waiting = true
 		
@@ -75,6 +82,6 @@ class Keyboard(IInterruptHandler):
 		Waiting = false
 		
 		if Keymap == null:
-			return Ch
+			return cast(char, Ch)
 		else:
-			return Keymap.Map(Ch)
+			return cast(char, Keymap.Map(Ch))
