@@ -36,7 +36,7 @@ static class Console:
 		Position = 0
 	
 	def Read() as int:
-		return Keyboard.Instance.Read()
+		return cast(int, cast(IKeyboard, Hal.GetDriver(DriverClass.Keyboard)).Read())
 	
 	def Write(str as string):
 		i = 0
