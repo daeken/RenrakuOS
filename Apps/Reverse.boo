@@ -18,9 +18,7 @@ class Reverse(Application):
 				chars[i] = args[off][args[off].Length - i - 1]
 				++i
 			
-			Console.Write(string(chars))
-			Console.WriteChar(char(' '))
-			
+			prints string(chars)
 			--off
 		
 		print ' '

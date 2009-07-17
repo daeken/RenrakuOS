@@ -58,7 +58,7 @@ class InterruptManager:
 	
 	def Handle(num as int) as int:
 		if Isrs[num] == null:
-			print 'Unhandled interrupt:'
+			prints 'Unhandled interrupt:'
 			printhex num
 		else:
 			Isrs[num].Handle()

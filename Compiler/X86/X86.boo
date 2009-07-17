@@ -35,6 +35,11 @@ static class X86:
 						yield ['pop', 'eax']
 						yield ['mul', 'ebx']
 						yield ['push', 'eax']
+					case 'shl':
+						yield ['pop', 'ecx']
+						yield ['pop', 'eax']
+						yield ['shl', 'eax', 'cl']
+						yield ['push', 'eax']
 					case 'shr':
 						yield ['pop', 'ecx']
 						yield ['pop', 'eax']
@@ -344,6 +349,17 @@ static class X86:
 				yield ['push', 'eax']
 				yield ['push', 'ebx']
 			
+			case 'unary':
+				match inst[1]:
+					case 'not':
+						mnem = 'not'
+					otherwise:
+						print 'Unknown unary op:', inst[1]
+				
+				yield ['pop', 'eax']
+				yield [mnem, 'eax']
+				yield ['push', 'eax']
+			
 			otherwise:
 				print 'Unhandled instruction:', inst[0]
 	
@@ -483,11 +499,13 @@ static class X86:
 			print '\tdd VTable.' + name
 			print '\tVTable.' + name + ':'
 			
-			names = []
+			names = {}
 			for i in range(len(type)-3):
 				member = type[i+3]
 				if member[0] == 'method':
-					names.Add(member[2])
+					names[member[2]] = name + '.' + member[2]
+				elif member[0] == 'inherits':
+					names[member[2].Name] = member[1].Name + '.' + member[2].Name
 			
 			vtable = array(string, len(VTable))
 			for ent in VTable:
@@ -495,6 +513,6 @@ static class X86:
 			
 			for vname in vtable:
 				if vname in names:
-					print '\t\tdd', name + '.' + vname
+					print '\t\tdd', names[vname]
 				else:
 					print '\t\tdd Kernel.Fault'

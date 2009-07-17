@@ -26,8 +26,21 @@ static class Frontend:
 			for ctor as MethodDefinition in type.Constructors:
 				exp.Add(FromMethod(ctor))
 			
+			methodNames = []
 			for method as MethodDefinition in type.Methods:
+				methodNames.Add(method.Name)
 				exp.Add(FromMethod(method))
+			
+			if type.BaseType != null:
+				basetype as TypeDefinition = null
+				for subtype as TypeDefinition in type.BaseType.Module.Types:
+					if subtype.FullName == type.BaseType.FullName:
+						basetype = subtype
+						break
+				if basetype != null:
+					for method as MethodDefinition in basetype.Methods:
+						if method.Name not in methodNames:
+							exp.Add(['inherits', basetype, method])
 		elif type.IsInterface:
 			exp = ['interface', type, type.Name]
 			
@@ -131,7 +144,10 @@ static class Frontend:
 			case OpCodes.And: yield ['binary', 'and', false]
 			case OpCodes.Or: yield ['binary', 'or', false]
 			case OpCodes.Shl: yield ['binary', 'shl', false]
+			case OpCodes.Shr: yield ['binary', 'shr', true]
 			case OpCodes.Shr_Un: yield ['binary', 'shr', false]
+			
+			case OpCodes.Not: yield ['unary', 'not']
 			
 			case OpCodes.Newarr: yield ['newarr', inst.Operand]
 			case OpCodes.Newobj: yield ['new', inst.Operand]
