@@ -346,6 +346,17 @@ static class X86:
 				yield ['push', 'eax']
 				yield ['push', 'ebx']
 			
+			case 'unary':
+				match inst[1]:
+					case 'not':
+						mnem = 'not'
+					otherwise:
+						print 'Unknown unary op:', inst[1]
+				
+				yield ['pop', 'eax']
+				yield [mnem, 'eax']
+				yield ['push', 'eax']
+			
 			otherwise:
 				print 'Unhandled instruction:', inst[0]
 	

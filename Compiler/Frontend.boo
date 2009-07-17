@@ -146,6 +146,8 @@ static class Frontend:
 			case OpCodes.Shr: yield ['binary', 'shr', true]
 			case OpCodes.Shr_Un: yield ['binary', 'shr', false]
 			
+			case OpCodes.Not: yield ['unary', 'not']
+			
 			case OpCodes.Newarr: yield ['newarr', inst.Operand]
 			case OpCodes.Newobj: yield ['new', inst.Operand]
 			case OpCodes.Call: yield ['call', inst.Operand]

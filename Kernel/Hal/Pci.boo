@@ -41,6 +41,33 @@ class PciDevice:
 					return true
 		
 		return false
+	
+	def Configure():
+		type = Pci.ReadLong(Card, Bus, 0x0C)
+		type = (type >> 16) & 0xF
+		if type == 0x00: # Standard header
+			InitBar(0x10)
+			InitBar(0x14)
+			InitBar(0x18)
+			InitBar(0x1C)
+			InitBar(0x20)
+			InitBar(0x24)
+		elif type == 0x01: # PCI-PCI Bridge header
+			pass
+	
+	def InitBar(index as int):
+		val = Pci.ReadLong(Card, Bus, index)
+		
+		if val & 1 == 0: # Memory space
+			mask = val & 0xFFFFFFF0
+			if mask == 0:
+				return
+			
+			addr = AllocAligned((~mask) + 1)
+			Pci.WriteLong(Card, Bus, index, addr | (val & 0xF))
+	
+	def AllocAligned(size as uint) as uint:
+		return MemoryManager.Allocate(size*2) & ~(size-1)
 
 class Pci:
 	public static Type as int
@@ -103,6 +130,13 @@ class Pci:
 			return PortIO.InLong(0xC000 | (card << 8) | index)
 		else:
 			return 0
+	
+	static def WriteLong(card as int, bus as int, index as int, value as int):
+		if Type == 1:
+			PortIO.OutLong(0xCF8, 0x80000000 | (card << 11) | (bus << 16) | index)
+			PortIO.OutLong(0xCFC, value)
+		elif Type == 2:
+			PortIO.OutLong(0xC000 | (card << 8) | index, value)
 	
 	def PrintDevice(num as uint):
 		prints 'Vendor:'

@@ -13,23 +13,17 @@ class PcNet(PciDevice, INetwork):
 		get:
 			return 0x2000 # PCNet
 	
+	[Property(Bus)]
 	_Bus as int
-	Bus as int:
-		get:
-			return _Bus
-		set:
-			_Bus = value
 	
+	[Property(Card)]
 	_Card as int
-	Card as int:
-		get:
-			return _Card
-		set:
-			_Card = value
 	
 	def constructor():
 		if not Find():
 			return
+		
+		Configure()
 		
 		Hal.Register(self)
 		print 'PCNet initialized.'
