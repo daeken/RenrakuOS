@@ -20,17 +20,7 @@ public class Shell(Application):
 		
 		while true:
 			Console.Write('R> ')
-			line as string = null
-			while true:
-				ch = cast(char, Console.Read())
-				if ch != 0:
-					Console.WriteChar(ch)
-					if ch == char('\n'):
-						break
-					if line == null:
-						line = string((ch, ))
-					else:
-						line = string.Concat((line, string((ch, ))))
+			line as string = Console.ReadLine()
 			
 			if line == 'exit':
 				break
