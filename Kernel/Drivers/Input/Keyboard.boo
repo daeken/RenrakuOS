@@ -1,5 +1,7 @@
 namespace Renraku.Kernel
 
+import System.Collections
+
 interface IKeymap:
 	def Map(scancode as int) as int:
 		pass
@@ -15,20 +17,16 @@ class Keyboard(IKeyboard, IInterruptHandler):
 	
 	public static Instance as Keyboard
 	
-	Waiting as bool
-	Ready as bool
-	Ch as int
+	private buffer as Queue
 
-	DATA_PORT = 0x60
-	COMMAND_PORT = 0x64
+	static final DATA_PORT = 0x60
+	static final COMMAND_PORT = 0x64
 	
 	public Keymap as IKeymap
 	
 	def constructor():
 		Instance = self
-		Waiting = false
-		Ready = false
-		Keymap = null
+		buffer = Queue()
 		cmd_byte = ReadCmdByte()
 		InterruptManager.AddHandler(self)
 		Hal.Register(self)
@@ -58,30 +56,32 @@ class Keyboard(IKeyboard, IInterruptHandler):
 
 		return ReadData()
 
+	def ReportScancode(scancode as byte) as char:
+		key = cast(char, 0)
+		# Ignore release codes
+		if scancode & 0x80 == 0:
+			if Keymap == null:
+				key = cast(char, scancode)
+			else:
+				key = cast(char, Keymap.Map(scancode))
+			buffer.Enqueue(key)
+
 	def Handle():
-		if not Waiting or Ready:
-			ReadData() # Drop key
-		
 		scancode = ReadData()
-		if scancode & 0x80 == 0: # Key down
-			pass
-		else:
-			scancode &= 0x7F
-			Ch = scancode
-			Ready = true
-	
+		# XXX: Is this the proper way to handle locking during interrupts?
+		InterruptManager.Disable()
+		ReportScancode(scancode)
+		InterruptManager.Enable()
+
 	def PrintStatus():
 		print 'Keyboard: OK'
 	
 	def Read() as char:
-		Ready = false
-		Waiting = true
-		
-		while not Ready:
+		# Block waiting for input
+		while buffer.Length <= 0:
 			pass
-		Waiting = false
 		
-		if Keymap == null:
-			return cast(char, Ch)
-		else:
-			return cast(char, Keymap.Map(Ch))
+		InterruptManager.Disable()
+		ch = buffer.Dequeue()
+		InterruptManager.Enable()
+		return ch

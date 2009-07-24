@@ -167,8 +167,10 @@ static class Frontend:
 			case OpCodes.Brfalse: yield ['branch', 'false', (inst.Operand as Instruction).Offset, NextInst(inst)]
 			case OpCodes.Brtrue: yield ['branch', 'true', (inst.Operand as Instruction).Offset, NextInst(inst)]
 			case OpCodes.Beq: yield ['branch', '==', (inst.Operand as Instruction).Offset, NextInst(inst)]
-			case OpCodes.Bgt: yield ['branch', '>', (inst.Operand as Instruction).Offset, NextInst(inst)]
 			case OpCodes.Blt: yield ['branch', '<', (inst.Operand as Instruction).Offset, NextInst(inst)]
+			case OpCodes.Ble: yield ['branch', '<=', (inst.Operand as Instruction).Offset, NextInst(inst)]
+			case OpCodes.Bgt: yield ['branch', '>', (inst.Operand as Instruction).Offset, NextInst(inst)]
+			case OpCodes.Bge: yield ['branch', '>=', (inst.Operand as Instruction).Offset, NextInst(inst)]
 			case OpCodes.Ret: yield ['return']
 			
 			otherwise:
