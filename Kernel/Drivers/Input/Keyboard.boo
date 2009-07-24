@@ -68,10 +68,7 @@ class Keyboard(IKeyboard, IInterruptHandler):
 
 	def Handle():
 		scancode = ReadData()
-		# XXX: Is this the proper way to handle locking during interrupts?
-		InterruptManager.Disable()
 		ReportScancode(scancode)
-		InterruptManager.Enable()
 
 	def PrintStatus():
 		print 'Keyboard: OK'
@@ -81,6 +78,7 @@ class Keyboard(IKeyboard, IInterruptHandler):
 		while buffer.Length <= 0:
 			pass
 		
+		# We don't want any interrupts ruining our fun
 		InterruptManager.Disable()
 		ch = buffer.Dequeue()
 		InterruptManager.Enable()
