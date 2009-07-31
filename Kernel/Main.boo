@@ -8,9 +8,11 @@ static class Kernel:
 		Console.Init()
 		MemoryManager.Init()
 		ObjectManager.Init()
+		InterruptManager.Disable()
 		InterruptManager()
 		Hal()
 		Drivers.Load()
+		InterruptManager.Enable()
 		
 		print 'Renraku initialized.'
 		

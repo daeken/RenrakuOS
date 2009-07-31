@@ -37,6 +37,20 @@ static class Console:
 	
 	def Read() as int:
 		return cast(int, cast(IKeyboard, Hal.GetDriver(DriverClass.Keyboard)).Read())
+
+	def ReadLine() as string:
+		data as string = string(array(char,0))
+		keyboard = cast(IKeyboard, Hal.GetDriver(DriverClass.Keyboard))
+		while (key = keyboard.Read()) != char('\n'):
+			if key != cast(char,0):
+				if key == char('\b') and data.Length > 0:
+					data = data.Substring(0, data.Length-1)
+				else:
+					ch = cast(char, key)
+					WriteChar(ch)
+					data = string.Concat((data, string((ch, ))))
+		WriteChar(char('\n'))
+		return data
 	
 	def Write(str as string):
 		i = 0

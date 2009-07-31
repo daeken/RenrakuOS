@@ -1,5 +1,7 @@
 namespace Renraku.Kernel
 
+import System.Collections
+
 interface IKeymap:
 	def Map(scancode as int) as int:
 		pass
@@ -15,46 +17,69 @@ class Keyboard(IKeyboard, IInterruptHandler):
 	
 	public static Instance as Keyboard
 	
-	Waiting as bool
-	Ready as bool
-	Ch as int
+	private buffer as Queue
+
+	static final DATA_PORT = 0x60
+	static final COMMAND_PORT = 0x64
 	
 	public Keymap as IKeymap
 	
 	def constructor():
 		Instance = self
-		Waiting = false
-		Ready = false
-		Keymap = null
+		buffer = Queue()
+		cmd_byte = ReadCmdByte()
 		InterruptManager.AddHandler(self)
 		Hal.Register(self)
-		
 		print 'Keyboard initialized.'
-	
-	def Handle():
-		if not Waiting or Ready:
-			PortIO.InByte(0x60) # Drop key
-		
-		scancode = PortIO.InByte(0x60)
-		if scancode & 0x80 == 0: # Key down
-			pass
+		if cmd_byte & 0x40:
+			print "Running in translate mode."
 		else:
-			scancode &= 0x7F
-			Ch = scancode
-			Ready = true
+			print "No translate mode."
 	
+	def ReadStatus() as byte:
+		return PortIO.InByte(COMMAND_PORT)
+
+	def WriteCmdByte(cmd as byte):
+		PortIO.OutByte(COMMAND_PORT, cmd)
+
+	def ReadData() as byte:
+		return PortIO.InByte(DATA_PORT)
+
+	def ReadCmdByte() as byte:
+		while (ReadStatus() & 0x2) == 1:
+			pass
+		WriteCmdByte(0x20)
+
+		# Wait until data is ready
+		while (ReadStatus() & 0x1) == 0:
+			pass
+
+		return ReadData()
+
+	def ReportScancode(scancode as byte) as char:
+		key = cast(char, 0)
+		# Ignore release codes
+		if scancode & 0x80 == 0:
+			if Keymap == null:
+				key = cast(char, scancode)
+			else:
+				key = cast(char, Keymap.Map(scancode))
+			buffer.Enqueue(key)
+
+	def Handle():
+		scancode = ReadData()
+		ReportScancode(scancode)
+
 	def PrintStatus():
 		print 'Keyboard: OK'
 	
 	def Read() as char:
-		Ready = false
-		Waiting = true
-		
-		while not Ready:
+		# Block waiting for input
+		while buffer.Length <= 0:
 			pass
-		Waiting = false
 		
-		if Keymap == null:
-			return cast(char, Ch)
-		else:
-			return cast(char, Keymap.Map(Ch))
+		# We don't want any interrupts ruining our fun
+		InterruptManager.Disable()
+		ch = buffer.Dequeue()
+		InterruptManager.Enable()
+		return ch

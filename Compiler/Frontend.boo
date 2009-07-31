@@ -96,6 +96,7 @@ static class Frontend:
 			case OpCodes.Ldarg_1: yield ['pusharg', 1]
 			case OpCodes.Ldarg_2: yield ['pusharg', 2]
 			case OpCodes.Ldarg_3: yield ['pusharg', 3]
+			case OpCodes.Ldarg_S: yield ['pusharg', (inst.Operand as duck).Sequence]
 			
 			case OpCodes.Ldelem_I1: yield ['pushelem', 'System.SByte']
 			case OpCodes.Stelem_I1: yield ['popelem', 'System.SByte']
@@ -166,8 +167,10 @@ static class Frontend:
 			case OpCodes.Brfalse: yield ['branch', 'false', (inst.Operand as Instruction).Offset, NextInst(inst)]
 			case OpCodes.Brtrue: yield ['branch', 'true', (inst.Operand as Instruction).Offset, NextInst(inst)]
 			case OpCodes.Beq: yield ['branch', '==', (inst.Operand as Instruction).Offset, NextInst(inst)]
-			case OpCodes.Bgt: yield ['branch', '>', (inst.Operand as Instruction).Offset, NextInst(inst)]
 			case OpCodes.Blt: yield ['branch', '<', (inst.Operand as Instruction).Offset, NextInst(inst)]
+			case OpCodes.Ble: yield ['branch', '<=', (inst.Operand as Instruction).Offset, NextInst(inst)]
+			case OpCodes.Bgt: yield ['branch', '>', (inst.Operand as Instruction).Offset, NextInst(inst)]
+			case OpCodes.Bge: yield ['branch', '>=', (inst.Operand as Instruction).Offset, NextInst(inst)]
 			case OpCodes.Ret: yield ['return']
 			
 			otherwise:

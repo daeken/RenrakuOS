@@ -36,9 +36,8 @@ class InterruptManager:
 		Load(idtp)
 		
 		Isrs = array(IInterruptHandler, 48)
-		
+
 		RemapIrqs()
-		Enable()
 		
 		print 'Interrupt manager initialized.'
 	
@@ -81,4 +80,7 @@ class InterruptManager:
 		pass
 	
 	static def Enable():
+		pass # Intrinsic away!
+
+	static def Disable():
 		pass # Intrinsic away!

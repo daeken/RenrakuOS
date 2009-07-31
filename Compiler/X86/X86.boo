@@ -62,12 +62,16 @@ static class X86:
 						mnem = 'jl'
 					case '>':
 						mnem = 'jg'
+					case '<=':
+						mnem = 'jle'
+					case '>=':
+						mnem = 'jge'
 					otherwise:
 						print 'Unhandled branch type:', inst[1]
 				
 				fallthrough = inst[3]
 				match mnem:
-					case 'je' | 'jg' | 'jl':
+					case 'je' | 'jg' | 'jl' | 'jle' | 'jge':
 						yield ['pop', 'ebx']
 						yield ['pop', 'eax']
 						yield ['cmp', 'eax', 'ebx']
@@ -339,6 +343,9 @@ static class X86:
 			
 			case 'sti':
 				yield ['sti']
+
+			case 'cli':
+				yield ['cli']
 			
 			case 'swap':
 				yield ['pop', 'eax']

@@ -81,6 +81,18 @@ public class String:
 		
 		return ret
 	
+	#def Substring(start as int):
+	#	length = _Length - start
+	#	return Substring(start, length)
+
+	def Substring(start as int, length as int):
+		ret = array(char, length)
+		idx = 0
+		while idx < length:
+			ret[idx] = Val[start+idx]
+			++idx
+		return String(ret)
+
 	static def op_Equality(left as uint, right as uint):
 		if left == right:
 			return true
