@@ -59,6 +59,8 @@
 				<include name="Kernel/Drivers/*/*/*.boo" />
 				
 				<include name="Library/*/*.boo" />
+				<include name="Library/*/*/*.boo" />
+				<include name="Library/*/*/*/*.boo" />
 				
 				<include name="Apps/*.boo" />
 				<include name="Apps/*/*.boo" />
