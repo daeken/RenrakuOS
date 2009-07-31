@@ -2,7 +2,7 @@ namespace System.Collections
 
 import System
 
-public class List:
+public class ArrayList:
 	Values as (object)
 	Index as int
 	
