@@ -50,13 +50,13 @@ class Queue:
 		orig_len = Length
 		# We haven't wrapped, so we can just copy everything at once
 		if front < back:
-			Array.Copy(buffer, front, new_buffer, 0, orig_len)
+			Array.CopyChars(buffer, front, new_buffer, 0, orig_len)
 		# Wrapping has been done, copy in two steps
 		else:
 			front_len = buffer.Length - front
 			back_len = back
-			Array.Copy(buffer, front, new_buffer, 0, front_len)
-			Array.Copy(buffer, 0, new_buffer, front, back_len)
+			Array.CopyChars(buffer, front, new_buffer, 0, front_len)
+			Array.CopyChars(buffer, 0, new_buffer, front, back_len)
 		
 		front = 0
 		back = orig_len
@@ -68,6 +68,3 @@ class Queue:
 		# Only bother growing the buffer if there is no more room
 		if new_len > buffer.Length:
 			IncreaseSize(new_len)
-			
-		
-	

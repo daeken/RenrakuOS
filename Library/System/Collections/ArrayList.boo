@@ -13,7 +13,7 @@ public class ArrayList:
 	def Add(value as object):
 		if Index == Values.Length:
 			newvals = array(object, Values.Length+4)
-			Array.Copy(Values, newvals, Values.Length)
+			Array.CopyObjects(Values, 0, newvals, 0, Values.Length)
 			Values = newvals
 		
 		Values[Index++] = value

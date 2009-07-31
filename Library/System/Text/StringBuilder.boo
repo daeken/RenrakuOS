@@ -17,7 +17,7 @@ class StringBuilder:
 	def Append(chs as (char)):
 		total = _Length + chs.Length
 		EnsureCapacity(total)
-		Array.Copy(chs, 0, buffer, _Length, chs.Length)
+		Array.CopyChars(chs, 0, buffer, _Length, chs.Length)
 		_Length = total
 		return self
 
@@ -29,18 +29,18 @@ class StringBuilder:
 			capacity += grow
 		new_buf = array(char, capacity)
 		
-		Array.Copy(buffer, 0, new_buf, 0, _Length)
+		Array.CopyChars(buffer, 0, new_buf, 0, _Length)
 		buffer = new_buf
 		
 		return capacity
 	
 	def Remove(start as int, length as int):
 		rest = _Length - start - length
-		Array.Copy(buffer, start+length, buffer, start, rest)
+		Array.CopyChars(buffer, start+length, buffer, start, rest)
 		_Length -= length
 		return self
 
 	def ToString() as string:
 		str_buf = array(char, _Length)
-		Array.Copy(buffer, 0, str_buf, 0, _Length)
+		Array.CopyChars(buffer, 0, str_buf, 0, _Length)
 		return string(str_buf)
