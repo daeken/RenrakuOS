@@ -22,19 +22,19 @@ class PciDevice:
 			pass
 	
 	def Find():
-		if Pci.Type == 1:
+		if PciService.Type == 1:
 			for bus in range(16):
 				for card in range(32):
-					tmp = Pci.ReadLong(card, bus, 0)
+					tmp = PciService.ReadLong(card, bus, 0)
 					if Vendor == (tmp & 0xFFFF) and DeviceId == (tmp >> 16):
 						Bus = bus
 						Card = card
 						return true
-		elif Pci.Type == 2:
+		elif PciService.Type == 2:
 			PortIO.OutShort(0xCF8, 0x80)
 			PortIO.OutShort(0xCFA, 0)
 			for card in range(16):
-				tmp = Pci.ReadLong(card, 0, 0)
+				tmp = PciService.ReadLong(card, 0, 0)
 				if Vendor == (tmp & 0xFFFF) and DeviceId == (tmp >> 16):
 					Bus = 0
 					Card = card
@@ -43,7 +43,7 @@ class PciDevice:
 		return false
 	
 	def Configure():
-		type = Pci.ReadLong(Card, Bus, 0x0C)
+		type = PciService.ReadLong(Card, Bus, 0x0C)
 		type = (type >> 16) & 0xF
 		if type == 0x00: # Standard header
 			InitBar(0x10)
@@ -56,7 +56,7 @@ class PciDevice:
 			pass
 	
 	def InitBar(index as int):
-		val = Pci.ReadLong(Card, Bus, index)
+		val = PciService.ReadLong(Card, Bus, index)
 		
 		if val & 1 == 0: # Memory space
 			mask = val & 0xFFFFFFF0
@@ -64,12 +64,16 @@ class PciDevice:
 				return
 			
 			addr = AllocAligned((~mask) + 1)
-			Pci.WriteLong(Card, Bus, index, addr | (val & 0xF))
+			PciService.WriteLong(Card, Bus, index, addr | (val & 0xF))
 	
 	def AllocAligned(size as uint) as uint:
 		return MemoryManager.Allocate(size*2) & ~(size-1)
 
-class Pci:
+class PciService(IService):
+	override ServiceId:
+		get:
+			return 'pci'
+	
 	public static Type as int
 	
 	def constructor():
@@ -88,6 +92,8 @@ class Pci:
 			else:
 				Type = 0
 			PortIO.OutLong(0xCF8, tmp)
+		
+		Context.Register(self)
 	
 	def Scan():
 		if Type == 1:

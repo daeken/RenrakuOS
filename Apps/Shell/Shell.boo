@@ -11,7 +11,6 @@ public class Shell(Application):
 		Apps = (
 				Echo(), 
 				Exclaim(), 
-				HalStatus(), 
 				Reverse(), 
 				PciDump(), 
 				Shell(), 

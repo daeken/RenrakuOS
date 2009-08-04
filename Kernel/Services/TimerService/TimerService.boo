@@ -1,9 +1,9 @@
 namespace Renraku.Kernel
 
-class Timer(ITimer, IInterruptHandler):
-	override Class:
+class TimerService(IInterruptHandler, IService):
+	override ServiceId:
 		get:
-			return DriverClass.Timer
+			return 'timer'
 	
 	override InterruptNumber:
 		get:
@@ -11,12 +11,9 @@ class Timer(ITimer, IInterruptHandler):
 	
 	def constructor():
 		InterruptManager.AddHandler(self)
-		Hal.Register(self)
+		Context.Register(self)
 		
 		print 'Timer initialized.'
 	
 	def Handle():
 		pass
-	
-	def PrintStatus():
-		print 'Timer: OK'

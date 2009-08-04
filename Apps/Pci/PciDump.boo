@@ -9,5 +9,4 @@ class PciDump(Application):
 			return 'pci'
 	
 	def Run(_ as (string)):
-		pci = Pci()
-		pci.Scan()
+		cast(PciService, Context.Service['pci']).Scan()

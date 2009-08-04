@@ -13,8 +13,6 @@ static class Kernel:
 		
 		InterruptManager.Disable()
 		InterruptManager()
-		Hal()
-		Drivers.Load()
 		
 		Services.Register()
 		
