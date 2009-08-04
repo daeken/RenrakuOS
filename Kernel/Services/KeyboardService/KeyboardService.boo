@@ -9,6 +9,9 @@ interface IKeymap:
 interface IKeyboardProvider:
 	def Read() as char:
 		pass
+	
+	def HasData() as bool:
+		pass
 
 class KeyboardService(IInterruptHandler, IKeyboardProvider, IService):
 	override ServiceId:
@@ -74,7 +77,7 @@ class KeyboardService(IInterruptHandler, IKeyboardProvider, IService):
 
 	public def Read() as char:
 		# Block waiting for input
-		while Buffer.Length <= 0:
+		while not HasData():
 			pass
 		
 		# We don't want any interrupts ruining our fun
@@ -82,3 +85,6 @@ class KeyboardService(IInterruptHandler, IKeyboardProvider, IService):
 		ch = Buffer.Dequeue()
 		InterruptManager.Enable()
 		return ch
+	
+	public def HasData() as bool:
+		return Buffer.Length != 0

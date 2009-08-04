@@ -24,6 +24,9 @@ class Exclaim(Application, IKeyboardProvider, IService):
 		
 		Context.CurrentContext = oldContext
 	
+	def HasData() as bool:
+		return Keyboard.HasData()
+	
 	def Read() as char:
 		ch = Keyboard.Read()
 		if ch == char('1'):

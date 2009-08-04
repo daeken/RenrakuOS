@@ -5,5 +5,6 @@ public static class Services:
 		KeyboardService().Keymap = USEnglish()
 		TimerService()
 		PciService()
+		VgaService()
 		
 		print 'Services registered.'

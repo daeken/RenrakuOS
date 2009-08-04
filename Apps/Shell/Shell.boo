@@ -9,6 +9,7 @@ public class Shell(Application):
 	
 	def Run(_ as (string)):
 		Apps = (
+				Draw(), 
 				Echo(), 
 				Exclaim(), 
 				Reverse(), 
