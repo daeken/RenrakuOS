@@ -6,18 +6,20 @@ interface IKeymap:
 	def Map(scancode as int) as int:
 		pass
 
-class Keyboard(IKeyboard, IInterruptHandler):
-	override Class:
+interface IKeyboardProvider:
+	def Read() as char:
+		pass
+
+class KeyboardService(IInterruptHandler, IKeyboardProvider, IService):
+	override ServiceId:
 		get:
-			return DriverClass.Keyboard
+			return 'keyboard'
 	
-	override Number:
+	override InterruptNumber:
 		get:
 			return 33
 	
-	public static Instance as Keyboard
-	
-	private buffer as Queue
+	private Buffer as Queue
 
 	static final DATA_PORT = 0x60
 	static final COMMAND_PORT = 0x64
@@ -25,11 +27,11 @@ class Keyboard(IKeyboard, IInterruptHandler):
 	public Keymap as IKeymap
 	
 	def constructor():
-		Instance = self
-		buffer = Queue()
+		Buffer = Queue()
 		cmd_byte = ReadCmdByte()
 		InterruptManager.AddHandler(self)
-		Hal.Register(self)
+		Context.Register(self)
+		
 		print 'Keyboard initialized.'
 		if cmd_byte & 0x40:
 			print "Running in translate mode."
@@ -64,22 +66,19 @@ class Keyboard(IKeyboard, IInterruptHandler):
 				key = cast(char, scancode)
 			else:
 				key = cast(char, Keymap.Map(scancode))
-			buffer.Enqueue(key)
+			Buffer.Enqueue(key)
 
 	def Handle():
 		scancode = ReadData()
 		ReportScancode(scancode)
 
-	def PrintStatus():
-		print 'Keyboard: OK'
-	
-	def Read() as char:
+	public def Read() as char:
 		# Block waiting for input
-		while buffer.Length <= 0:
+		while Buffer.Length <= 0:
 			pass
 		
 		# We don't want any interrupts ruining our fun
 		InterruptManager.Disable()
-		ch = buffer.Dequeue()
+		ch = Buffer.Dequeue()
 		InterruptManager.Enable()
 		return ch

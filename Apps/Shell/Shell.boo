@@ -10,6 +10,7 @@ public class Shell(Application):
 	def Run(_ as (string)):
 		Apps = (
 				Echo(), 
+				Exclaim(), 
 				HalStatus(), 
 				Reverse(), 
 				PciDump(), 

@@ -6,10 +6,10 @@
 		<delete failonerror="false">
 			<fileset>
 				<include name="Obj\*.dll" />
-				<include name="Obj\*.so" />
 				<include name="Obj\*.exe" />
-				<include name="Obj\*.obj" />
 				<include name="Obj\*.*db" />
+				<include name="Obj\*.asm" />
+				<include name="Obj\*.bin" />
 			</fileset>
 		</delete>
 	</target>
@@ -54,9 +54,13 @@
 				<include name="Kernel/MemoryManager/*.boo" />
 				<include name="Kernel/ObjectManager/*.boo" />
 				<include name="Kernel/Hal/*.boo" />
+				<include name="Kernel/Context/*.boo" />
 				<include name="Kernel/Drivers/*.boo" />
 				<include name="Kernel/Drivers/*/*.boo" />
 				<include name="Kernel/Drivers/*/*/*.boo" />
+				<include name="Kernel/Services/*.boo" />
+				<include name="Kernel/Services/*/*.boo" />
+				<include name="Kernel/Services/*/*/*.boo" />
 				
 				<include name="Library/*/*.boo" />
 				<include name="Library/*/*/*.boo" />
@@ -70,7 +74,9 @@
 				<include name="Obj/Kernel.Macros.dll" />
 			</references>
 		</booc>
+		<echo message="AOT Compiling" />
 		<exec program="Obj/Compiler.exe" commandline="Obj/Kernel.dll" />
+		<echo message="Assembling" />
 		<if test="${platform::is-win32()}">
 			<exec program="Compiler/nasm.exe" commandline="-o Obj/kernel.bin Obj/kernel.asm" />
 		</if>

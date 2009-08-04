@@ -9,6 +9,7 @@ Console.SetOut(file)
 
 # Set up intrinsics
 BooRuntimeIntrinsics()
+ContextIntrinsics()
 InterruptIntrinsics()
 ObjectIntrinsics()
 PointerIntrinsics()

@@ -6,6 +6,10 @@ public class ArrayList:
 	Values as (object)
 	Index as int
 	
+	Length as int:
+		get:
+			return Index
+	
 	def constructor(capacity as int):
 		Values = array(object, capacity)
 		Index = 0
@@ -17,3 +21,9 @@ public class ArrayList:
 			Values = newvals
 		
 		Values[Index++] = value
+	
+	self [idx as int] as object:
+		get:
+			return Values[idx]
+		set:
+			Values[idx] = value

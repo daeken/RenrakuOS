@@ -36,11 +36,11 @@ static class Console:
 		Position = 0
 	
 	def Read() as int:
-		return cast(int, cast(IKeyboard, Hal.GetDriver(DriverClass.Keyboard)).Read())
+		return cast(int, cast(KeyboardService, Context.Service['keyboard']).Read())
 
 	def ReadLine() as string:
+		keyboard = cast(KeyboardService, Context.Service['keyboard'])
 		data as string = string(array(char,0))
-		keyboard = cast(IKeyboard, Hal.GetDriver(DriverClass.Keyboard))
 		while (key = keyboard.Read()) != char('\n'):
 			if key != cast(char,0):
 				if key == char('\b') and data.Length > 0:

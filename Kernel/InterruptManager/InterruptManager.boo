@@ -14,7 +14,7 @@ struct IdtPointer:
 	Base as uint
 
 interface IInterruptHandler:
-	Number as int:
+	InterruptNumber as int:
 		get:
 			pass
 	
@@ -24,6 +24,7 @@ interface IInterruptHandler:
 class InterruptManager:
 	static Instance as InterruptManager = null
 	Isrs as (IInterruptHandler)
+	Contexts as (Context)
 	
 	def constructor():
 		Instance = self
@@ -36,7 +37,8 @@ class InterruptManager:
 		Load(idtp)
 		
 		Isrs = array(IInterruptHandler, 48)
-
+		Contexts = array(Context, 48)
+		
 		RemapIrqs()
 		
 		print 'Interrupt manager initialized.'
@@ -54,13 +56,15 @@ class InterruptManager:
 		PortIO.OutByte(0xA1, 0x0)
 	
 	static def AddHandler(handler as IInterruptHandler):
-		Instance.Isrs[handler.Number] = handler
+		Instance.Isrs[handler.InterruptNumber] = handler
+		Instance.Contexts[handler.InterruptNumber] = Context.CurrentContext
 	
 	def Handle(num as int) as int:
 		if Isrs[num] == null:
 			prints 'Unhandled interrupt:'
 			printhex num
 		else:
+			Context.CurrentContext = Contexts[num]
 			Isrs[num].Handle()
 		
 		if num >= 32: # Send EOI to PICs

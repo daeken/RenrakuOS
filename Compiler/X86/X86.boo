@@ -174,12 +174,15 @@ static class X86:
 			
 			case 'copy':
 				yield ['pop', 'eax']
-				yield ['pop', 'edi']
+				yield ['pop', 'ebx']
+				yield ['push', 'edi']
 				yield ['push', 'esi']
+				yield ['mov', 'edi', 'ebx']
 				yield ['mov', 'esi', 'eax']
 				yield ['mov', 'ecx', inst[1]]
 				yield ['rep', 'movsb']
 				yield ['pop', 'esi']
+				yield ['pop', 'edi']
 			
 			case 'dup':
 				yield ['pop', 'eax']
@@ -233,6 +236,11 @@ static class X86:
 			case 'pusharg':
 				yield ['mov', 'eax', ['deref', 'esi', -inst[1]*4]]
 				yield ['push', 'eax']
+			
+			case 'popcontext':
+				yield ['pop', 'edi']
+			case 'pushcontext':
+				yield ['push', 'edi']
 			
 			case 'popderef':
 				isIndexed = inst[2]

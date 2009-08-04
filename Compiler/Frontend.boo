@@ -80,6 +80,7 @@ static class Frontend:
 		match inst.OpCode:
 			case OpCodes.Ldnull: yield ['push', 0]
 			case OpCodes.Ldc_I4: yield ['push', inst.Operand]
+			case OpCodes.Ldc_I4_M1: yield ['push', -1]
 			case OpCodes.Ldc_I4_0: yield ['push', 0]
 			case OpCodes.Ldc_I4_1: yield ['push', 1]
 			case OpCodes.Ldc_I4_2: yield ['push', 2]

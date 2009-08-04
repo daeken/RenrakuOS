@@ -5,7 +5,7 @@ class Timer(ITimer, IInterruptHandler):
 		get:
 			return DriverClass.Timer
 	
-	override Number:
+	override InterruptNumber:
 		get:
 			return 32
 	
