@@ -17,15 +17,10 @@ class Mouse(Application):
 		x = 160
 		y = 100
 		color = 4
-		counter = 0
 		while not keyboard.HasData():
-			if counter++ == 200000:
-				video.WaitForRefresh()
-				video.Fill(x-5, y-5, 10, 10, color)
-				video.WaitForRefresh()
-				video.Clear()
-				video.Fill(x-5, y-5, 10, 10, color)
-				counter = 0
+			video.Clear()
+			video.Fill(x-5, y-5, 10, 10, color)
+			video.SwapBuffers()
 			
 			while true:
 				evt = mouse.Read()

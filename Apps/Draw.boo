@@ -20,9 +20,8 @@ class Draw(Application):
 		revX = false
 		revY = false
 		while not keyboard.HasData():
-			for i in range(5000000):
+			for i in range(1000000):
 				pass
-			video.Fill(x, y, w, h, 0)
 			if revX:
 				x -= w
 			else:
@@ -45,7 +44,8 @@ class Draw(Application):
 				y = 0
 				revY = false
 			
+			video.Clear()
 			video.Fill(x, y, w, h, 4)
-			video.WaitForRefresh()
+			video.SwapBuffers()
 		
 		video.Graphical = false
