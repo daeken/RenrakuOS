@@ -12,7 +12,7 @@ static class X86:
 	def BuildVTable(type as duck) as duck:
 		for i in range(len(type)-3):
 			member = type[i+3]
-			if member[0] == 'method':
+			if member[0] == 'method' or member[0] == 'field':
 				name = TypeHelper.AnnotateName(member[1], false)
 				if name not in VTable:
 					VTable[name] = len(VTable)
@@ -293,36 +293,49 @@ static class X86:
 			case 'popfield':
 				if inst[1].DeclaringType.IsValueType:
 					off = 0
+					for field as duck in inst[1].DeclaringType.Fields:
+						if field.IsStatic:
+							continue
+						if field == inst[1]:
+							break
+						else:
+							off += TypeHelper.GetSize(field.FieldType)
+					
+					yield ['pop', 'ebx']
+					yield ['pop', 'eax']
+					yield ['mov', ['deref', 'eax', off], TypeHelper.ToRegister('b', inst[1].FieldType)]
 				else:
-					off = 4
-				for field as duck in inst[1].DeclaringType.Fields:
-					if field.IsStatic:
-						continue
-					if field == inst[1]:
-						break
-					else:
-						off += TypeHelper.GetSize(field.FieldType)
-				
-				yield ['pop', 'ebx']
-				yield ['pop', 'eax']
-				yield ['mov', ['deref', 'eax', off], TypeHelper.ToRegister('b', inst[1].FieldType)]
+					yield ['; popfield', inst[1].ToString()]
+					yield ['pop', 'ebx']
+					yield ['pop', 'eax']
+					yield ['mov', 'ecx', ['deref', 'eax']]
+					yield ['mov', 'ecx', ['deref', 'ecx', cast(int, VTable[TypeHelper.AnnotateName(inst[1], false)]) * 4]]
+					reg = TypeHelper.ToRegister('b', inst[1].FieldType)
+					yield ['mov', ['deref', 'eax', 'ecx'], reg]
 			case 'pushfield':
 				if inst[1].DeclaringType.IsValueType:
 					off = 0
+					for field as duck in inst[1].DeclaringType.Fields:
+						if field.IsStatic:
+							continue
+						if field == inst[1]:
+							break
+						else:
+							off += TypeHelper.GetSize(field.FieldType)
+					
+					yield ['pop', 'eax']
+					yield ['xor', 'ebx', 'ebx']
+					yield ['mov', TypeHelper.ToRegister('b', inst[1].FieldType), ['deref', 'eax', off]]
+					yield ['push', 'ebx']
 				else:
-					off = 4
-				for field as duck in inst[1].DeclaringType.Fields:
-					if field.IsStatic:
-						continue
-					if field == inst[1]:
-						break
-					else:
-						off += TypeHelper.GetSize(field.FieldType)
-				
-				yield ['pop', 'eax']
-				yield ['xor', 'ebx', 'ebx']
-				yield ['mov', TypeHelper.ToRegister('b', inst[1].FieldType), ['deref', 'eax', off]]
-				yield ['push', 'ebx']
+					yield ['; pushfield', inst[1].ToString()]
+					yield ['pop', 'eax']
+					yield ['mov', 'ecx', ['deref', 'eax']]
+					yield ['mov', 'ecx', ['deref', 'ecx', cast(int, VTable[TypeHelper.AnnotateName(inst[1], false)]) * 4]]
+					yield ['xor', 'ebx', 'ebx']
+					reg = TypeHelper.ToRegister('b', inst[1].FieldType)
+					yield ['mov', reg, ['deref', 'eax', 'ecx']]
+					yield ['push', 'ebx']
 			
 			case 'popidt':
 				yield ['pop', 'eax']
@@ -464,10 +477,10 @@ static class X86:
 			return expr.ToString()
 	
 	def EmitField(field as duck) as duck:
-		if not field[1]:
+		if not field[2]:
 			return
 		
-		print field[2], ': dd 0'
+		print field[3], ': dd 0'
 	
 	def EmitMethod(method as duck) as duck:
 		_, meth as duck, _, varcount as int, _, body as duck = method
@@ -505,8 +518,8 @@ static class X86:
 		size = 0
 		for i in range(len(type)-3):
 			member = type[i+3]
-			if member[0] == 'field' and not member[1]:
-				size += TypeHelper.GetSize(member[3])
+			if member[0] == 'field' and not member[2]:
+				size += TypeHelper.GetSize(member[4])
 		print '\tdd', size
 		
 		if isInterface:
@@ -516,12 +529,17 @@ static class X86:
 			print '\tVTable.' + name + ':'
 			
 			names = {}
+			off = 4
 			for i in range(len(type)-3):
 				member = type[i+3]
 				if member[0] == 'method':
 					names[TypeHelper.AnnotateName(member[1], false)] = TypeHelper.AnnotateName(member[1], true)
 				elif member[0] == 'inherits':
 					names[TypeHelper.AnnotateName(member[2], false)] = TypeHelper.AnnotateName(member[2], true)
+				elif member[0] == 'field':
+					if not member[2]:
+						names[TypeHelper.AnnotateName(member[1], false)] = off.ToString()
+						off += TypeHelper.GetSize(member[1].FieldType)
 			
 			vtable = array(string, len(VTable))
 			for ent in VTable:
