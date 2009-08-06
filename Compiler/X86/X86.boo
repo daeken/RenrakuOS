@@ -26,7 +26,7 @@ static class X86:
 		match inst[0]:
 			case 'binary':
 				match inst[1]:
-					case 'add' | 'sub' | 'and' | 'or':
+					case 'add' | 'sub' | 'and' | 'or' | 'xor':
 						yield ['pop', 'ebx']
 						yield ['pop', 'eax']
 						yield [inst[1], 'eax', 'ebx']

@@ -12,6 +12,7 @@ public class Shell(Application):
 				Draw(), 
 				Echo(), 
 				Exclaim(), 
+				Mouse(), 
 				Reverse(), 
 				PciDump(), 
 				Shell(), 

@@ -8,6 +8,8 @@ static class TypeHelper:
 		if type isa TypeDefinition:
 			if not type.IsValueType:
 				return 4
+			elif type.IsEnum:
+				return 4
 			
 			size = 0
 			for field as FieldDefinition in type.Fields:

@@ -140,6 +140,7 @@ static class Frontend:
 			case OpCodes.Conv_Ovf_U1: yield ['conv', true, byte]
 			case OpCodes.Conv_Ovf_U2: yield ['conv', true, ushort]
 			case OpCodes.Conv_Ovf_U4: yield ['conv', true, uint]
+			case OpCodes.Box: yield ['conv', false, object]
 			
 			case OpCodes.Add: yield ['binary', 'add', false]
 			case OpCodes.Sub: yield ['binary', 'sub', false]
@@ -151,6 +152,7 @@ static class Frontend:
 			case OpCodes.Shl: yield ['binary', 'shl', false]
 			case OpCodes.Shr: yield ['binary', 'shr', true]
 			case OpCodes.Shr_Un: yield ['binary', 'shr', false]
+			case OpCodes.Xor: yield ['binary', 'xor', false]
 			
 			case OpCodes.Not: yield ['unary', 'not']
 			
