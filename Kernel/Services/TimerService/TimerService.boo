@@ -1,4 +1,5 @@
 namespace Renraku.Kernel
+import Renraku.Core.Memory
 
 class TimerService(IInterruptHandler, IService):
 	override ServiceId:
@@ -15,5 +16,5 @@ class TimerService(IInterruptHandler, IService):
 		
 		print 'Timer initialized.'
 	
-	def Handle():
+	def Handle(_ as Pointer [of uint]):
 		pass

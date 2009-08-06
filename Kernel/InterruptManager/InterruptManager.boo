@@ -18,7 +18,7 @@ interface IInterruptHandler:
 		get:
 			pass
 	
-	def Handle() as void:
+	def Handle(registers as Pointer [of uint]) as void:
 		pass
 
 class InterruptManager:
@@ -59,13 +59,13 @@ class InterruptManager:
 		Instance.Isrs[handler.InterruptNumber] = handler
 		Instance.Contexts[handler.InterruptNumber] = Context.CurrentContext
 	
-	def Handle(num as int) as int:
+	def Handle(num as int, registers as Pointer [of uint]) as int:
 		if Isrs[num] == null:
 			prints 'Unhandled interrupt:'
 			printhex num
 		else:
 			Context.CurrentContext = Contexts[num]
-			Isrs[num].Handle()
+			Isrs[num].Handle(registers)
 		
 		if num >= 32: # Send EOI to PICs
 			if num >= 40:

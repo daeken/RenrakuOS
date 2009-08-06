@@ -13,8 +13,9 @@ static class X86:
 		for i in range(len(type)-3):
 			member = type[i+3]
 			if member[0] == 'method':
-				if member[1].Name not in VTable:
-					VTable[member[1].Name] = len(VTable)
+				name = TypeHelper.AnnotateName(member[1], false)
+				if name not in VTable:
+					VTable[name] = len(VTable)
 	
 	Label = 0
 	def MakeLabel():
@@ -118,8 +119,11 @@ static class X86:
 				yield ['push', 'eax']
 				yield ['push', 0xDEADBEEF]
 				yield [numLabel + ':']
-				yield ['call', 'InterruptManager.Handle']
-				yield ['add', 'esp', 8]
+				yield ['mov', 'ebp', 'esp']
+				yield ['add', 'ebp', 8]
+				yield ['push', 'ebp']
+				yield ['call', 'InterruptManager.Handle$System.Int32$System.Int32$Renraku.Core.Memory.Pointer_1.System.UInt32.$']
+				yield ['add', 'esp', 12]
 				yield ['test', 'eax', 'eax']
 				yield ['jz', noerrLabel]
 				yield ['popa']
@@ -134,7 +138,7 @@ static class X86:
 				yield [endLabel + ':']
 			
 			case 'call':
-				yield ['call', inst[1].DeclaringType.Name + '.' + inst[1].Name]
+				yield ['call', TypeHelper.AnnotateName(inst[1], true)]
 				paramcount = len(inst[1].Parameters)
 				if paramcount:
 					yield ['add', 'esp', paramcount*4]
@@ -145,7 +149,7 @@ static class X86:
 			case 'callvirt':
 				yield ['mov', 'eax', ['deref', 'esp', len(inst[1].Parameters)*4]]
 				yield ['mov', 'eax', ['deref', 'eax']]
-				yield ['call', ['deref', 'eax', cast(int, VTable[inst[1].Name]) * 4]]
+				yield ['call', ['deref', 'eax', cast(int, VTable[TypeHelper.AnnotateName(inst[1], false)]) * 4]]
 				paramcount = len(inst[1].Parameters) + 1
 				yield ['add', 'esp', paramcount*4]
 				
@@ -200,7 +204,7 @@ static class X86:
 			
 			case 'new':
 				yield ['push', 'TypeDef.' + inst[1].DeclaringType.Name]
-				yield ['call', 'ObjectManager.NewObj']
+				yield ['call', 'ObjectManager.NewObj$System.UInt32$Renraku.Kernel.TypeDef$']
 				yield ['add', 'esp', 4]
 				if len(inst[1].Parameters):
 					yield ['sub', 'esp', 4]
@@ -210,13 +214,13 @@ static class X86:
 					yield ['mov', ['deref', 'esp', len(inst[1].Parameters) * 4], 'eax']
 				else:
 					yield ['push', 'eax']
-				yield ['call', inst[1].DeclaringType.Name + '.' + inst[1].Name]
+				yield ['call', TypeHelper.AnnotateName(inst[1], true)]
 				if len(inst[1].Parameters):
 					yield ['add', 'esp', len(inst[1].Parameters)*4]
 			case 'newarr':
 				yield ['push', TypeHelper.GetSize(inst[1])]
 				yield ['push', 'VTable.Array']
-				yield ['call', 'ObjectManager.NewArr']
+				yield ['call', 'ObjectManager.NewArr$System.UInt32$System.Int32$System.Int32$System.Int32$']
 				yield ['add', 'esp', 12]
 				yield ['push', 'eax']
 			
@@ -395,7 +399,7 @@ static class X86:
 		Multiboot()
 		print 'start:'
 		print '\tmov esp, 0x00800000'
-		print '\tcall Kernel.Main'
+		print '\tcall Kernel.Main$System.Void$'
 		print '\t.forever:'
 		print '\t\thlt'
 		print '\t\tjmp .forever'
@@ -466,8 +470,8 @@ static class X86:
 		print field[2], ': dd 0'
 	
 	def EmitMethod(method as duck) as duck:
-		_, meth as duck, name as string, varcount as int, _, body as duck = method
-		print meth.DeclaringType.Name + '.' + name + ':'
+		_, meth as duck, _, varcount as int, _, body as duck = method
+		print TypeHelper.AnnotateName(meth, true) + ':'
 		print '\tpush ebp'
 		print '\tpush esi'
 		print '\tmov esi, esp'
@@ -515,9 +519,9 @@ static class X86:
 			for i in range(len(type)-3):
 				member = type[i+3]
 				if member[0] == 'method':
-					names[member[2]] = name + '.' + member[2]
+					names[TypeHelper.AnnotateName(member[1], false)] = TypeHelper.AnnotateName(member[1], true)
 				elif member[0] == 'inherits':
-					names[member[2].Name] = member[1].Name + '.' + member[2].Name
+					names[TypeHelper.AnnotateName(member[2], false)] = TypeHelper.AnnotateName(member[2], true)
 			
 			vtable = array(string, len(VTable))
 			for ent in VTable:
@@ -527,4 +531,4 @@ static class X86:
 				if vname in names:
 					print '\t\tdd', names[vname]
 				else:
-					print '\t\tdd Kernel.Fault'
+					print '\t\tdd Kernel.Fault$System.Void$'

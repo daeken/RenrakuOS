@@ -1,6 +1,7 @@
 namespace Renraku.Kernel
 
 import System.Collections
+import Renraku.Core.Memory
 
 interface IKeymap:
 	def Map(scancode as int) as int:
@@ -71,7 +72,7 @@ class KeyboardService(IInterruptHandler, IKeyboardProvider, IService):
 				key = cast(char, Keymap.Map(scancode))
 			Buffer.Enqueue(key)
 
-	def Handle():
+	def Handle(_ as Pointer [of uint]):
 		scancode = ReadData()
 		ReportScancode(scancode)
 

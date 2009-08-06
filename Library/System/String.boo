@@ -6,6 +6,10 @@ public class String:
 	_Length as int
 	Val as (char)
 	
+	self[idx as int] as char:
+		get:
+			return Val[idx]
+	
 	Chars[idx as int] as char:
 		get:
 			return Val[idx]
@@ -18,7 +22,8 @@ public class String:
 		_Length = chs.Length
 		Val = chs
 	
-	static def Concat(strs as (String)):
+	static def Concat(obj as object):
+		strs = cast((String), obj)
 		size = 0
 		i = 0
 		while i < strs.Length:
@@ -93,14 +98,13 @@ public class String:
 			++idx
 		return String(ret)
 
-	static def op_Equality(left as uint, right as uint):
+	static def op_Equality(lstr as String, rstr as String):
+		left = Pointer [of string].GetAddr(lstr)
+		right = Pointer [of string].GetAddr(rstr)
 		if left == right:
 			return true
 		elif left == 0 or right == 0:
 			return false
-		
-		lstr = ObjPointer [of string].Get(left)
-		rstr = ObjPointer [of string].Get(right)
 		
 		if lstr.Length != rstr.Length:
 			return false

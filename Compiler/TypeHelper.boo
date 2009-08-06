@@ -39,3 +39,17 @@ static class TypeHelper:
 			case 4: return 'e' + letter + 'x'
 			otherwise:
 				print 'Unknown size in ToRegister:', type, GetSize(type)
+	
+	def SanitizeName(name as string) as string:
+		return name.Replace('`', '_').Replace('<', '.').Replace('>', '.').Replace('[', '.').Replace(']', '.')
+	
+	def AnnotateName(method as duck, withType as bool):
+		name = method.Name + '$' + SanitizeName(method.ReturnType.ReturnType.ToString()) + '$'
+		
+		for parameter as ParameterDefinition in method.Parameters:
+			name += SanitizeName(parameter.ParameterType.ToString()) + '$'
+		
+		if withType:
+			return method.DeclaringType.Name + '.' + name
+		else:
+			return name
