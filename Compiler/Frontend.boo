@@ -20,15 +20,16 @@ static class Frontend:
 		if type.IsClass or type.IsValueType:
 			exp = ['type', type, type.Name]
 			
+			names = []
 			for field as FieldDefinition in type.Fields:
+				names.Add(field)
 				exp.Add(FromField(field))
 			
 			for ctor as MethodDefinition in type.Constructors:
 				exp.Add(FromMethod(ctor))
 			
-			methodNames = []
 			for method as MethodDefinition in type.Methods:
-				methodNames.Add(method.Name)
+				names.Add(method.Name)
 				exp.Add(FromMethod(method))
 			
 			if type.BaseType != null:
@@ -39,8 +40,11 @@ static class Frontend:
 						break
 				if basetype != null:
 					for method as MethodDefinition in basetype.Methods:
-						if method.Name not in methodNames:
-							exp.Add(['inherits', basetype, method])
+						if method.Name not in names:
+							exp.Add(['inheritsMethod', basetype, method])
+					for field as FieldDefinition in basetype.Fields:
+						if field.Name not in names and not field.IsStatic:
+							exp.Add(['inheritsField', basetype, field])
 		elif type.IsInterface:
 			exp = ['interface', type, type.Name]
 			

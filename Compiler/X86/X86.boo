@@ -520,6 +520,8 @@ static class X86:
 			member = type[i+3]
 			if member[0] == 'field' and not member[2]:
 				size += TypeHelper.GetSize(member[4])
+			elif member[0] == 'inheritsField':
+				size += TypeHelper.GetSize(member[2])
 		print '\tdd', size
 		
 		if isInterface:
@@ -534,8 +536,11 @@ static class X86:
 				member = type[i+3]
 				if member[0] == 'method':
 					names[TypeHelper.AnnotateName(member[1], false)] = TypeHelper.AnnotateName(member[1], true)
-				elif member[0] == 'inherits':
+				elif member[0] == 'inheritsMethod':
 					names[TypeHelper.AnnotateName(member[2], false)] = TypeHelper.AnnotateName(member[2], true)
+				elif member[0] == 'inheritsField':
+					names[TypeHelper.AnnotateName(member[2], false)] = off.ToString()
+					off += TypeHelper.GetSize(member[2].FieldType)
 				elif member[0] == 'field':
 					if not member[2]:
 						names[TypeHelper.AnnotateName(member[1], false)] = off.ToString()
