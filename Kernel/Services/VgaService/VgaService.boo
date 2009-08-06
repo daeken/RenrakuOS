@@ -90,6 +90,9 @@ public class VgaService(IService, IVideoProvider):
 			PortIO.OutByte(0x3C0, modeRegs[41+i])
 		
 		PortIO.OutByte(0x3C0, 0x20)
+		
+		WaitForRefresh()
+		Clear()
 	
 	def Clear():
 		MemoryManager.Zero(0xA0000, 320*200)
