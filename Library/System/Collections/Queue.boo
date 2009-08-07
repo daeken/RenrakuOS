@@ -4,7 +4,7 @@ import System
 
 class Queue:
 	private static final DEFAULT_CAP = 256
-	private buffer as (char)
+	private buffer as (object)
 	private front = 0
 	private back = 0
 	
@@ -16,47 +16,47 @@ class Queue:
 				return back + (buffer.Length - front)
 	
 	def constructor():
-		buffer = array(char, DEFAULT_CAP)
+		buffer = array(object, DEFAULT_CAP)
 		
-	def Enqueue(c as char):
+	def Enqueue(obj as object):
 		EnsureRoom(1)
 		
 		if back == buffer.Length:
 			back = 0
 		
-		buffer[back] = c
+		buffer[back] = obj
 		++back
 		
-	def Dequeue() as char:
+	def Dequeue() as object:
 		if front == back:
 			# XXX: Error out somehow?
-			return cast(char, 20)
+			return null
 		else:
-			c = Peek()
+			obj = Peek()
 			++front
 			if front == buffer.Length:
 				front = 0
-			return c
+			return obj
 	
-	def Peek() as char:
+	def Peek() as object:
 		return buffer[front]
 	
 	private def IncreaseSize(wanted_size as int):
 		new_length = 0
 		while new_length < wanted_size:
 			new_length = buffer.Length*2
-		new_buffer = array(char, new_length)
+		new_buffer = array(object, new_length)
 		
 		orig_len = Length
 		# We haven't wrapped, so we can just copy everything at once
 		if front < back:
-			Array.CopyChars(buffer, front, new_buffer, 0, orig_len)
+			Array.Copy(buffer, front, new_buffer, 0, orig_len)
 		# Wrapping has been done, copy in two steps
 		else:
 			front_len = buffer.Length - front
 			back_len = back
-			Array.CopyChars(buffer, front, new_buffer, 0, front_len)
-			Array.CopyChars(buffer, 0, new_buffer, front, back_len)
+			Array.Copy(buffer, front, new_buffer, 0, front_len)
+			Array.Copy(buffer, 0, new_buffer, front, back_len)
 		
 		front = 0
 		back = orig_len

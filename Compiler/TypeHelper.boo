@@ -8,6 +8,8 @@ static class TypeHelper:
 		if type isa TypeDefinition:
 			if not type.IsValueType:
 				return 4
+			elif type.IsEnum:
+				return 4
 			
 			size = 0
 			for field as FieldDefinition in type.Fields:
@@ -43,13 +45,16 @@ static class TypeHelper:
 	def SanitizeName(name as string) as string:
 		return name.Replace('`', '_').Replace('<', '.').Replace('>', '.').Replace('[', '.').Replace(']', '.')
 	
-	def AnnotateName(method as duck, withType as bool):
-		name = method.Name + '$' + SanitizeName(method.ReturnType.ReturnType.ToString()) + '$'
-		
-		for parameter as ParameterDefinition in method.Parameters:
-			name += SanitizeName(parameter.ParameterType.ToString()) + '$'
+	def AnnotateName(member as duck, withType as bool):
+		if member isa MethodReference:
+			name = member.Name + '$' + SanitizeName(member.ReturnType.ReturnType.ToString()) + '$'
+			
+			for parameter as ParameterDefinition in member.Parameters:
+				name += SanitizeName(parameter.ParameterType.ToString()) + '$'
+		elif member isa FieldReference:
+			name = member.Name + '$' + SanitizeName(member.FieldType.ToString())
 		
 		if withType:
-			return method.DeclaringType.Name + '.' + name
+			return member.DeclaringType.Name + '.' + name
 		else:
 			return name

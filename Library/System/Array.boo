@@ -7,7 +7,7 @@ public class Array:
 		get:
 			return _Length
 	
-	static def CopyChars(frm as (char), src as int,
+	static def Copy(frm as (char), src as int,
 					to as (char), dest as int,
 					length as int):
 		i = 0
@@ -15,7 +15,7 @@ public class Array:
 			to[dest+i] = frm[src+i]
 			++i
 	
-	static def CopyObjects(frm as (object), src as int,
+	static def Copy(frm as (object), src as int,
 					to as (object), dest as int,
 					length as int):
 		i = 0

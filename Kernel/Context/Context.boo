@@ -27,7 +27,7 @@ public class Context:
 		context = CurrentContext
 		new = Context()
 		i = 0
-		while i < context.Services.Length:
+		while i < context.Services.Count:
 			if context.Services[i] != null:
 				new.Services.Add(context.Services[i])
 			i++
@@ -36,7 +36,7 @@ public class Context:
 	public static def GetService(id as string) as IService:
 		context = CurrentContext
 		i = 0
-		while i < context.Services.Length:
+		while i < context.Services.Count:
 			service = cast(IService, context.Services[i])
 			if service != null and service.ServiceId == id:
 				return service
@@ -48,7 +48,7 @@ public class Context:
 		context = CurrentContext
 		i = 0
 		empty = -1
-		while i < context.Services.Length:
+		while i < context.Services.Count:
 			oldService = cast(IService, context.Services[i])
 			if oldService == null:
 				empty = i
@@ -65,7 +65,7 @@ public class Context:
 	public static def Remove(id as string):
 		context = CurrentContext
 		i = 0
-		while i < context.Services.Length:
+		while i < context.Services.Count:
 			service = cast(IService, context.Services[i])
 			if service != null and service.ServiceId == id:
 				context.Services[i] = null

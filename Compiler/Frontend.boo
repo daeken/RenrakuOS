@@ -20,15 +20,16 @@ static class Frontend:
 		if type.IsClass or type.IsValueType:
 			exp = ['type', type, type.Name]
 			
+			names = []
 			for field as FieldDefinition in type.Fields:
+				names.Add(field)
 				exp.Add(FromField(field))
 			
 			for ctor as MethodDefinition in type.Constructors:
 				exp.Add(FromMethod(ctor))
 			
-			methodNames = []
 			for method as MethodDefinition in type.Methods:
-				methodNames.Add(method.Name)
+				names.Add(method.Name)
 				exp.Add(FromMethod(method))
 			
 			if type.BaseType != null:
@@ -39,8 +40,11 @@ static class Frontend:
 						break
 				if basetype != null:
 					for method as MethodDefinition in basetype.Methods:
-						if method.Name not in methodNames:
-							exp.Add(['inherits', basetype, method])
+						if method.Name not in names:
+							exp.Add(['inheritsMethod', basetype, method])
+					for field as FieldDefinition in basetype.Fields:
+						if field.Name not in names and not field.IsStatic:
+							exp.Add(['inheritsField', basetype, field])
 		elif type.IsInterface:
 			exp = ['interface', type, type.Name]
 			
@@ -50,7 +54,7 @@ static class Frontend:
 		return exp
 	
 	def FromField(field as FieldDefinition):
-		return ['field', field.IsStatic, field.DeclaringType.Name + '.' + field.Name, field.FieldType]
+		return ['field', field, field.IsStatic, field.DeclaringType.Name + '.' + field.Name, field.FieldType]
 	
 	def FromMethod(method as MethodDefinition):
 		body = ['body']
@@ -136,6 +140,7 @@ static class Frontend:
 			case OpCodes.Conv_Ovf_U1: yield ['conv', true, byte]
 			case OpCodes.Conv_Ovf_U2: yield ['conv', true, ushort]
 			case OpCodes.Conv_Ovf_U4: yield ['conv', true, uint]
+			case OpCodes.Box: yield ['conv', false, object]
 			
 			case OpCodes.Add: yield ['binary', 'add', false]
 			case OpCodes.Sub: yield ['binary', 'sub', false]
@@ -147,6 +152,7 @@ static class Frontend:
 			case OpCodes.Shl: yield ['binary', 'shl', false]
 			case OpCodes.Shr: yield ['binary', 'shr', true]
 			case OpCodes.Shr_Un: yield ['binary', 'shr', false]
+			case OpCodes.Xor: yield ['binary', 'xor', false]
 			
 			case OpCodes.Not: yield ['unary', 'not']
 			

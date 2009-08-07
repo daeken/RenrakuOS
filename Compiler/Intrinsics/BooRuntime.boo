@@ -5,7 +5,11 @@ class BooRuntimeIntrinsics(ClassIntrinsic):
 		HasCtor = false
 		Register('Boo.Lang.Runtime::RuntimeServices')
 		RegisterCall('NormalizeArrayIndex', NormalizeArrayIndex)
+		RegisterCall('UnboxChar', UnboxChar)
 	
 	def NormalizeArrayIndex():
 		yield ['swap']
 		yield ['pop']
+	
+	def UnboxChar():
+		yield ['nop']
