@@ -6,5 +6,6 @@ public static class Services:
 		TimerService()
 		PciService()
 		VgaService()
+		GuiService()
 		
 		print 'Services registered.'
