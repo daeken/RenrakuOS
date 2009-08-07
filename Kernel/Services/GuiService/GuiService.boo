@@ -42,11 +42,12 @@ public class GuiService():
 	def RedrawWindows():
 		Video.Fill(0, 0, 320, 200, 0)
 		i = 0
+		color as byte
 		while i < WindowList.Count:
 			if i == WindowList.Count-1:
-				color as byte = 15
+				color = 15
 			else:
-				color as byte = 7
+				color = 7
 			window = cast(Window, WindowList[i])
 			Video.Fill(window.X, window.Y, window.Width, window.Height, color)
 			i+=1
