@@ -83,7 +83,16 @@
 		<if test="${not platform::is-win32()}">
 			<exec program="nasm" commandline="-o Obj/kernel.bin Obj/kernel.asm" />
 		</if>
-
+	</target>
+	
+	<target name="Images" description="Build boot images" depends="Kernel">
+		<mkdir dir="Obj/Iso" />
+		<mkdir dir="Obj/Iso/boot" />
+		<mkdir dir="Obj/Iso/boot/grub" />
+		<copy file="Boot/menu.iso.lst" tofile="Obj/Iso/boot/grub/menu.lst" />
+		<copy file="Boot/stage2_eltorito" tofile="Obj/Iso/boot/stage2_eltorito" />
+		<copy file="Obj/kernel.bin" tofile="Obj/Iso/kernel.bin" />
+		<exec program="Boot/mkisofs.exe" commandline="-R -b boot/stage2_eltorito -no-emul-boot -boot-load-size 4 -boot-info-table -o Obj/Renraku.iso Obj/Iso/" />
 	</target>
 	
 	<target name="Build" description="Build Renraku" depends="Core, Compiler, Kernel" />

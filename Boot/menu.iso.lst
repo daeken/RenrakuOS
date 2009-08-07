@@ -1,0 +1,4 @@
+default=0
+timeout=10
+title Renraku
+kernel /kernel.bin
