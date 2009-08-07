@@ -6,9 +6,15 @@ public class ArrayList:
 	Values as (object)
 	Index as int
 	
-	Length as int:
+	Count as int:
 		get:
 			return Index
+	
+	self [idx as int] as object:
+		get:
+			return Values[idx]
+		set:
+			Values[idx] = value
 	
 	def constructor(capacity as int):
 		Values = array(object, capacity)
@@ -22,8 +28,10 @@ public class ArrayList:
 		
 		Values[Index++] = value
 	
-	self [idx as int] as object:
-		get:
-			return Values[idx]
-		set:
-			Values[idx] = value
+	def RemoveAt(index as int):
+		if index == Index-1: # Element's at the end, don't copy
+			pass
+		else:
+			Array.Copy(Values, index, Values, index+1, Values.Length-index-1)
+		
+		Index--
