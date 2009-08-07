@@ -19,6 +19,9 @@ public interface IVideoProvider:
 	def SwapBuffers():
 		pass
 	
+	def SetPalette(i as byte, r as byte, g as byte, b as byte):
+		pass
+	
 	def SetPixel(x as int, y as int, color as byte):
 		pass
 	
@@ -132,8 +135,15 @@ public class VgaService(IService, IVideoProvider):
 			mem.Value = BackBuffer[i++]
 			mem += 1
 	
+	def SetPalette(i as byte, r as byte, g as byte, b as byte):
+		PortIO.OutByte(0x3C6, 0xFF)
+		PortIO.OutByte(0x3C8, i)
+		PortIO.OutByte(0x3C9, r >> 2)
+		PortIO.OutByte(0x3C9, g >> 2)
+		PortIO.OutByte(0x3C9, b >> 2)
+	
 	def SetPixel(x as int, y as int, color as byte):
-		BackBuffer[0xA0000 + y*320 + x] = color
+		BackBuffer[y*320 + x] = color
 	
 	def Fill(x as int, y as int, w as int, h as int, color as byte):
 		th = h

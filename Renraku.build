@@ -39,7 +39,7 @@
 		</booc>
 	</target>
 	
-	<target name="Kernel" description="Build the kernel" depends="Core">
+	<target name="Kernel" description="Build the kernel" depends="Core, Compiler">
 		<booc target="library" output="Obj/Kernel.Macros.dll">
 			<sources>
 				<include name="Kernel/Macros/*.boo" />

@@ -1,5 +1,6 @@
 namespace Renraku.Compiler
 
+import System.Text
 import Boo.Lang.PatternMatching
 
 static class X86:
@@ -240,6 +241,20 @@ static class X86:
 			case 'pusharg':
 				yield ['mov', 'eax', ['deref', 'esi', -inst[1]*4]]
 				yield ['push', 'eax']
+			
+			case 'pushbytes':
+				dataLabel = MakeLabel()
+				endLabel = MakeLabel()
+				yield ['jmp', endLabel]
+				yield [dataLabel + ':']
+				sb = StringBuilder('db ', inst[1].Count*4+3)
+				for data in inst[1]:
+					sb.Append(data.ToString())
+					sb.Append(',')
+				sb.Append('0')
+				yield [sb.ToString()]
+				yield [endLabel + ':']
+				yield ['push', dataLabel]
 			
 			case 'popcontext':
 				yield ['pop', 'edi']
