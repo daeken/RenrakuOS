@@ -46,7 +46,7 @@ public class Task:
 		
 		PC = taskObj[1]
 		Registers[0] = Pointer [of uint].GetAddr(Context.CurrentContext)
-		Registers[3] = newStack + 4*argCount - 8
+		Registers[3] = newStack - 12
 		
 		New = true
 		Finished = false
@@ -105,13 +105,14 @@ public class TaskService(IInterruptHandler, IService):
 		if TaskId == oldId:
 			return
 		
+		regs[3] = CurrentTask.Registers[3]
+		stack = Pointer [of uint](regs[3]-8*4)
+		stack[8] = CurrentTask.PC
 		for i in range(8):
-			regs[i] = CurrentTask.Registers[i]
-		stack = Pointer [of uint](regs[3])
-		stack.Value = CurrentTask.PC
+			stack[i] = CurrentTask.Registers[i]
 		
 		if CurrentTask.New:
 			oldStack = Pointer [of uint](oldTask.Registers[3])
-			stack[1] = oldStack[1]
-			stack[2] = oldStack[2]
+			stack[8+1] = oldStack[1]
+			stack[8+2] = oldStack[2]
 			CurrentTask.New = false

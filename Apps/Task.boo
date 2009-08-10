@@ -12,6 +12,7 @@ class Task(Application):
 		taskServ.StartTask(Test, null)
 	
 	def Test(_ as (object)):
-		print 'Task!'
 		while true:
-			pass
+			print 'Task!'
+			for i in range(10000000):
+				pass
