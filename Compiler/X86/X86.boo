@@ -123,7 +123,7 @@ static class X86:
 				yield ['mov', 'ebp', 'esp']
 				yield ['add', 'ebp', 8]
 				yield ['push', 'ebp']
-				yield ['call', 'InterruptManager.Handle$System.Int32$System.Int32$Renraku.Core.Memory.Pointer_1.System.UInt32.$']
+				yield ['call', 'Renraku.Kernel.InterruptManager.Handle$System.Int32$System.Int32$Renraku.Core.Memory.Pointer_1.System.UInt32.$']
 				yield ['add', 'esp', 12]
 				yield ['test', 'eax', 'eax']
 				yield ['jz', noerrLabel]
@@ -212,13 +212,13 @@ static class X86:
 			
 			case 'new':
 				if TypeHelper.IsDelegate(inst[1].DeclaringType):
-					yield ['call', 'ObjectManager.NewDelegate$System.UInt32$System.UInt32$System.UInt32$']
+					yield ['call', 'Renraku.Kernel.ObjectManager.NewDelegate$System.UInt32$System.UInt32$System.UInt32$']
 					yield ['add', 'esp', 8]
 					yield ['push', 'eax']
 					return
 				
 				yield ['push', 'TypeDef.' + inst[1].DeclaringType.FullName]
-				yield ['call', 'ObjectManager.NewObj$System.UInt32$Renraku.Kernel.TypeDef$']
+				yield ['call', 'Renraku.Kernel.ObjectManager.NewObj$System.UInt32$Renraku.Kernel.TypeDef$']
 				yield ['add', 'esp', 4]
 				if len(inst[1].Parameters):
 					yield ['sub', 'esp', 4]
@@ -234,7 +234,7 @@ static class X86:
 			case 'newarr':
 				yield ['push', TypeHelper.GetSize(inst[1])]
 				yield ['push', 'VTable.System.Array']
-				yield ['call', 'ObjectManager.NewArr$System.UInt32$System.Int32$System.Int32$System.Int32$']
+				yield ['call', 'Renraku.Kernel.ObjectManager.NewArr$System.UInt32$System.Int32$System.Int32$System.Int32$']
 				yield ['add', 'esp', 12]
 				yield ['push', 'eax']
 			
@@ -443,7 +443,7 @@ static class X86:
 		Multiboot()
 		print 'start:'
 		print '\tmov esp, 0x00800000'
-		print '\tcall Kernel.Main$System.Void$'
+		print '\tcall Renraku.Kernel.Kernel.Main$System.Void$'
 		print '\t.forever:'
 		print '\t\thlt'
 		print '\t\tjmp .forever'
@@ -585,4 +585,4 @@ static class X86:
 				if vname in names:
 					print '\t\tdd', names[vname]
 				else:
-					print '\t\tdd Kernel.Fault$System.Void$'
+					print '\t\tdd Renraku.Kernel.Kernel.Fault$System.Void$'

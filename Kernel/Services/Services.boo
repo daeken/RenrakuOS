@@ -5,7 +5,6 @@ public static class Services:
 		KeyboardService().Keymap = USEnglish()
 		MouseService()
 		TaskService()
-		TimerService()
 		PciService()
 		VgaService()
 		

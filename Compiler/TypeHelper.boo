@@ -64,7 +64,7 @@ static class TypeHelper:
 			name = member.Name + '$' + SanitizeName(member.FieldType.ToString())
 		
 		if withType:
-			return member.DeclaringType.Name + '.' + name
+			return member.DeclaringType.FullName + '.' + name
 		else:
 			return name
 	

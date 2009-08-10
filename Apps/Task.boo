@@ -13,3 +13,5 @@ class Task(Application):
 	
 	def Test(_ as (object)):
 		print 'Task!'
+		while true:
+			pass

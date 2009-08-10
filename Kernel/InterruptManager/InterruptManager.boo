@@ -63,6 +63,9 @@ class InterruptManager:
 		if Isrs[num] == null:
 			prints 'Unhandled interrupt:'
 			printhex num
+			
+			while true:
+				pass
 		else:
 			Context.CurrentContext = Contexts[num]
 			Isrs[num].Handle(registers)
