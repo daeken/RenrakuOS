@@ -5,7 +5,7 @@ import Mono.Cecil
 import Mono.Cecil.Cil
 
 static class Frontend:
-	def FromAssembly(fn as string) as duck:
+	def FromAssembly(fn as string) as List:
 		assembly = AssemblyFactory.GetAssembly(fn)
 		exp = ['top']
 		for module as ModuleDefinition in assembly.Modules:
