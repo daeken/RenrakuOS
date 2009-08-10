@@ -148,9 +148,16 @@ static class X86:
 					yield ['push', 'eax']
 			
 			case 'callvirt':
-				yield ['mov', 'eax', ['deref', 'esp', len(inst[1].Parameters)*4]]
-				yield ['mov', 'eax', ['deref', 'eax']]
-				yield ['call', ['deref', 'eax', cast(int, VTable[TypeHelper.AnnotateName(inst[1], false)]) * 4]]
+				if TypeHelper.IsDelegate(inst[1].DeclaringType) and inst[1].Name == 'Invoke':
+					yield ['mov', 'eax', ['deref', 'esp', len(inst[1].Parameters) * 4]]
+					yield ['mov', 'ebx', ['eax']]
+					yield ['mov', ['deref', 'esp', len(inst[1].Parameters) * 4], 'ebx']
+					yield ['call', ['deref', 'eax', 4]]
+				else:
+					yield ['mov', 'eax', ['deref', 'esp', len(inst[1].Parameters)*4]]
+					yield ['mov', 'eax', ['deref', 'eax']]
+					yield ['call', ['deref', 'eax', cast(int, VTable[TypeHelper.AnnotateName(inst[1], false)]) * 4]]
+				
 				paramcount = len(inst[1].Parameters) + 1
 				yield ['add', 'esp', paramcount*4]
 				
@@ -204,7 +211,13 @@ static class X86:
 				yield ['push', 'eax']
 			
 			case 'new':
-				yield ['push', 'TypeDef.' + inst[1].DeclaringType.Name]
+				if TypeHelper.IsDelegate(inst[1].DeclaringType):
+					yield ['call', 'ObjectManager.NewDelegate$System.UInt32$System.UInt32$System.UInt32$']
+					yield ['add', 'esp', 8]
+					yield ['push', 'eax']
+					return
+				
+				yield ['push', 'TypeDef.' + inst[1].DeclaringType.FullName]
 				yield ['call', 'ObjectManager.NewObj$System.UInt32$Renraku.Kernel.TypeDef$']
 				yield ['add', 'esp', 4]
 				if len(inst[1].Parameters):
@@ -220,7 +233,7 @@ static class X86:
 					yield ['add', 'esp', len(inst[1].Parameters)*4]
 			case 'newarr':
 				yield ['push', TypeHelper.GetSize(inst[1])]
-				yield ['push', 'VTable.Array']
+				yield ['push', 'VTable.System.Array']
 				yield ['call', 'ObjectManager.NewArr$System.UInt32$System.Int32$System.Int32$System.Int32$']
 				yield ['add', 'esp', 12]
 				yield ['push', 'eax']
@@ -352,6 +365,9 @@ static class X86:
 					yield ['mov', reg, ['deref', 'eax', 'ecx']]
 					yield ['push', 'ebx']
 			
+			case 'pushfunc':
+				yield ['push', TypeHelper.AnnotateName(inst[1], true)]
+			
 			case 'popidt':
 				yield ['pop', 'eax']
 				yield ['lidt', ['deref', 'eax']]
@@ -439,11 +455,11 @@ static class X86:
 		
 		for id, str in Strings:
 			print 'str_' + id + ':'
-			print '\tdd VTable.String'
+			print '\tdd VTable.System.String'
 			print '\tdd', len(str)
 			print '\tdd .val'
 			print '\t.val:'
-			print '\t\tdd VTable.Array'
+			print '\t\tdd VTable.System.Array'
 			print '\t\tdd', len(str)
 			dstr = '\t\tdb '
 			for ch in str:
@@ -524,7 +540,7 @@ static class X86:
 	def EmitTypeDef(type as duck) as duck:
 		isInterface = type[0] == 'interface'
 		
-		name as string = type[2]
+		name = type[1].FullName
 		if name == '<Module>':
 			return
 		

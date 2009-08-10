@@ -83,6 +83,7 @@ public class VgaService(IService, IVideoProvider):
 		BackBuffer = array(byte, 320*200)
 		
 		Context.Register(self)
+		print 'VGA initialized.'
 	
 	def SetMode(modeRegs as (int)):
 		ClearVRam()

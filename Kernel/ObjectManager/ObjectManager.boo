@@ -19,6 +19,15 @@ static class ObjectManager:
 		
 		return addr
 	
+	def NewDelegate(instance as uint, method as uint) as uint:
+		addr = MemoryManager.Allocate(8)
+		
+		arr = Pointer of uint(addr)
+		arr[0] = instance
+		arr[1] = method
+		
+		return addr
+	
 	def NewObj(type as TypeDef) as uint:
 		addr = MemoryManager.Allocate(4 + type.Size)
 		

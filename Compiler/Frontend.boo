@@ -17,6 +17,9 @@ static class Frontend:
 		return exp
 	
 	def FromType(type as TypeDefinition):
+		if TypeHelper.IsDelegate(type):
+			return
+		
 		if type.IsClass or type.IsValueType:
 			exp = ['type', type, type.Name]
 			
@@ -115,6 +118,8 @@ static class Frontend:
 			
 			case OpCodes.Ldfld: yield ['pushfield', inst.Operand]
 			case OpCodes.Stfld: yield ['popfield', inst.Operand]
+			
+			case OpCodes.Ldftn: yield ['pushfunc', inst.Operand]
 			
 			case OpCodes.Ldsfld: yield ['pushstaticfield', inst.Operand]
 			case OpCodes.Stsfld: yield ['popstaticfield', inst.Operand]
