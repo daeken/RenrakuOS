@@ -49,15 +49,12 @@
 		</booc>
 		<booc target="library" output="Obj/Kernel.dll">
 			<sources>
-				<include name="Kernel/*.boo" />
+				<include name="Kernel/PortIO.boo" />
 				<include name="Kernel/InterruptManager/*.boo" />
 				<include name="Kernel/MemoryManager/*.boo" />
 				<include name="Kernel/ObjectManager/*.boo" />
-				<include name="Kernel/Hal/*.boo" />
 				<include name="Kernel/Context/*.boo" />
-				<include name="Kernel/Drivers/*.boo" />
-				<include name="Kernel/Drivers/*/*.boo" />
-				<include name="Kernel/Drivers/*/*/*.boo" />
+				
 				<include name="Kernel/Services/*.boo" />
 				<include name="Kernel/Services/*/*.boo" />
 				<include name="Kernel/Services/*/*/*.boo" />
@@ -68,20 +65,26 @@
 				
 				<include name="Apps/*.boo" />
 				<include name="Apps/*/*.boo" />
+				
+				<include name="Kernel/Main.boo" />
 			</sources>
 			<references>
 				<include name="Obj/Core.dll" />
 				<include name="Obj/Kernel.Macros.dll" />
 			</references>
 		</booc>
-		<echo message="AOT Compiling" />
-		<exec program="Obj/Compiler.exe" commandline="Obj/Kernel.dll" />
-		<echo message="Assembling" />
-		<if test="${platform::is-win32()}">
-			<exec program="Compiler/nasm.exe" commandline="-o Obj/kernel.bin Obj/kernel.asm" />
+		<if test="${not file::up-to-date('Obj/Kernel.dll', 'Obj/kernel.asm')}">
+			<echo message="AOT Compiling" />
+			<exec program="Obj/Compiler.exe" commandline="Obj/Kernel.dll" />
 		</if>
-		<if test="${not platform::is-win32()}">
-			<exec program="nasm" commandline="-o Obj/kernel.bin Obj/kernel.asm" />
+		<if test="${not file::up-to-date('Obj/kernel.asm', 'Obj/kernel.bin')}">
+			<echo message="Assembling" />
+			<if test="${platform::is-win32()}">
+				<exec program="Compiler/nasm.exe" commandline="-o Obj/kernel.bin Obj/kernel.asm" />
+			</if>
+			<if test="${not platform::is-win32()}">
+				<exec program="nasm" commandline="-o Obj/kernel.bin Obj/kernel.asm" />
+			</if>
 		</if>
 	</target>
 	
@@ -89,10 +92,12 @@
 		<mkdir dir="Obj/Iso" />
 		<mkdir dir="Obj/Iso/boot" />
 		<mkdir dir="Obj/Iso/boot/grub" />
-		<copy file="Boot/menu.iso.lst" tofile="Obj/Iso/boot/grub/menu.lst" />
-		<copy file="Boot/stage2_eltorito" tofile="Obj/Iso/boot/stage2_eltorito" />
-		<copy file="Obj/kernel.bin" tofile="Obj/Iso/kernel.bin" />
-		<exec program="Boot/mkisofs.exe" commandline="-R -b boot/stage2_eltorito -no-emul-boot -boot-load-size 4 -boot-info-table -o Obj/Renraku.iso Obj/Iso/" />
+		<if test="${not file::up-to-date('Obj/kernel.bin', 'Obj/Renraku.iso')}">
+			<copy file="Boot/menu.iso.lst" tofile="Obj/Iso/boot/grub/menu.lst" />
+			<copy file="Boot/stage2_eltorito" tofile="Obj/Iso/boot/stage2_eltorito" />
+			<copy file="Obj/kernel.bin" tofile="Obj/Iso/kernel.bin" />
+			<exec program="Boot/mkisofs.exe" commandline="-R -b boot/stage2_eltorito -no-emul-boot -boot-load-size 4 -boot-info-table -o Obj/Renraku.iso Obj/Iso/" />
+		</if>
 	</target>
 	
 	<target name="Build" description="Build Renraku" depends="Core, Compiler, Kernel" />
