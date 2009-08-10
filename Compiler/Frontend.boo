@@ -176,6 +176,7 @@ static class Frontend:
 				pass
 			
 			case OpCodes.Br: yield ['branch', null, (inst.Operand as Instruction).Offset, -1]
+			case OpCodes.Br_S: yield ['branch', null, (inst.Operand as Instruction).Offset, -1]
 			case OpCodes.Brfalse: yield ['branch', 'false', (inst.Operand as Instruction).Offset, NextInst(inst)]
 			case OpCodes.Brtrue: yield ['branch', 'true', (inst.Operand as Instruction).Offset, NextInst(inst)]
 			case OpCodes.Beq: yield ['branch', '==', (inst.Operand as Instruction).Offset, NextInst(inst)]
