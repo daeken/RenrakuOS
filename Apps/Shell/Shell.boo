@@ -17,6 +17,7 @@ public class Shell(Application):
 				Reverse(), 
 				PciDump(), 
 				Shell(), 
+				Windows(),
 			)
 		
 		print 'Welcome to Renrakushell'
