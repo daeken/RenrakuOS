@@ -98,7 +98,9 @@ public class TaskService(IInterruptHandler, IService):
 			if ++TaskId == Tasks.Count:
 				TaskId = 0
 			
-			if not cast(Task, Tasks[TaskId]).Finished:
+			if cast(Task, Tasks[TaskId]).Finished:
+				Tasks.RemoveAt(TaskId)
+			else:
 				CurrentTask = cast(Task, Tasks[TaskId])
 				break
 		

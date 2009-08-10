@@ -32,6 +32,6 @@ public class ArrayList:
 		if index == Index-1: # Element's at the end, don't copy
 			pass
 		else:
-			Array.Copy(Values, index, Values, index+1, Values.Length-index-1)
+			Array.Copy(Values, index+1, Values, index, Values.Length-index-1)
 		
 		Index--
