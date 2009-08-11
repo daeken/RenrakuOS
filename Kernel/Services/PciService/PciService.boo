@@ -94,6 +94,10 @@ class PciDevice:
 			return MemoryAddressSpace(val & 0xFFFFFFF0)
 		else:
 			return IOAddressSpace(val & 0xFFFFFFFC)
+	
+	def Enable():
+		command = PciService.ReadShort(Card, Bus, 4) | 0x6
+		PciService.WriteShort(Card, Bus, 4, command)
 
 class PciService(IService):
 	override ServiceId:
@@ -162,6 +166,13 @@ class PciService(IService):
 			return PortIO.InLong(0xC000 | (card << 8) | index)
 		else:
 			return 0
+	
+	static def WriteShort(card as int, bus as int, index as int, value as int):
+		if Type == 1:
+			PortIO.OutLong(0xCF8, 0x80000000 | (card << 11) | (bus << 16) | index)
+			PortIO.OutShort(0xCFC, value)
+		elif Type == 2:
+			PortIO.OutShort(0xC000 | (card << 8) | index, value)
 	
 	static def WriteLong(card as int, bus as int, index as int, value as int):
 		if Type == 1:

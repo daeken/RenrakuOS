@@ -14,6 +14,7 @@ public class Shell(Application):
 				Exclaim(), 
 				Logo(), 
 				Mouse(), 
+				NetTest(), 
 				Reverse(), 
 				PciDump(), 
 				Shell(), 

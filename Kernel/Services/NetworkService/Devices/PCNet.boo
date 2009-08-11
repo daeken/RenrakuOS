@@ -46,6 +46,10 @@ class PCNet(IInterruptHandler, INetworkDevice, PciDevice):
 		
 		Io = GetAddressSpace(0)
 		
+		Enable()
+		
+		Io.Long[0x10] = 0
+		
 		initBlockAddr = MemoryManager.Allocate(28+3)
 		while initBlockAddr & 3 != 0:
 			++initBlockAddr
@@ -105,29 +109,14 @@ class PCNet(IInterruptHandler, INetworkDevice, PciDevice):
 		status = RegisterLong[0]
 		
 		if status & 0x200 != 0:
+			print 'send'
 			if SendQueue.Count > 0:
 				data = cast((byte), SendQueue.Peek())
-				
-				sendDesc = Pointer [of uint](SendAddr + (SendOff << 4))
-				
-				if sendDesc[1] & 0x80000000 == 0:
-					buf = SendBuffers[SendOff]
-					ti = 0
-					while ti < data.Length:
-						buf[ti] = data[ti]
-						++ti
-					
-					length = data.Length
-					if length < 64:
-						length = 64
-					sendDesc[1] = ((~length) + 1) & 0x0FFF | 0x8300F000
-					
+				if SendData(data):
 					SendQueue.Dequeue()
-				
-				if ++SendOff == 16:
-					SendOff = 0
 		
-		elif status & 0x4000 != 0:
+		elif status & 0x400 != 0:
+			print 'recv'
 			recvDescs = Pointer [of uint](RecvAddr)
 			for i in range(16):
 				if recvDescs[1] & 0x80000000 == 0:
@@ -146,3 +135,37 @@ class PCNet(IInterruptHandler, INetworkDevice, PciDevice):
 				recvDescs += 4
 		
 		RegisterLong[0] = status
+	
+	def SendData(data as (byte)) as bool:
+		ret = false
+		sendDesc = Pointer [of uint](SendAddr + (SendOff << 4))
+		
+		if sendDesc[1] & 0x80000000 == 0:
+			buf = SendBuffers[SendOff]
+			ti = 0
+			while ti < data.Length:
+				buf[ti] = data[ti]
+				++ti
+			
+			length = data.Length
+			if length < 64:
+				length = 64
+			sendDesc[1] = ((~length) + 1) & 0x0FFF | 0x8300F000
+			
+			ret = true
+		
+		if ++SendOff == 16:
+			SendOff = 0
+		return ret
+	
+	def Send(data as (byte)):
+		print 'sending'
+		if not SendData(data):
+			print 'fail'
+			SendQueue.Enqueue(data)
+	
+	def Recv() as (byte):
+		if RecvQueue.Count > 0:
+			return RecvQueue.Dequeue()
+		else:
+			return null

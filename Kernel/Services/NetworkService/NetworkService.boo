@@ -1,12 +1,17 @@
 namespace Renraku.Kernel
 
-import System.Collections
-
 interface INetworkDevice:
-	pass
+	def Send(data as (byte)):
+		pass
+	
+	def Recv() as (byte):
+		pass
 
 interface INetworkProvider:
 	def AddDevice(device as INetworkDevice):
+		pass
+	
+	def Send(data as (byte)) as bool:
 		pass
 
 class NetworkService(INetworkProvider, IService):
@@ -14,9 +19,9 @@ class NetworkService(INetworkProvider, IService):
 		get:
 			return 'network'
 	
-	Devices as ArrayList
+	Device as INetworkDevice
 	def constructor():
-		Devices = ArrayList()
+		Device = null
 		
 		Context.Register(self)
 		print 'Network service initialized.'
@@ -24,4 +29,11 @@ class NetworkService(INetworkProvider, IService):
 		PCNet()
 	
 	def AddDevice(device as INetworkDevice):
-		Devices.Add(device)
+		Device = device
+	
+	def Send(data as (byte)) as bool:
+		if Device == null:
+			return false
+		
+		Device.Send(data)
+		return true
