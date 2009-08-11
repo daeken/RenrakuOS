@@ -2,10 +2,12 @@ namespace Renraku.Kernel
 
 public static class Services:
 	public def Register():
+		TaskService()
 		KeyboardService().Keymap = USEnglish()
 		MouseService()
-		TaskService()
+		
 		PciService()
+		NetworkService()
 		VgaService()
 		
 		print 'Services registered.'

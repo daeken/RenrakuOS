@@ -558,7 +558,7 @@ static class X86:
 			if member[0] == 'field' and not member[2]:
 				size += TypeHelper.GetSize(member[4])
 			elif member[0] == 'inheritsField':
-				size += TypeHelper.GetSize(member[2])
+				size += TypeHelper.GetSize(member[2].FieldType)
 		print '\tdd', size
 		
 		if isInterface:

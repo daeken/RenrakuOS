@@ -1,7 +1,7 @@
 namespace Renraku.Kernel
 
 class PciDevice:
-	virtual Vendor as int:
+	virtual VendorId as int:
 		get:
 			return 0xFFFF
 	
@@ -9,24 +9,15 @@ class PciDevice:
 		get:
 			return 0xFFFF
 	
-	virtual Bus as int:
-		get:
-			return 0
-		set:
-			pass
-	
-	virtual Card as int:
-		get:
-			return 0
-		set:
-			pass
+	Bus as int
+	Card as int
 	
 	def Find():
 		if PciService.Type == 1:
 			for bus in range(16):
 				for card in range(32):
 					tmp = PciService.ReadLong(card, bus, 0)
-					if Vendor == (tmp & 0xFFFF) and DeviceId == (tmp >> 16):
+					if VendorId == (tmp & 0xFFFF) and DeviceId == (tmp >> 16):
 						Bus = bus
 						Card = card
 						return true
@@ -35,7 +26,7 @@ class PciDevice:
 			PortIO.OutShort(0xCFA, 0)
 			for card in range(16):
 				tmp = PciService.ReadLong(card, 0, 0)
-				if Vendor == (tmp & 0xFFFF) and DeviceId == (tmp >> 16):
+				if VendorId == (tmp & 0xFFFF) and DeviceId == (tmp >> 16):
 					Bus = 0
 					Card = card
 					return true
