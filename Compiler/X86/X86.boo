@@ -257,6 +257,9 @@ static class X86:
 			case 'push': yield ['push', inst[1]]
 			case 'pop': yield ['add', 'esp', 4]
 			
+			case 'poparg':
+				yield ['pop', 'eax']
+				yield ['mov', ['deref', 'esi', -inst[1]*4], 'eax']
 			case 'pusharg':
 				yield ['mov', 'eax', ['deref', 'esi', -inst[1]*4]]
 				yield ['push', 'eax']

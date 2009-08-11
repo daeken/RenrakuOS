@@ -105,6 +105,7 @@ static class Frontend:
 			case OpCodes.Ldarg_2: yield ['pusharg', 2]
 			case OpCodes.Ldarg_3: yield ['pusharg', 3]
 			case OpCodes.Ldarg_S: yield ['pusharg', (inst.Operand as duck).Sequence]
+			case OpCodes.Starg: yield ['poparg', (inst.Operand as duck).Sequence]
 			
 			case OpCodes.Ldelem_I1: yield ['pushelem', 'System.SByte']
 			case OpCodes.Stelem_I1: yield ['popelem', 'System.SByte']

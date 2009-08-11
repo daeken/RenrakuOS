@@ -1,5 +1,54 @@
 namespace Renraku.Kernel
 
+import Renraku.Core.Memory
+
+interface IAddressSpace:
+	Short [off as uint] as ushort:
+		get:
+			pass
+		set:
+			pass
+	
+	Long [off as uint] as uint:
+		get:
+			pass
+		set:
+			pass
+
+class MemoryAddressSpace(IAddressSpace):
+	Short [off as uint]:
+		get:
+			return Pointer [of ushort](Address + off).Value
+		set:
+			Pointer [of ushort](Address + off).Value = value
+	
+	Long [off as uint]:
+		get:
+			return Pointer [of uint](Address + off).Value
+		set:
+			Pointer [of uint](Address + off).Value = value
+	
+	Address as int
+	def constructor(address as int):
+		Address = address
+
+class IOAddressSpace(IAddressSpace):
+	Short [off as uint]:
+		get:
+			return PortIO.InShort(Address + off)
+		set:
+			PortIO.OutShort(Address + off, value)
+	
+	Long [off as uint]:
+		get:
+			return PortIO.InLong(Address + off)
+		set:
+			PortIO.OutLong(Address + off, value)
+	
+	Address as int
+	def constructor(address as int):
+		Address = address
+
 class PciDevice:
 	virtual VendorId as int:
 		get:
@@ -11,6 +60,10 @@ class PciDevice:
 	
 	Bus as int
 	Card as int
+	
+	InterruptLine:
+		get:
+			return PciService.ReadByte(Card, Bus, 0x3C)
 	
 	def Find():
 		if PciService.Type == 1:
@@ -33,32 +86,14 @@ class PciDevice:
 		
 		return false
 	
-	def Configure():
-		type = PciService.ReadLong(Card, Bus, 0x0C)
-		type = (type >> 16) & 0xF
-		if type == 0x00: # Standard header
-			InitBar(0x10)
-			InitBar(0x14)
-			InitBar(0x18)
-			InitBar(0x1C)
-			InitBar(0x20)
-			InitBar(0x24)
-		elif type == 0x01: # PCI-PCI Bridge header
-			pass
-	
-	def InitBar(index as int):
-		val = PciService.ReadLong(Card, Bus, index)
+	def GetAddressSpace(num as int) as IAddressSpace:
+		num = 0x10 + num << 2
+		val = PciService.ReadLong(Card, Bus, num)
 		
-		if val & 1 == 0: # Memory space
-			mask = val & 0xFFFFFFF0
-			if mask == 0:
-				return
-			
-			addr = AllocAligned((~mask) + 1)
-			PciService.WriteLong(Card, Bus, index, addr | (val & 0xF))
-	
-	def AllocAligned(size as uint) as uint:
-		return MemoryManager.Allocate(size*2) & ~(size-1)
+		if val & 1 == 0:
+			return MemoryAddressSpace(val & 0xFFFFFFF0)
+		else:
+			return IOAddressSpace(val & 0xFFFFFFFC)
 
 class PciService(IService):
 	override ServiceId:
