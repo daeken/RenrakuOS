@@ -16,6 +16,9 @@ public class ArrayList:
 		set:
 			Values[idx] = value
 	
+	def constructor():
+		self(4)
+	
 	def constructor(capacity as int):
 		Values = array(object, capacity)
 		Index = 0

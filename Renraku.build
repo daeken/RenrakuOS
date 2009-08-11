@@ -73,7 +73,7 @@
 				<include name="Obj/Kernel.Macros.dll" />
 			</references>
 		</booc>
-		<if test="${not file::up-to-date('Obj/Kernel.dll', 'Obj/kernel.asm')}">
+		<if test="${not file::up-to-date('Obj/Kernel.dll', 'Obj/kernel.asm') or not file::up-to-date('Obj/Compiler.exe', 'Obj/kernel.asm')}">
 			<echo message="AOT Compiling" />
 			<exec program="Obj/Compiler.exe" commandline="Obj/Kernel.dll" />
 		</if>

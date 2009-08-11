@@ -257,6 +257,9 @@ static class X86:
 			case 'push': yield ['push', inst[1]]
 			case 'pop': yield ['add', 'esp', 4]
 			
+			case 'poparg':
+				yield ['pop', 'eax']
+				yield ['mov', ['deref', 'esi', -inst[1]*4], 'eax']
 			case 'pusharg':
 				yield ['mov', 'eax', ['deref', 'esi', -inst[1]*4]]
 				yield ['push', 'eax']
@@ -558,7 +561,7 @@ static class X86:
 			if member[0] == 'field' and not member[2]:
 				size += TypeHelper.GetSize(member[4])
 			elif member[0] == 'inheritsField':
-				size += TypeHelper.GetSize(member[2])
+				size += TypeHelper.GetSize(member[2].FieldType)
 		print '\tdd', size
 		
 		if isInterface:
