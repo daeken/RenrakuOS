@@ -35,6 +35,7 @@ class PCNet(IInterruptHandler, INetworkDevice, PciDevice):
 	Io as IAddressSpace
 	SendAddr as uint
 	SendBuffers as (Pointer [of uint])
+	SendOff as uint
 	RecvAddr as uint
 	RecvBuffers as (Pointer [of uint])
 	SendQueue as Queue
@@ -55,6 +56,7 @@ class PCNet(IInterruptHandler, INetworkDevice, PciDevice):
 		SendAddr = MemoryManager.Allocate(256+15)
 		while SendAddr & 0xF != 0:
 			++SendAddr
+		SendOff = 0
 		
 		initBlock = Pointer [of uint](initBlockAddr)
 		initBlock[0] = 0x0404 << 20
@@ -103,20 +105,41 @@ class PCNet(IInterruptHandler, INetworkDevice, PciDevice):
 		status = RegisterLong[0]
 		
 		if status & 0x200 != 0:
-			pass
+			if SendQueue.Count > 0:
+				data = cast((byte), SendQueue.Peek())
+				
+				sendDesc = Pointer [of uint](SendAddr + (SendOff << 4))
+				
+				if sendDesc[1] & 0x80000000 == 0:
+					buf = SendBuffers[SendOff]
+					ti = 0
+					while ti < data.Length:
+						buf[ti] = data[ti]
+						++ti
+					
+					length = data.Length
+					if length < 64:
+						length = 64
+					sendDesc[1] = ((~length) + 1) & 0x0FFF | 0x8300F000
+					
+					SendQueue.Dequeue()
+				
+				if ++SendOff == 16:
+					SendOff = 0
+		
 		elif status & 0x4000 != 0:
 			recvDescs = Pointer [of uint](RecvAddr)
 			for i in range(16):
 				if recvDescs[1] & 0x80000000 == 0:
 					size = recvDescs[0] & 0xFFF
 					rbuf = RecvBuffers[i]
-					buf = array(byte, size)
+					tbuf = array(byte, size)
 					j = 0
 					while j < size:
-						buf[j] = rbuf[j]
+						tbuf[j] = rbuf[j]
 						++j
 					
-					RecvQueue.Enqueue(buf)
+					RecvQueue.Enqueue(tbuf)
 					
 					recvDescs[1] |= 0x80000000
 				

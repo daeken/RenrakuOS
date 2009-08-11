@@ -130,7 +130,7 @@ public class MouseService(IInterruptHandler, IMouseProvider, IService):
 			EventQueue.Enqueue(evt)
 	
 	def Read() as MouseEvent:
-		if EventQueue.Length == 0:
+		if EventQueue.Count == 0:
 			return null
 		
 		InterruptManager.Disable()

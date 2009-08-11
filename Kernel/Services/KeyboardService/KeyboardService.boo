@@ -88,4 +88,4 @@ class KeyboardService(IInterruptHandler, IKeyboardProvider, IService):
 		return ch
 	
 	public def HasData() as bool:
-		return Buffer.Length != 0
+		return Buffer.Count != 0

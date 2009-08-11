@@ -8,7 +8,7 @@ class Queue:
 	private front = 0
 	private back = 0
 	
-	Length:
+	Count:
 		get:
 			if front <= back:
 				return back - front
@@ -47,7 +47,7 @@ class Queue:
 			new_length = buffer.Length*2
 		new_buffer = array(object, new_length)
 		
-		orig_len = Length
+		orig_len = Count
 		# We haven't wrapped, so we can just copy everything at once
 		if front < back:
 			Array.Copy(buffer, front, new_buffer, 0, orig_len)
@@ -63,7 +63,7 @@ class Queue:
 		buffer = new_buffer
 	
 	private def EnsureRoom(amount as int):
-		new_len = Length + amount
+		new_len = Count + amount
 		
 		# Only bother growing the buffer if there is no more room
 		if new_len > buffer.Length:
