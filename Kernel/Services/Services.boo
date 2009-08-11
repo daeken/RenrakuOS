@@ -4,7 +4,7 @@ public static class Services:
 	public def Register():
 		KeyboardService().Keymap = USEnglish()
 		MouseService()
-		TimerService()
+		TaskService()
 		PciService()
 		VgaService()
 		GuiService()

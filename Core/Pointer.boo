@@ -3,9 +3,6 @@ namespace Renraku.Core.Memory
 import System
 
 class Pointer [of T]:
-	def constructor(addr as int):
-		pass
-	
 	def constructor(addr as uint):
 		pass
 	

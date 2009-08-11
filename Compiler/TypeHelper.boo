@@ -1,9 +1,18 @@
 namespace Renraku.Compiler
 
+import System
 import Boo.Lang.PatternMatching
 import Mono.Cecil
 
 static class TypeHelper:
+	Corlib as ModuleDefinition
+	def constructor():
+		resolver= DefaultAssemblyResolver()
+		assembly = AssemblyNameReference()
+		assembly.Name = 'mscorlib'
+		assembly.Version = Version('2.0.0.0')
+		Corlib = resolver.Resolve(assembly).MainModule
+	
 	def GetSize(type as duck) as int:
 		if type isa TypeDefinition:
 			if not type.IsValueType:
@@ -55,6 +64,22 @@ static class TypeHelper:
 			name = member.Name + '$' + SanitizeName(member.FieldType.ToString())
 		
 		if withType:
-			return member.DeclaringType.Name + '.' + name
+			return member.DeclaringType.FullName + '.' + name
 		else:
 			return name
+	
+	def IsDelegate(typeRef as TypeReference) as bool:
+		if typeRef.FullName == 'System.Delegate':
+			return true
+		
+		if typeRef isa TypeDefinition:
+			type = cast(TypeDefinition, typeRef)
+		else:
+			type = typeRef.Module.Types[typeRef.FullName]
+			if type == null:
+				type = Corlib.Types[typeRef.FullName]
+		
+		if type == null or type.BaseType == null:
+			return false
+		else:
+			return IsDelegate(type.BaseType)

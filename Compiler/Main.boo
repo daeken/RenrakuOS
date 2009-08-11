@@ -17,7 +17,11 @@ PointerIntrinsics()
 ObjPointerIntrinsics()
 PortIntrinsics()
 
-cilExp = Frontend.FromAssembly(argv[0])
+cilExp = ['top']
+
+for arg in argv: 
+	cilExp += Frontend.FromAssembly(arg)[1:]
+
 cilExp = Blockifier.Blockify(cilExp)
 cilExp = IntrinsicRunner.Apply(cilExp)
 asmExp = X86.Compile(cilExp)
