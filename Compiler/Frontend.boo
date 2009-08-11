@@ -33,7 +33,9 @@ static class Frontend:
 			
 			for method as MethodDefinition in type.Methods:
 				names.Add(method.Name)
-				exp.Add(FromMethod(method))
+				sub = FromMethod(method)
+				if sub != null:
+					exp.Add(sub)
 			
 			if type.BaseType != null:
 				basetype as TypeDefinition = null
@@ -60,20 +62,23 @@ static class Frontend:
 		return ['field', field, field.IsStatic, field.DeclaringType.Name + '.' + field.Name, field.FieldType]
 	
 	def FromMethod(method as MethodDefinition):
-		body = ['body']
-		for inst as Instruction in method.Body.Instructions:
-			iblock = ['inst', inst.Offset]
-			for elem in FromInst(inst):
-				iblock.Add(elem)
-			body.Add(iblock)
-		
-		return ['method', 
-				method, 
-				method.Name, 
-				method.Body.Variables.Count, 
-				['type', method.ReturnType.ReturnType], 
-				body
-			]
+		if method.Body == null:
+			return null
+		else:
+			body = ['body']
+			for inst as Instruction in method.Body.Instructions:
+				iblock = ['inst', inst.Offset]
+				for elem in FromInst(inst):
+					iblock.Add(elem)
+				body.Add(iblock)
+			
+			return ['method', 
+					method, 
+					method.Name, 
+					method.Body.Variables.Count, 
+					['type', method.ReturnType.ReturnType], 
+					body
+				]
 	
 	def FromInterfaceMethod(method as MethodDefinition):
 		return ['method', 
