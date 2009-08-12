@@ -7,12 +7,14 @@ class Task(Application):
 		get:
 			return 'task'
 	
+	Val as int
 	def Run(_ as (string)):
 		taskServ = cast(ITaskProvider, Context.Service['task'])
+		Val = 0xCAFEBABE
 		taskServ.StartTask(Test, null)
 	
 	def Test(_ as (object)):
-		while true:
-			print 'Task!'
-			for i in range(10000000):
+		for i in range(10):
+			printhex Val++
+			for j in range(5000000):
 				pass

@@ -3,7 +3,7 @@ namespace Renraku.Kernel
 import System.Collections
 import Renraku.Core.Memory
 
-callable DoneCallable() as void
+callable DoneCallable(_ as object) as void
 callable TaskCallable(args as (object)) as void
 
 public class Task:
@@ -20,38 +20,25 @@ public class Task:
 	def constructor(stackSize as int, taskFunc as TaskCallable, args as (object)):
 		Registers = Pointer [of uint](MemoryManager.Allocate(4*8))
 		
-		if cast(object, args) == null:
-			argCount = 0
-		else:
-			argCount = args.Length
-		newStack as uint = MemoryManager.Allocate(stackSize) + stackSize - 4*argCount - 8
+		newStack as uint = MemoryManager.Allocate(stackSize) + stackSize - 16
+		stackPtr = Pointer [of uint](newStack)
 		
 		taskObj = Pointer [of uint](Pointer [of uint].GetAddr(taskFunc))
-		if taskObj[0] != 0: # Task is an instance method
-			newStack -= 4
-		
-		stackPtr = Pointer [of uint](newStack)
-		i = argCount
-		while i-- != 0:
-			stackPtr[i] = Pointer [of object].GetAddr(args[i])
-		
-		if taskObj[0] != 0:
-			stackPtr[argCount] = taskObj[0]
-			argCount++
-		
-		doneAddr = Pointer [of uint].GetAddr(DoneCallable(Done))
-		doneObj = Pointer [of uint](doneAddr)
-		stackPtr[argCount+1] = doneObj[0] # This task instance
-		stackPtr[argCount] = doneObj[1] # Pointer to Task.Done
-		
 		PC = taskObj[1]
+
+		doneObj = Pointer [of uint](Pointer [of uint].GetAddr(DoneCallable(Done)))
+		stackPtr[0] = doneObj[1]
+		stackPtr[1] = Pointer [of uint].GetAddr(args)
+		stackPtr[2] = taskObj[0]
+		stackPtr[3] = doneObj[0]
+		
 		Registers[0] = Pointer [of uint].GetAddr(Context.CurrentContext)
 		Registers[3] = newStack - 12
 		
 		New = true
 		Finished = false
 	
-	def Done():
+	def Done(_ as object):
 		Finished = true
 		while true:
 			pass
@@ -95,7 +82,7 @@ public class TaskService(IInterruptHandler, IService):
 		oldId = TaskId
 		oldTask = CurrentTask
 		while true:
-			if ++TaskId == Tasks.Count:
+			if ++TaskId >= Tasks.Count:
 				TaskId = 0
 			
 			if cast(Task, Tasks[TaskId]).Finished:
