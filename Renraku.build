@@ -96,7 +96,12 @@
 			<copy file="Boot/menu.iso.lst" tofile="Obj/Iso/boot/grub/menu.lst" />
 			<copy file="Boot/stage2_eltorito" tofile="Obj/Iso/boot/stage2_eltorito" />
 			<copy file="Obj/kernel.bin" tofile="Obj/Iso/kernel.bin" />
-			<exec program="Boot/mkisofs.exe" commandline="-R -b boot/stage2_eltorito -no-emul-boot -boot-load-size 4 -boot-info-table -o Obj/Renraku.iso Obj/Iso/" />
+			<if test="${platform::is-win32()}">
+				<exec program="Boot/mkisofs.exe" commandline="-R -b boot/stage2_eltorito -no-emul-boot -boot-load-size 4 -boot-info-table -o Obj/Renraku.iso Obj/Iso/" />
+			</if>
+			<if test="${not platform::is-win32()}">
+				<exec program="mkisofs" commandline="-R -b boot/stage2_eltorito -no-emul-boot -boot-load-size 4 -boot-info-table -o Obj/Renraku.iso Obj/Iso/" />
+			</if>
 		</if>
 	</target>
 	
