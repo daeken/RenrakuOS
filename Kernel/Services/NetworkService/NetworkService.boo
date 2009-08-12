@@ -1,6 +1,10 @@
 namespace Renraku.Kernel
 
 interface INetworkDevice:
+	Mac as (byte):
+		get:
+			pass
+	
 	def Send(data as (byte)):
 		pass
 	
@@ -8,16 +12,27 @@ interface INetworkDevice:
 		pass
 
 interface INetworkProvider:
+	Mac as (byte):
+		get:
+			pass
+	
 	def AddDevice(device as INetworkDevice):
 		pass
 	
 	def Send(data as (byte)) as bool:
+		pass
+	
+	def Read() as (byte):
 		pass
 
 class NetworkService(INetworkProvider, IService):
 	override ServiceId:
 		get:
 			return 'network'
+	
+	Mac as (byte):
+		get:
+			return Device.Mac
 	
 	Device as INetworkDevice
 	def constructor():
@@ -37,3 +52,9 @@ class NetworkService(INetworkProvider, IService):
 		
 		Device.Send(data)
 		return true
+	
+	def Read() as (byte):
+		if Device == null:
+			return null
+		
+		return Device.Recv()

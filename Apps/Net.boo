@@ -11,9 +11,6 @@ class NetTest(Application):
 	def Run(_ as (string)):
 		net = cast(INetworkProvider, Context.Service['network'])
 		
-		buf = array(byte, 128)
-		buf[0] = 0xDE
-		buf[1] = 0xAD
-		buf[2] = 0xBE
-		buf[3] = 0xEF
-		net.Send(buf)
+		while true:
+			Arp.Resolve(net, 0x7b2d4359)
+			print 'Resolved!'

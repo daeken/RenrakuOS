@@ -6,11 +6,11 @@ import System.IO
 class EthernetStream(Stream):
 	static CrcTable as (byte)
 	
-	Device as INetworkDevice
+	Net as INetworkProvider
 	SrcMac as (byte)
 	DestMac as (byte)
 	Type as int
-	def constructor(device as INetworkDevice, srcMac as (byte), destMac as (byte), type as int):
+	def constructor(net as INetworkProvider, destMac as (byte), type as int):
 		if cast(object, CrcTable) == null:
 			CrcTable = array(byte, 256)
 			for i in range(256):
@@ -23,8 +23,8 @@ class EthernetStream(Stream):
 						temp >>= 1
 				CrcTable[i] = temp
 		
-		Device = device
-		SrcMac = srcMac
+		Net = net
+		SrcMac = Net.Mac
 		DestMac = destMac
 		Type = type
 	
@@ -45,10 +45,31 @@ class EthernetStream(Stream):
 		while j < length:
 			index = (crc & 0xFF) ^ buf[j]
 			crc = (crc >> 8) ^ CrcTable[index]
+			++j
 		
 		buf[length] = crc >> 24
 		buf[length+1] = (crc >> 16) & 0xFF
 		buf[length+2] = (crc >> 8) & 0xFF
 		buf[length+3] = crc & 0xFF
 		
-		Device.Send(buf)
+		Net.Send(buf)
+	
+	def Read(data as (byte), offset as int, count as int) as int:
+		while true:
+			buf = Net.Read()
+			
+			match = true
+			for i in range(6):
+				if SrcMac[i] == data[i] and DestMac[i] == data[6+i]:
+					match = false
+					break
+			if not match or buf[12] != Type >> 8 or buf[13] != Type & 0xFF:
+				continue
+			
+			length = buf.Length - 18
+			if count < length:
+				length = count
+			
+			Array.Copy(buf, 14, data, offset, length)
+			
+			return length

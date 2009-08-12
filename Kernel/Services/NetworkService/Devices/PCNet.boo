@@ -16,6 +16,10 @@ class PCNet(IInterruptHandler, INetworkDevice, PciDevice):
 		get:
 			return 32+InterruptLine
 	
+	override Mac:
+		get:
+			return _Mac
+	
 	RegisterLong [addr as int] as uint:
 		get:
 			Io.Long[0x14] = addr
@@ -40,6 +44,7 @@ class PCNet(IInterruptHandler, INetworkDevice, PciDevice):
 	RecvBuffers as (Pointer [of uint])
 	SendQueue as Queue
 	RecvQueue as Queue
+	_Mac as (byte)
 	def constructor():
 		if not Find():
 			return
@@ -69,6 +74,16 @@ class PCNet(IInterruptHandler, INetworkDevice, PciDevice):
 		initBlock[5] = RecvAddr
 		initBlock[6] = SendAddr
 		
+		_Mac = array(byte, 6)
+		high = Io.Long[0]
+		_Mac[0] = high >> 24
+		_Mac[1] = (high >> 16) & 0xFF
+		_Mac[2] = (high >> 8) & 0xFF
+		_Mac[3] = high & 0xFF
+		low = Io.Short[4]
+		_Mac[4] = low >> 8
+		_Mac[5] = low & 0xFF
+		
 		RegisterLong[0] = RegisterLong[0] | 4 # STOP
 		RegisterLong[1] = initBlockAddr & 0xFFFF
 		RegisterLong[2] = initBlockAddr >> 16
@@ -96,7 +111,7 @@ class PCNet(IInterruptHandler, INetworkDevice, PciDevice):
 			addr = MemoryManager.Allocate(2048)
 			RecvBuffers[i] = Pointer [of uint](addr)
 			recvDescs[2] = addr
-			recvDescs[1] = ((~2048) + 1) & 0x0FFF | 0x8000F000
+			recvDescs[1] = (((~2048) + 1) & 0x0FFF) | 0x8000F000
 			
 			recvDescs += 4
 		
@@ -115,7 +130,7 @@ class PCNet(IInterruptHandler, INetworkDevice, PciDevice):
 				if SendData(data):
 					SendQueue.Dequeue()
 		
-		elif status & 0x400 != 0:
+		if status & 0x400 != 0:
 			print 'recv'
 			recvDescs = Pointer [of uint](RecvAddr)
 			for i in range(16):
@@ -150,7 +165,7 @@ class PCNet(IInterruptHandler, INetworkDevice, PciDevice):
 			length = data.Length
 			if length < 64:
 				length = 64
-			sendDesc[1] = ((~length) + 1) & 0x0FFF | 0x8300F000
+			sendDesc[1] = (((~length) + 1) & 0x0FFF) | 0x8300F000
 			
 			ret = true
 		
@@ -165,7 +180,7 @@ class PCNet(IInterruptHandler, INetworkDevice, PciDevice):
 			SendQueue.Enqueue(data)
 	
 	def Recv() as (byte):
-		if RecvQueue.Count > 0:
-			return RecvQueue.Dequeue()
-		else:
-			return null
+		while RecvQueue.Count == 0:
+			pass
+		
+		return RecvQueue.Dequeue()
