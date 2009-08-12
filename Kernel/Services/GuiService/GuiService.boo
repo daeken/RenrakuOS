@@ -73,6 +73,7 @@ public class GuiService(IService, IGuiProvider):
 		Video.Fill(mouse.X, mouse.Y, 5, 5, 4)
 		
 	def StartGui():
+		print 'starting gui'
 		Video.Graphical = true
 		Gui = true
 		while Gui:
