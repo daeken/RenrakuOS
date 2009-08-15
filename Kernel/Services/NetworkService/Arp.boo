@@ -7,6 +7,19 @@ static class Arp:
 	def Resolve(ip as IPAddress) as (byte):
 		ret = array(byte, 6)
 		
+		ipBytes = ip.GetAddressBytes()
+		if (
+				ipBytes[0] == 0xFF and ipBytes[1] == 0xFF and 
+				ipBytes[2] == 0xFF and ipBytes[3] == 0xFF
+			):
+			ret[0] = 0xFF
+			ret[1] = 0xFF
+			ret[2] = 0xFF
+			ret[3] = 0xFF
+			ret[4] = 0xFF
+			ret[5] = 0xFF
+			return ret
+		
 		dhcpMac = array(byte, 6)
 		for i in range(6):
 			dhcpMac[i] = 0xFF
@@ -23,7 +36,7 @@ static class Arp:
 		
 		net = cast(INetworkProvider, Context.Service['network'])
 		Array.Copy(net.Mac, 0, buf, 8, 6)
-		Array.Copy(ip.GetAddressBytes(), 0, buf, 24, 4)
+		Array.Copy(ipBytes, 0, buf, 24, 4)
 		
 		phys.Write(buf, 0, 28)
 		

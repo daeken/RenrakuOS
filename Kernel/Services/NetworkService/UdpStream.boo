@@ -8,8 +8,8 @@ class UdpStream(Stream):
 	NetStream as Stream
 	SrcPort as int
 	DestPort as int
-	def constructor(srcIp as IPAddress, srcPort as int, destIp as IPAddress, destPort as int):
-		NetStream = IpStream(srcIp, destIp, 0x11)
+	def constructor(srcPort as int, destIp as IPAddress, destPort as int):
+		NetStream = IpStream(destIp, 0x11)
 		
 		SrcPort = srcPort
 		DestPort = destPort

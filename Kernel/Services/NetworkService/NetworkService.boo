@@ -1,8 +1,16 @@
 namespace Renraku.Kernel
 
+import System.Net
+
 interface INetworkDevice:
 	Mac as (byte):
 		get:
+			pass
+	
+	Ip as IPAddress:
+		get:
+			pass
+		set:
 			pass
 	
 	def Send(data as (byte)):
@@ -14,6 +22,12 @@ interface INetworkDevice:
 interface INetworkProvider:
 	Mac as (byte):
 		get:
+			pass
+	
+	Ip as IPAddress:
+		get:
+			pass
+		set:
 			pass
 	
 	def AddDevice(device as INetworkDevice):
@@ -33,6 +47,12 @@ class NetworkService(INetworkProvider, IService):
 	Mac as (byte):
 		get:
 			return Device.Mac
+	
+	Ip as IPAddress:
+		get:
+			return Device.Ip
+		set:
+			Device.Ip = value
 	
 	Device as INetworkDevice
 	def constructor():

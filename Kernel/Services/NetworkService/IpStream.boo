@@ -9,11 +9,12 @@ class IpStream(Stream):
 	SrcAddr as IPAddress
 	DestAddr as IPAddress
 	Protocol as int
-	def constructor(srcAddr as IPAddress, destAddr as IPAddress, protocol as int):
+	def constructor(destAddr as IPAddress, protocol as int):
 		destMac = Arp.Resolve(destAddr)
 		PhyStream = EthernetStream(destMac, 0x0800)
 		
-		SrcAddr = srcAddr
+		net = cast(INetworkProvider, Context.Service['network'])
+		SrcAddr = net.Ip
 		DestAddr = destAddr
 		Protocol = protocol
 	

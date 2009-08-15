@@ -10,6 +10,7 @@ public class Shell(Application):
 	def Run(_ as (string)):
 		Apps = (
 				ArpTest(), 
+				DhcpApp(), 
 				Draw(), 
 				Echo(), 
 				Exclaim(), 

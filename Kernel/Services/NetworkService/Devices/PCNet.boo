@@ -1,6 +1,7 @@
 namespace Renraku.Kernel
 
 import System.Collections
+import System.Net
 import Renraku.Core.Memory
 
 class PCNet(IInterruptHandler, INetworkDevice, PciDevice):
@@ -19,6 +20,12 @@ class PCNet(IInterruptHandler, INetworkDevice, PciDevice):
 	override Mac:
 		get:
 			return _Mac
+	
+	override Ip:
+		get:
+			return _Ip
+		set:
+			_Ip = value
 	
 	RegisterLong [addr as int] as uint:
 		get:
@@ -45,6 +52,7 @@ class PCNet(IInterruptHandler, INetworkDevice, PciDevice):
 	SendQueue as Queue
 	RecvQueue as Queue
 	_Mac as (byte)
+	_Ip as IPAddress
 	def constructor():
 		if not Find():
 			return
@@ -111,6 +119,8 @@ class PCNet(IInterruptHandler, INetworkDevice, PciDevice):
 			recvDescs += 4
 		
 		RegisterLong[0] = 1 | 2 | 64 # INIT | STRT | INEA
+		
+		_Ip = IPAddress.Parse('0.0.0.0')
 		
 		InterruptManager.AddHandler(self)
 		network = cast(INetworkProvider, Context.Service['network'])

@@ -10,11 +10,11 @@ class UdpTest(Application):
 			return 'udp'
 	
 	def Run(args as (string)):
-		if args.Length != 5:
-			print 'Usage: udp <src ip> <src port> <dest ip> <dest port>'
+		if args.Length != 4:
+			print 'Usage: udp <src port> <dest ip> <dest port>'
 			return
 		
-		stream = UdpStream(IPAddress.Parse(args[1]), int.Parse(args[2]), IPAddress.Parse(args[3]), int.Parse(args[4]))
+		stream = UdpStream(int.Parse(args[1]), IPAddress.Parse(args[2]), int.Parse(args[3]))
 		
 		data = array(byte, 4)
 		data[0] = 0xDE
