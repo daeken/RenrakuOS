@@ -10,7 +10,7 @@ class EthernetStream(Stream):
 	SrcMac as (byte)
 	DestMac as (byte)
 	Type as int
-	def constructor(net as INetworkProvider, destMac as (byte), type as int):
+	def constructor(destMac as (byte), type as int):
 		if cast(object, CrcTable) == null:
 			CrcTable = array(byte, 256)
 			for i in range(256):
@@ -23,7 +23,7 @@ class EthernetStream(Stream):
 						temp >>= 1
 				CrcTable[i] = temp
 		
-		Net = net
+		Net = cast(INetworkProvider, Context.Service['network'])
 		SrcMac = Net.Mac
 		DestMac = destMac
 		Type = type

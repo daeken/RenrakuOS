@@ -15,8 +15,6 @@ class ArpTest(Application):
 		else:
 			ip = args[1]
 		
-		net = cast(INetworkProvider, Context.Service['network'])
-		
-		mac = Arp.Resolve(net, IPAddress.Parse(ip))
+		mac = Arp.Resolve(IPAddress.Parse(ip))
 		for i in range(6):
 			printhex mac[i]
