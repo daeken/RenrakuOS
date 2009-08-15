@@ -381,6 +381,15 @@ static class X86:
 				yield ['pop', 'eax']
 				yield ['lidt', ['deref', 'eax']]
 			
+			case 'pushif':
+				yield ['pushf']
+				yield ['pop', 'eax']
+				yield ['and', 'eax', 1 << 9]
+				yield ['xor', 'ebx', 'ebx']
+				yield ['cmp', 'eax', 1 << 9]
+				yield ['sete', 'bl']
+				yield ['push', 'ebx']
+			
 			case 'popstaticfield':
 				yield ['pop', 'eax']
 				yield ['mov', ['deref', inst[1].DeclaringType.Name + '.' + inst[1].Name], 'eax']

@@ -28,8 +28,11 @@ static class MemoryManager:
 			ptr += 1
 	
 	def Allocate(size as uint) as uint:
+		status = InterruptManager.EnsureOff()
 		addr = CurAddr
 		CurAddr += size
+		if status:
+			InterruptManager.Enable()
 		
 		Zero(addr, size)
 		

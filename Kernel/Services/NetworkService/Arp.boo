@@ -1,9 +1,10 @@
 namespace Renraku.Kernel
 
 import System
+import System.Net
 
 static class Arp:
-	def Resolve(net as INetworkProvider, ip as uint) as (byte):
+	def Resolve(net as INetworkProvider, ip as IPAddress) as (byte):
 		ret = array(byte, 6)
 		
 		dhcpMac = array(byte, 6)
@@ -14,23 +15,19 @@ static class Arp:
 		buf = array(byte, 28)
 		
 		buf[1] = 1 # Ethernet
-		buf[2] = 0x80 # IP
+		buf[2] = 8 # IP
 		
 		buf[4] = 6
 		buf[5] = 4
 		buf[7] = 1
 		
 		Array.Copy(net.Mac, 0, buf, 8, 6)
-		
-		buf[24] = ip >> 24
-		buf[25] = (ip >> 16) & 0xFF
-		buf[26] = (ip >> 8) & 0xFF
-		buf[27] = ip & 0xFF
+		Array.Copy(ip.GetAddressBytes(), 0, buf, 24, 4)
 		
 		phys.Write(buf, 0, 28)
 		
 		tbuf = array(byte, 28)
 		phys.Read(tbuf, 0, 28)
-		Array.Copy(tbuf, 18, ret, 0, 6)
+		Array.Copy(tbuf, 8, ret, 0, 6)
 		
 		return ret

@@ -29,7 +29,7 @@ class EthernetStream(Stream):
 		Type = type
 	
 	def Write(data as (byte), offset as int, count as int):
-		buf = array(byte, 14 + count + 4)
+		buf = array(byte, 14 + count)
 		
 		Array.Copy(DestMac, 0, buf, 0, 6)
 		Array.Copy(SrcMac, 0, buf, 6, 6)
@@ -38,19 +38,6 @@ class EthernetStream(Stream):
 		buf[13] = Type & 0xFF
 		
 		Array.Copy(data, offset, buf, 14, count)
-		
-		j = 0
-		length = 14 + count
-		crc = 0xFFFFFFFF
-		while j < length:
-			index = (crc & 0xFF) ^ buf[j]
-			crc = (crc >> 8) ^ CrcTable[index]
-			++j
-		
-		buf[length] = crc >> 24
-		buf[length+1] = (crc >> 16) & 0xFF
-		buf[length+2] = (crc >> 8) & 0xFF
-		buf[length+3] = crc & 0xFF
 		
 		Net.Send(buf)
 	

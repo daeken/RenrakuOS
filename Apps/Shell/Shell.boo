@@ -9,12 +9,12 @@ public class Shell(Application):
 	
 	def Run(_ as (string)):
 		Apps = (
+				ArpTest(), 
 				Draw(), 
 				Echo(), 
 				Exclaim(), 
 				Logo(), 
 				Mouse(), 
-				NetTest(), 
 				Reverse(), 
 				PciDump(), 
 				Shell(), 

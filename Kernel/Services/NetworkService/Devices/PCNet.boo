@@ -38,10 +38,10 @@ class PCNet(IInterruptHandler, INetworkDevice, PciDevice):
 	
 	Io as IAddressSpace
 	SendAddr as uint
-	SendBuffers as (Pointer [of uint])
+	SendBuffers as (Pointer [of byte])
 	SendOff as uint
 	RecvAddr as uint
-	RecvBuffers as (Pointer [of uint])
+	RecvBuffers as (Pointer [of byte])
 	SendQueue as Queue
 	RecvQueue as Queue
 	_Mac as (byte)
@@ -76,21 +76,16 @@ class PCNet(IInterruptHandler, INetworkDevice, PciDevice):
 		
 		_Mac = array(byte, 6)
 		high = Io.Long[0]
-		_Mac[0] = high >> 24
-		_Mac[1] = (high >> 16) & 0xFF
-		_Mac[2] = (high >> 8) & 0xFF
-		_Mac[3] = high & 0xFF
+		_Mac[0] = high & 0xFF
+		_Mac[1] = (high >> 8) & 0xFF
+		_Mac[2] = (high >> 16) & 0xFF
+		_Mac[3] = high >> 24
 		low = Io.Short[4]
-		_Mac[4] = low >> 8
-		_Mac[5] = low & 0xFF
+		_Mac[4] = low & 0xFF
+		_Mac[5] = low >> 8
 		
-		RegisterLong[0] = RegisterLong[0] | 4 # STOP
 		RegisterLong[1] = initBlockAddr & 0xFFFF
 		RegisterLong[2] = initBlockAddr >> 16
-		RegisterLong[0] = (RegisterLong[0] & ~4) | 1 | 2 | 64 # INIT | STRT | INEA
-		
-		while RegisterLong[0] & 0x100 == 0:
-			pass
 		
 		BusLong[0x14] = 3
 		
@@ -98,22 +93,24 @@ class PCNet(IInterruptHandler, INetworkDevice, PciDevice):
 		RecvQueue = Queue()
 		
 		sendDescs = Pointer [of uint](SendAddr)
-		SendBuffers = array(Pointer [of uint], 16)
+		SendBuffers = array(Pointer [of byte], 16)
 		for i in range(16):
 			addr = MemoryManager.Allocate(2048)
-			SendBuffers[i] = Pointer [of uint](addr)
+			SendBuffers[i] = Pointer [of byte](addr)
 			sendDescs[2] = addr
 			sendDescs += 4
 		
 		recvDescs = Pointer [of uint](RecvAddr)
-		RecvBuffers = array(Pointer [of uint], 16)
+		RecvBuffers = array(Pointer [of byte], 16)
 		for i in range(16):
 			addr = MemoryManager.Allocate(2048)
-			RecvBuffers[i] = Pointer [of uint](addr)
+			RecvBuffers[i] = Pointer [of byte](addr)
 			recvDescs[2] = addr
 			recvDescs[1] = (((~2048) + 1) & 0x0FFF) | 0x8000F000
 			
 			recvDescs += 4
+		
+		RegisterLong[0] = 1 | 2 | 64 # INIT | STRT | INEA
 		
 		InterruptManager.AddHandler(self)
 		network = cast(INetworkProvider, Context.Service['network'])
@@ -124,14 +121,12 @@ class PCNet(IInterruptHandler, INetworkDevice, PciDevice):
 		status = RegisterLong[0]
 		
 		if status & 0x200 != 0:
-			print 'send'
 			if SendQueue.Count > 0:
 				data = cast((byte), SendQueue.Peek())
 				if SendData(data):
 					SendQueue.Dequeue()
 		
 		if status & 0x400 != 0:
-			print 'recv'
 			recvDescs = Pointer [of uint](RecvAddr)
 			for i in range(16):
 				if recvDescs[1] & 0x80000000 == 0:
@@ -163,8 +158,6 @@ class PCNet(IInterruptHandler, INetworkDevice, PciDevice):
 				++ti
 			
 			length = data.Length
-			if length < 64:
-				length = 64
 			sendDesc[1] = (((~length) + 1) & 0x0FFF) | 0x8300F000
 			
 			ret = true
@@ -174,9 +167,7 @@ class PCNet(IInterruptHandler, INetworkDevice, PciDevice):
 		return ret
 	
 	def Send(data as (byte)):
-		print 'sending'
 		if not SendData(data):
-			print 'fail'
 			SendQueue.Enqueue(data)
 	
 	def Recv() as (byte):

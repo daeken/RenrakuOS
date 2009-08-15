@@ -91,3 +91,13 @@ class InterruptManager:
 
 	static def Disable():
 		pass # Intrinsic away!
+	
+	static Enabled as bool:
+		get:
+			return false # Intrinsic away!
+	
+	static def EnsureOff():
+		if Enabled:
+			Disable()
+			return true
+		return false
