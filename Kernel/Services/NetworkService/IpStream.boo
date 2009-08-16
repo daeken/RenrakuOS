@@ -35,8 +35,9 @@ class IpStream(Stream):
 		i = 0
 		while i < 20:
 			csum += (buf[i] << 8) | buf[i+1]
-			csum &= 0xFFFF
 			i += 2
+		while (csum & 0xFFFF0000) != 0:
+			csum = (csum & 0xFFFF) + (csum >> 16)
 		csum = ~csum
 		
 		buf[10] = csum >> 8
@@ -44,3 +45,15 @@ class IpStream(Stream):
 		Array.Copy(data, offset, buf, 20, count)
 		
 		PhyStream.Write(buf, 0, buf.Length)
+	
+	def Read(data as (byte), offset as int, count as int) as int:
+		buf = array(byte, 20 + count)
+		
+		while true:
+			if PhyStream.Read(buf, 0, 20+count) != 20+count:
+				continue
+			if buf[9] != Protocol:
+				continue
+			
+			Array.Copy(buf, 20, data, offset, count)
+			return count

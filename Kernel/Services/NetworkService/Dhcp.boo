@@ -18,7 +18,7 @@ class Dhcp:
 		XId[2] = 0xBE
 		XId[3] = 0xEF
 		
-		options = array(byte, 9)
+		options = array(byte, 10)
 		
 		# DHCPDISCOVER
 		options[0] = 53
@@ -33,10 +33,12 @@ class Dhcp:
 		options[7] = 15 # Domain name
 		options[8] = 6 # DNS
 		
+		options[9] = 0xFF # End
+		
 		Send(options)
 	
 	def Send(options as (byte)):
-		buf = array(byte, 240 + options.Length + 1)
+		buf = array(byte, 240 + options.Length)
 		
 		buf[0] = 1
 		buf[1] = 1
@@ -54,7 +56,5 @@ class Dhcp:
 		buf[239] = 0x63
 		
 		Array.Copy(options, 0, buf, 240, options.Length)
-		
-		buf[240 + options.Length] = 255 # End
 		
 		NetStream.Write(buf, 0, buf.Length)

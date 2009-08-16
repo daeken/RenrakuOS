@@ -28,3 +28,22 @@ class UdpStream(Stream):
 		Array.Copy(data, offset, buf, 8, count)
 		
 		NetStream.Write(buf, 0, buf.Length)
+	
+	def Read(data as (byte), offset as int, count as int) as int:
+		buf = array(byte, 8+count)
+		
+		while true:
+			if NetStream.Read(buf, 0, 8+count) != 8+count:
+				continue
+			
+			if (
+					buf[0] != (DestPort >> 8) or buf[1] != (DestPort & 0xFF) or 
+					buf[2] != (SrcPort >> 8) or buf[3] != (SrcPort & 0xFF)
+				):
+				continue
+			
+			length = (buf[4] << 8) | buf[5]
+			length -= 8 # Header
+			
+			Array.Copy(buf, 8, data, offset, length)
+			return length
