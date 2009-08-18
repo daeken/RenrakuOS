@@ -18,7 +18,6 @@ public class Shell(Application):
 				Mouse(), 
 				PciDump(), 
 				Reverse(), 
-				UdpTest(), 
 				Shell(), 
 				Task(), 
 			)

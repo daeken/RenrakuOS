@@ -3,27 +3,30 @@ namespace Renraku.Kernel
 import System
 import System.Net
 
-static class Arp:
+class Arp:
+	Ret as (byte)
+	
 	def Resolve(ip as IPAddress) as (byte):
-		ret = array(byte, 6)
-		
 		ipBytes = ip.GetAddressBytes()
 		if (
 				ipBytes[0] == 0xFF and ipBytes[1] == 0xFF and 
 				ipBytes[2] == 0xFF and ipBytes[3] == 0xFF
 			):
-			ret[0] = 0xFF
-			ret[1] = 0xFF
-			ret[2] = 0xFF
-			ret[3] = 0xFF
-			ret[4] = 0xFF
-			ret[5] = 0xFF
-			return ret
+			Ret = array(byte, 6)
+			Ret[0] = 0xFF
+			Ret[1] = 0xFF
+			Ret[2] = 0xFF
+			Ret[3] = 0xFF
+			Ret[4] = 0xFF
+			Ret[5] = 0xFF
+			return Ret
 		
 		dhcpMac = array(byte, 6)
 		for i in range(6):
 			dhcpMac[i] = 0xFF
-		phys = EthernetStream(dhcpMac, 0x0806)
+		
+		eth = cast(EthernetService, Context.Service['ethernet'])
+		conn = eth.Connect(dhcpMac, 0x0806, Recv)
 		
 		buf = array(byte, 28)
 		
@@ -38,10 +41,14 @@ static class Arp:
 		Array.Copy(net.Mac, 0, buf, 8, 6)
 		Array.Copy(ipBytes, 0, buf, 24, 4)
 		
-		phys.Write(buf, 0, 28)
+		conn.Send(buf)
 		
-		tbuf = array(byte, 28)
-		phys.Read(tbuf, 0, 28)
-		Array.Copy(tbuf, 8, ret, 0, 6)
+		while cast(object, Ret) == null:
+			pass
 		
-		return ret
+		return Ret
+	
+	def Recv(buf as (byte)):
+		tret = array(byte, 6)
+		Array.Copy(buf, 8, tret, 0, 6)
+		Ret = tret

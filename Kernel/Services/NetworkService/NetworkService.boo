@@ -15,9 +15,8 @@ interface INetworkDevice:
 	
 	def Send(data as (byte)):
 		pass
-	
-	def Recv() as (byte):
-		pass
+
+callable NetworkRecvCallable(data as (byte)) as void
 
 interface INetworkProvider:
 	Mac as (byte):
@@ -30,13 +29,17 @@ interface INetworkProvider:
 		set:
 			pass
 	
+	OnRecv as NetworkRecvCallable:
+		set:
+			pass
+	
 	def AddDevice(device as INetworkDevice):
 		pass
 	
 	def Send(data as (byte)) as bool:
 		pass
 	
-	def Read() as (byte):
+	def Recv(data as (byte)) as void:
 		pass
 
 class NetworkService(INetworkProvider, IService):
@@ -54,6 +57,11 @@ class NetworkService(INetworkProvider, IService):
 		set:
 			Device.Ip = value
 	
+	_OnRecv as NetworkRecvCallable
+	OnRecv as NetworkRecvCallable:
+		set:
+			_OnRecv = value
+	
 	Device as INetworkDevice
 	def constructor():
 		Device = null
@@ -62,6 +70,10 @@ class NetworkService(INetworkProvider, IService):
 		print 'Network service initialized.'
 		
 		PCNet()
+		
+		EthernetService()
+		IpService()
+		UdpService()
 	
 	def AddDevice(device as INetworkDevice):
 		Device = device
@@ -73,8 +85,8 @@ class NetworkService(INetworkProvider, IService):
 		Device.Send(data)
 		return true
 	
-	def Read() as (byte):
-		if Device == null:
-			return null
+	def Recv(data as (byte)) as void:
+		if cast(object, _OnRecv) == null:
+			return
 		
-		return Device.Recv()
+		_OnRecv(data)

@@ -43,6 +43,7 @@ class PCNet(IInterruptHandler, INetworkDevice, PciDevice):
 			Io.Long[0x14] = addr
 			Io.Long[0x1C] = value
 	
+	Net as INetworkProvider
 	Io as IAddressSpace
 	SendAddr as uint
 	SendBuffers as (Pointer [of byte])
@@ -50,12 +51,13 @@ class PCNet(IInterruptHandler, INetworkDevice, PciDevice):
 	RecvAddr as uint
 	RecvBuffers as (Pointer [of byte])
 	SendQueue as Queue
-	RecvQueue as Queue
 	_Mac as (byte)
 	_Ip as IPAddress
 	def constructor():
 		if not Find():
 			return
+		
+		Net = cast(INetworkProvider, Context.Service['network'])
 		
 		Io = GetAddressSpace(0)
 		
@@ -98,7 +100,6 @@ class PCNet(IInterruptHandler, INetworkDevice, PciDevice):
 		BusLong[0x14] = 3
 		
 		SendQueue = Queue()
-		RecvQueue = Queue()
 		
 		sendDescs = Pointer [of uint](SendAddr)
 		SendBuffers = array(Pointer [of byte], 16)
@@ -148,7 +149,7 @@ class PCNet(IInterruptHandler, INetworkDevice, PciDevice):
 						tbuf[j] = rbuf[j]
 						++j
 					
-					RecvQueue.Enqueue(tbuf)
+					Net.Recv(tbuf)
 					
 					recvDescs[1] |= 0x80000000
 				
@@ -179,9 +180,3 @@ class PCNet(IInterruptHandler, INetworkDevice, PciDevice):
 	def Send(data as (byte)):
 		if not SendData(data):
 			SendQueue.Enqueue(data)
-	
-	def Recv() as (byte):
-		while RecvQueue.Count == 0:
-			pass
-		
-		return RecvQueue.Dequeue()

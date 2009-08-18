@@ -1,15 +1,15 @@
 namespace Renraku.Kernel
 
 import System
-import System.IO
 import System.Net
 
 class Dhcp:
-	NetStream as Stream
+	Udp as UdpConnection
 	XId as (byte)
 	
 	def constructor():
-		NetStream = UdpStream(68, IPAddress.Parse('255.255.255.255'), 67)
+		udpService = cast(UdpService, Context.Service['udp'])
+		Udp = udpService.Connect(68, IPAddress.Parse('255.255.255.255'), 67, null)
 		
 		XId = array(byte, 4)
 		# FIXME: Should be random
@@ -57,4 +57,4 @@ class Dhcp:
 		
 		Array.Copy(options, 0, buf, 240, options.Length)
 		
-		NetStream.Write(buf, 0, buf.Length)
+		Udp.Send(buf)
