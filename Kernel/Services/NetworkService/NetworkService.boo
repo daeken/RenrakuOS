@@ -64,16 +64,18 @@ class NetworkService(INetworkProvider, IService):
 	
 	Device as INetworkDevice
 	def constructor():
-		Device = null
+		
 		
 		Context.Register(self)
 		print 'Network service initialized.'
 		
-		PCNet()
-		
-		EthernetService()
-		IpService()
-		UdpService()
+		Device = null
+		net = PCNet()
+		if net.Enabled:
+			Device = net
+			EthernetService()
+			IpService()
+			UdpService()
 	
 	def AddDevice(device as INetworkDevice):
 		Device = device

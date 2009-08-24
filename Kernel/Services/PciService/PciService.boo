@@ -60,6 +60,7 @@ class PciDevice:
 	
 	Bus as int
 	Card as int
+	public Enabled = false
 	
 	InterruptLine:
 		get:
@@ -98,6 +99,7 @@ class PciDevice:
 	def Enable():
 		command = PciService.ReadShort(Card, Bus, 4) | 0x6
 		PciService.WriteShort(Card, Bus, 4, command)
+		Enabled = true
 
 class PciService(IService):
 	override ServiceId:
