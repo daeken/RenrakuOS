@@ -4,7 +4,7 @@ import System.Collections
 import Renraku.Core.Memory
 
 interface IKeymap:
-	def Map(scancode as int) as int:
+	def Map(scancode as int, shiftlevel as int) as int:
 		pass
 
 interface IKeyboardProvider:
@@ -69,7 +69,7 @@ class KeyboardService(IInterruptHandler, IKeyboardProvider, IService):
 			if Keymap == null:
 				key = cast(char, scancode)
 			else:
-				key = cast(char, Keymap.Map(scancode))
+				key = cast(char, Keymap.Map(scancode, 0))
 			Buffer.Enqueue(key)
 
 	def Handle(_ as Pointer [of uint]):
