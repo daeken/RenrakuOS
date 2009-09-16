@@ -11,11 +11,11 @@ public class Shell(Application):
 
 	override Name as string:
 		get:
-			return 'drshell'
+			return 'shell'
 	
 	override HelpString as string:
 		get:
-			return 'Dans Renraku Shell.'
+			return 'Renraku Shell.'
 
 	def Run(_ as (string)):
 		Apps = (
