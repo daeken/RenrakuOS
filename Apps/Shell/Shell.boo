@@ -5,7 +5,9 @@ import System
 public class Shell(Application):
     // Renraku Shell.
     // Implemented features:
-    //      - Apps are launched in their own contexts
+    //      - Command list
+    //      - Command/Capsule help text
+    //      - Command history
     //  
     // Planned Features:
 
