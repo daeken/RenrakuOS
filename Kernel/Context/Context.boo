@@ -9,6 +9,7 @@ public interface IService:
 
 public class Context:
 	Services as ArrayList
+	Parent as Context
 	
 	public static CurrentContext as Context:
 		get:
@@ -22,6 +23,7 @@ public class Context:
 	
 	public def constructor():
 		Services = ArrayList(4)
+		Parent = null
 	
 	public static def Copy() as Context:
 		context = CurrentContext
@@ -71,3 +73,13 @@ public class Context:
 				context.Services[i] = null
 				break
 			i++
+
+	public static def Push () as Context:
+		context = CurrentContext.Copy()
+		context.Parent = CurrentContext
+		CurrentContext = context
+		return context
+
+	public static def Pop ():
+		if CurrentContext.Parent != null:
+			CurrentContext = CurrentContext.Parent

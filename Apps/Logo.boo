@@ -7,7 +7,11 @@ class Logo(Application):
 	override Name as string:
 		get:
 			return 'logo'
-	
+
+	override HelpString as string:
+		get:
+			return 'Renraku logo.'	
+
 	Pixels as Pointer [of byte]:
 		get:
 			return Pointer [of byte](0) # Intrinsic away!

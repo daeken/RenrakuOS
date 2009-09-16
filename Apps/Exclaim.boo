@@ -10,19 +10,22 @@ class Exclaim(Application, IKeyboardProvider, IService):
 	override Name as string:
 		get:
 			return 'exclaim'
+
+	override HelpString as string:
+		get:
+			return 'Nested Context example test capsule.'
 	
 	Keyboard as IKeyboardProvider
 	def Run(_ as (string)):
 		print 'Type a 1 and see what happens...'
 		
 		Keyboard = Context.Service['keyboard']
-		oldContext = Context.CurrentContext
-		Context.CurrentContext = Context.Copy()
-		Context.Register(self)
+		context = Context.Push()
+		context.Register(self)
 		
 		Shell().Run(null)
 		
-		Context.CurrentContext = oldContext
+		Context.Pop()
 	
 	def HasData() as bool:
 		return Keyboard.HasData()

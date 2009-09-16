@@ -10,7 +10,7 @@ struct VChar:
 static class Console:
 	Position = 0
 	Line = 0
-	
+
 	def Init():
 		self.Clear()
 		print 'Console initialized.'
@@ -35,6 +35,10 @@ static class Console:
 		Line = 24
 		Position = 0
 	
+	def MoveTo (x as int, y as int):
+		Line = y
+		Position = x
+
 	def Read() as int:
 		return cast(int, cast(KeyboardService, Context.Service['keyboard']).Read())
 
@@ -86,9 +90,7 @@ static class Console:
 		CheckBounds()
 	
 	def WriteLine(str as string):
-		i = 0
-		while i < str.Length:
-			WriteChar(str[i++])
+		Write(str)
 		WriteChar(char('\n'))
 	
 	def WriteHex(num as uint):
