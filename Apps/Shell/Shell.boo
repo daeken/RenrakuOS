@@ -34,6 +34,7 @@ public class Shell(Application):
 				Shell(), 
 				Task(), 
 				SetEnv(),
+				Windows(),
 			)
 		CommandHistory = ArrayList()
 		

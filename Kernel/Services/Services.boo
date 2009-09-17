@@ -9,5 +9,6 @@ public static class Services:
 		PciService()
 		NetworkService()
 		VgaService()
+		GuiService()
 		
 		print 'Services registered.'
