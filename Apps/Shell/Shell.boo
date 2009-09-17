@@ -1,6 +1,7 @@
 namespace Renraku.Apps
 
 import System
+import System.Collections
 
 public class Shell(Application):
     // Renraku Shell.
@@ -32,8 +33,9 @@ public class Shell(Application):
 				Reverse(), 
 				Shell(), 
 				Task(), 
+				SetEnv(),
 			)
-		CommandHistory = System.Collections.ArrayList()
+		CommandHistory = ArrayList()
 		
 		print 'Welcome to Renraku Shell'
 		print '-----------------------------'
@@ -41,12 +43,21 @@ public class Shell(Application):
 		print 'Type `help` for command list.'
 		print ' '
 		
+		toplevel = false
+		if Renraku.Kernel.Context.GetVar('prompt') == null:
+			Renraku.Kernel.Context.SetVar('prompt', 'R>')
+			toplevel = true
+		else:
+			Renraku.Kernel.Context.Push()
+		
 		while true:
-			Console.Write('R> ')
+			Console.Write(Renraku.Kernel.Context.GetVar('prompt'))
+			Console.Write(' ')
 			line as string = Console.ReadLine()
 			CommandHistory.Add(line)
 			
-			if line == 'exit':
+			if line == 'exit' and not toplevel:
+				Renraku.Kernel.Context.Pop()
 				break
 			
 			args = line.Split((char(' '), ), StringSplitOptions.RemoveEmptyEntries)
@@ -60,19 +71,19 @@ public class Shell(Application):
 						i = 0
 						while i < Apps.Length:
 							if Apps[i].Name == args[1]:
-								System.Console.WriteLine(Apps[i].HelpString)
+								Console.WriteLine(Apps[i].HelpString)
 								break
 							++i
 				else:
 					i = 0
 					while i < Apps.Length:
-						System.Console.WriteLine(Apps[i++].Name)
+						Console.WriteLine(Apps[i++].Name)
 					print 'history'
 					print 'help'
 
 			elif args[0] == 'history':
 				if args.Length == 2 and args[1] == 'clear':
-					CommandHistory = System.Collections.ArrayList()
+					CommandHistory = ArrayList()
 				else:
 					i = 0
 					while i < CommandHistory.Count:
