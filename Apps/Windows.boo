@@ -11,7 +11,7 @@ class Windows(Application):
 	public Gui as IGuiProvider
 			
 	def Run(_ as (string)):
-		keyboard = cast(IKeyboardProvider, Context.Service['keyboard'])
+		#keyboard = cast(IKeyboardProvider, Context.Service['keyboard'])
 		taskServ = cast(ITaskProvider, Context.Service['task'])
 		Gui = cast(IGuiProvider, Context.Service['gui'])
 		

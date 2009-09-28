@@ -35,7 +35,6 @@ public class GuiService(IService, IGuiProvider):
 		Video = cast(IVideoProvider, Context.Service['video'])		
 		mouseservice = cast(IMouseProvider, Context.Service['mouse'])
 		WindowList = ArrayList(10)
-		color = 4
 		mouse = Mouse_(160, 100)
 		Context.Register(self)
 		
