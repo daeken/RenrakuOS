@@ -68,7 +68,7 @@ static class Frontend:
 			body = ['body']
 			for inst as Instruction in method.Body.Instructions:
 				iblock = ['inst', inst.Offset]
-				for elem in FromInst(inst):
+				for elem in FromInst(inst, method.IsStatic):
 					iblock.Add(elem)
 				body.Add(iblock)
 			
@@ -88,7 +88,7 @@ static class Frontend:
 				['type', method.ReturnType.ReturnType], 
 			]
 	
-	def FromInst(inst as Instruction):
+	def FromInst(inst as Instruction, staticMethod as bool):
 		match inst.OpCode:
 			case OpCodes.Ldnull: yield ['push', 0]
 			case OpCodes.Ldc_I4: yield ['push', inst.Operand]
@@ -104,12 +104,20 @@ static class Frontend:
 			case OpCodes.Ldc_I4_8: yield ['push', 8]
 			case OpCodes.Ldc_I8: yield ['push', cast(uint, cast(long, inst.Operand))]
 			
-			case OpCodes.Ldarga: yield ['pusharg', (inst.Operand as duck).Sequence-1]
+			case OpCodes.Ldarga:
+				arg = (inst.Operand as duck).Sequence
+				if staticMethod:
+					arg--
+				yield ['pusharg', arg]
 			case OpCodes.Ldarg_0: yield ['pusharg', 0]
 			case OpCodes.Ldarg_1: yield ['pusharg', 1]
 			case OpCodes.Ldarg_2: yield ['pusharg', 2]
 			case OpCodes.Ldarg_3: yield ['pusharg', 3]
-			case OpCodes.Ldarg_S: yield ['pusharg', (inst.Operand as duck).Sequence-1]
+			case OpCodes.Ldarg_S:
+				arg = (inst.Operand as duck).Sequence
+				if staticMethod:
+					arg--
+				yield ['pusharg', arg]
 			case OpCodes.Starg: yield ['poparg', (inst.Operand as duck).Sequence]
 			
 			case OpCodes.Ldelem_I1: yield ['pushelem', 'System.SByte']

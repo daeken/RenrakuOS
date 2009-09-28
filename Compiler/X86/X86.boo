@@ -145,6 +145,7 @@ static class X86:
 				yield [endLabel + ':']
 			
 			case 'call':
+				yield ['; call', inst[1].ToString()]
 				yield ['call', TypeHelper.AnnotateName(inst[1], true)]
 				paramcount = len(inst[1].Parameters)
 				if paramcount:
@@ -154,6 +155,7 @@ static class X86:
 					yield ['push', 'eax']
 			
 			case 'callvirt':
+				yield ['; callvirt', inst[1].ToString()]
 				if TypeHelper.IsDelegate(inst[1].DeclaringType) and inst[1].Name == 'Invoke':
 					yield ['mov', 'eax', ['deref', 'esp', len(inst[1].Parameters) * 4]]
 					yield ['mov', 'ebx', ['eax']]

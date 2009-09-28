@@ -7,6 +7,8 @@ class Dhcp:
 	Udp as UdpConnection
 	XId as (byte)
 	
+	ClientIp as IPAddress
+	
 	def constructor():
 		udpService = cast(UdpService, Context.Service['udp'])
 		Udp = udpService.Connect(68, IPAddress.Parse('255.255.255.255'), 67, null)
@@ -36,6 +38,29 @@ class Dhcp:
 		options[9] = 0xFF # End
 		
 		Send(options)
+		
+		options = Read()
+		if cast(object, options) == null:
+			print 'No IP'
+		else:
+			print 'IP assigned'
+			netService = cast(INetworkProvider, Context.Service['network'])
+			netService.Ip = ClientIp
+	
+	def Read() as (byte):
+		while true:
+			buf = Udp.Recv()
+			
+			if buf[4] != XId[0] or buf[5] != XId[1] or buf[6] != XId[2] or buf[7] != XId[3]:
+				continue
+			
+			ip = array(byte, 4)
+			Array.Copy(buf, 16, ip, 0, 4)
+			ClientIp = IPAddress(ip)
+			
+			options = array(byte, buf.Length - 240)
+			Array.Copy(buf, 240, options, 0, buf.Length - 240)
+			return options
 	
 	def Send(options as (byte)):
 		buf = array(byte, 240 + options.Length)
