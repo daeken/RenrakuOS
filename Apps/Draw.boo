@@ -6,6 +6,10 @@ class Draw(Application):
 	override Name as string:
 		get:
 			return 'draw'
+
+	override HelpString as string:
+		get:
+			return 'VGA test capsule'
 	
 	def Run(_ as (string)):
 		keyboard = cast(IKeyboardProvider, Context.Service['keyboard'])

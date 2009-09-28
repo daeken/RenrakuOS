@@ -7,6 +7,10 @@ class Echo(Application):
 		get:
 			return 'echo'
 	
+	override HelpString as string:
+		get:
+			return 'Echo terminal.'
+	
 	def Run(_ as (string)):
 		print 'Renraku echo terminal'
 		
