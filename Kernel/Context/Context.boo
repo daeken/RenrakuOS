@@ -1,5 +1,6 @@
 namespace Renraku.Kernel
 
+import System
 import System.Collections
 
 public interface IService:
@@ -16,11 +17,14 @@ public class Context:
 	Parent as Context
 	Environment as ArrayList
 	
+	# When running natively, CurrentContext will be intrinsic'd away
+	# TLSContext is ONLY used for Hosted mode!
+	[ThreadStatic] static TLSContext as Context
 	public static CurrentContext as Context:
 		get:
-			return null # Intrinsic away!
+			return TLSContext
 		set:
-			pass # Intrinsic away!
+			TLSContext = value
 	
 	public static Service [id as string] as IService:
 		get:

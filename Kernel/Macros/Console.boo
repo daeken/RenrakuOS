@@ -7,7 +7,7 @@ macro print(str as Expression):
 
 macro prints(str as Expression):
 	yield [| System.Console.Write($str) |]
-	yield [| System.Console.WriteChar(char(' ')) |]
+	yield [| System.Console.Write(char(' ')) |]
 
 macro printhex(num as Expression):
 	yield [| System.Console.WriteHex($num) |]

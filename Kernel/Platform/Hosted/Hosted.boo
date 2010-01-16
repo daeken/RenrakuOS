@@ -2,4 +2,4 @@ namespace Renraku.Kernel
 
 static class Platform:
 	def Init():
-		pass
+		Context.CurrentContext = Context()

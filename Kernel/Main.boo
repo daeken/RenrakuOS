@@ -1,7 +1,7 @@
 namespace Renraku.Kernel
 
 import System
-#import Renraku.Apps
+import Renraku.Apps
 
 static class Kernel:
 	def Main():
@@ -11,7 +11,7 @@ static class Kernel:
 		print 'Renraku initialized.'
 		
 		print 'Launching default app...'
-		#Shell().Run(null)
+		Shell().Run(null)
 	
 	def Fault():
 		print 'Fault.'

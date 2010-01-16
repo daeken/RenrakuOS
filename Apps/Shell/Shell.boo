@@ -22,19 +22,19 @@ public class Shell(Application):
 
 	def Run(_ as (string)):
 		Apps = (
-				ArpTest(), 
-				DhcpApp(), 
-				Draw(), 
-				Echo(), 
-				Exclaim(), 
-				Logo(), 
-				Mouse(), 
-				PciDump(), 
+				#ArpTest(), 
+				#DhcpApp(), 
+				#Draw(), 
+				#Echo(), 
+				#Exclaim(), 
+				#Logo(), 
+				#Mouse(), 
+				#PciDump(), 
 				Reverse(), 
 				Shell(), 
-				Task(), 
+				#Task(), 
 				SetEnv(),
-				Windows(),
+				#Windows(),
 			)
 		CommandHistory = ArrayList()
 		

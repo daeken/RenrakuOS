@@ -92,12 +92,18 @@ task :macros do
 	end
 end
 
-task :hosted do
+task :hosted => [:macros] do
 	boo 'Obj/Renraku.exe' do
 		include common
 		include [
+				'Obj/Kernel.Macros.dll', 
+				
 				'Kernel/Platform/Hosted/.../*.boo', 
 				'Kernel/Services/Platform/Hosted/.../*.boo', 
+				
+				'Apps/Application.boo', 
+				'Apps/Shell/.../*.boo', 
+				'Apps/Reverse.boo'
 			]
 	end
 end
@@ -110,11 +116,12 @@ task :ia32 => [:macros] do
 	boo 'Obj/Kernel.dll' do
 		include common
 		include [
+				'Obj/Core.dll', 
+				'Obj/Kernel.Macros.dll', 
+				
 				'Kernel/Platform/IA32/.../*.boo', 
 				'Kernel/Services/Platform/IA32/.../*.boo', 
 				'Library/.../*.boo', 
-				'Obj/Core.dll', 
-				'Obj/Kernel.Macros.dll', 
 			]
 	end
 end
