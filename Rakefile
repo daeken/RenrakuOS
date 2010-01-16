@@ -102,9 +102,10 @@ task :hosted => [:macros] do
 				'Kernel/Services/Platform/Hosted/.../*.boo', 
 				
 				'Apps/Application.boo', 
-				'Apps/Shell/.../*.boo', 
-				'Apps/Reverse.boo', 
 				'Apps/Echo.boo', 
+				'Apps/Reverse.boo', 
+				'Apps/Shell/.../*.boo', 
+				'Apps/Task.boo', 
 			]
 	end
 end

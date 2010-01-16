@@ -32,7 +32,7 @@ public class Shell(Application):
 				#PciDump(), 
 				Reverse(), 
 				Shell(), 
-				#Task(), 
+				Task(), 
 				SetEnv(),
 				#Windows(),
 			)
