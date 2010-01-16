@@ -18,10 +18,8 @@ public class TaskService(IService, ITaskProvider):
 		print 'Task service initialized.'
 	
 	def StartTask(taskFunc as TaskCallable, args as (object)):
+		context = Context.CurrentContext
 		thread = Thread() do:
-			TaskWrapper(Context.CurrentContext, taskFunc, args)
+			Context.CurrentContext = context
+			taskFunc(args)
 		thread.Start()
-	
-	def TaskWrapper(context as Context, taskFunc as TaskCallable, args as (object)):
-		Context.CurrentContext = context
-		taskFunc.DynamicInvoke(args)

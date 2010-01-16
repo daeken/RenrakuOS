@@ -55,6 +55,8 @@ public class Shell(Application):
 			Console.Write(Renraku.Kernel.Context.GetVar('prompt'))
 			Console.Write(' ')
 			line as string = Console.ReadLine()
+			if line == '':
+				continue
 			CommandHistory.Add(line)
 			
 			if line == 'exit' and not toplevel:
