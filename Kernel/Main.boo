@@ -1,30 +1,23 @@
 namespace Renraku.Kernel
 
 import System
-import Renraku.Apps
+#import Renraku.Apps
 
 static class Kernel:
 	def Main():
-		Console.Init()
-		MemoryManager.Init()
-		ObjectManager.Init()
-		
-		Context.CurrentContext = Context()
-		
-		InterruptManager.Disable()
-		InterruptManager()
-		
+		Platform.Init()
 		Services.Register()
-		
-		InterruptManager.Enable()
 		
 		print 'Renraku initialized.'
 		
 		print 'Launching default app...'
-		Shell().Run(null)
+		#Shell().Run(null)
 	
 	def Fault():
 		print 'Fault.'
 		
 		while true:
 			pass
+
+# XXX: Needed for hosted mode
+Kernel.Main()
