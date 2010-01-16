@@ -19,13 +19,15 @@ class Echo(Application):
 			while true:
 				ch = cast(char, Console.Read())
 				if ch != 0:
-					Console.WriteChar(ch)
+					#Console.Write(ch)
 					if ch == char('\n'):
 						break
-					if line == null:
+					elif ch == char('\r'):
+						continue
+					elif line == null:
 						line = string((ch, ))
 					else:
-						line = string.Concat((line, string((ch, ))))
+						line = string.Concat(line, string((ch, )))
 			
 			if line == 'exit':
 				break

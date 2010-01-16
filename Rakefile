@@ -103,7 +103,8 @@ task :hosted => [:macros] do
 				
 				'Apps/Application.boo', 
 				'Apps/Shell/.../*.boo', 
-				'Apps/Reverse.boo'
+				'Apps/Reverse.boo', 
+				'Apps/Echo.boo', 
 			]
 	end
 end

@@ -25,7 +25,7 @@ public class Shell(Application):
 				#ArpTest(), 
 				#DhcpApp(), 
 				#Draw(), 
-				#Echo(), 
+				Echo(), 
 				#Exclaim(), 
 				#Logo(), 
 				#Mouse(), 
