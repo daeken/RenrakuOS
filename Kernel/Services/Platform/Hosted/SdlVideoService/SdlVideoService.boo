@@ -1,5 +1,6 @@
 namespace Renraku.Kernel
 
+import SdlDotNet.Core
 import SdlDotNet.Graphics
 
 public interface IVideoProvider:
@@ -18,4 +19,16 @@ public class SdlVideoService(IService, IVideoProvider):
 		print 'SDL video service initialized.'
 	
 	def SetMode(width as int, height as int, bits as int) as void:
-		Screen = Video.SetVideoMode(width, height)
+		if Screen == null:
+			Screen = Video.SetVideoMode(width, height)
+			SetupEvents()
+		else:
+			Screen = Video.SetVideoMode(width, height)
+	
+	def SetupEvents():
+		taskServ = cast(ITaskProvider, Context.Service['task'])
+		Events.Quit += do(sender, e):
+			Events.QuitApplication()
+		Events.Tick += do(sender, e):
+			Screen.Update()
+		taskServ.StartTask(Events.Run, null)

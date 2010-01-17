@@ -2,7 +2,7 @@ namespace Renraku.Kernel
 
 import System.Threading
 
-callable TaskCallable(args as (object)) as void
+callable TaskCallable(*args) as void
 
 public interface ITaskProvider:
 	def StartTask(taskFunc as TaskCallable, args as (object)):
@@ -21,5 +21,8 @@ public class TaskService(IService, ITaskProvider):
 		context = Context.CurrentContext
 		thread = Thread() do:
 			Context.CurrentContext = context
-			taskFunc(args)
+			if args == null:
+				taskFunc()
+			else:
+				taskFunc(*args)
 		thread.Start()

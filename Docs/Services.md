@@ -6,5 +6,5 @@ The task service manages the startup and execution of tasks (threads).  In hoste
 Interface (ITaskProvider):
 --------------------------
 
-- `callable TaskCallable(args as (object)) as void` -- Task entrypoint callable.  Takes an array of arguments (XXX: Should this be a 'params' argument, so that the unpacking is done by the CLR?  Can Boo do this?)
+- `callable TaskCallable(*args) as void` -- Task entrypoint callable.  Takes a variable number of arguments.
 - `def StartTask(taskFunc as TaskCallable, args as (object)) as void` -- Starts a new task, given the entrypoint callable and arguments array.
