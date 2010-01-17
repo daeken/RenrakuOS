@@ -71,7 +71,10 @@ def boo(out, files=[], &block)
 	
 	references.map! { |file| "-reference:#{file}" }
 	
-	sh 'booc', "-o:#{out}", "-target:#{target}", *references, *files
+	file out => files do
+		sh 'booc', "-o:#{out}", "-target:#{target}", *references, *files
+	end
+	Rake::Task[out].invoke
 end
 
 common = find do
@@ -124,6 +127,7 @@ task :ia32 => [:macros] do
 				'Kernel/Platform/IA32/.../*.boo', 
 				'Kernel/Services/Platform/IA32/.../*.boo', 
 				'Library/.../*.boo', 
+				'Apps/.../*.boo', 
 			]
 	end
 end
