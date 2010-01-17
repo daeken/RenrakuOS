@@ -19,16 +19,14 @@ public class SdlVideoService(IService, IVideoProvider):
 		print 'SDL video service initialized.'
 	
 	def SetMode(width as int, height as int, bits as int) as void:
+		taskServ = cast(ITaskProvider, Context.Service['task'])
 		if Screen == null:
-			Screen = Video.SetVideoMode(width, height)
-			SetupEvents()
+			taskServ.StartTask() do:
+				Screen = Video.SetVideoMode(width, height)
+				Events.Quit += do(sender, e):
+					Events.QuitApplication()
+				Events.Tick += do(sender, e):
+					Screen.Update()
+				Events.Run()
 		else:
 			Screen = Video.SetVideoMode(width, height)
-	
-	def SetupEvents():
-		taskServ = cast(ITaskProvider, Context.Service['task'])
-		Events.Quit += do(sender, e):
-			Events.QuitApplication()
-		Events.Tick += do(sender, e):
-			Screen.Update()
-		taskServ.StartTask(Events.Run, null)

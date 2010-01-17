@@ -7,4 +7,4 @@ Interface (ITaskProvider):
 --------------------------
 
 - `callable TaskCallable(*args) as void` -- Task entrypoint callable.  Takes a variable number of arguments.
-- `def StartTask(taskFunc as TaskCallable, args as (object)) as void` -- Starts a new task, given the entrypoint callable and arguments array.
+- `def StartTask(taskFunc as TaskCallable, *args) as void` -- Starts a new task, given the entrypoint callable and (optional) arguments.

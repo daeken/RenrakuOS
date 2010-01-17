@@ -9,10 +9,8 @@ class Task(Application):
 	
 	def Run(_ as (string)):
 		taskServ = cast(ITaskProvider, Context.Service['task'])
-		taskServ.StartTask(Test, null)
-	
-	def Test(_ as (object)):
-		for i in range(10):
-			print 'Test'
-			for j in range(5000000):
-				pass
+		taskServ.StartTask() do:
+			for i in range(10):
+				print 'Test'
+				for j in range(5000000):
+					pass

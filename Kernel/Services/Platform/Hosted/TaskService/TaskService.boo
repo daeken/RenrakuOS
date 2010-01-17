@@ -5,7 +5,7 @@ import System.Threading
 callable TaskCallable(*args) as void
 
 public interface ITaskProvider:
-	def StartTask(taskFunc as TaskCallable, args as (object)):
+	def StartTask(taskFunc as TaskCallable, *args):
 		pass
 
 public class TaskService(IService, ITaskProvider):
@@ -17,12 +17,9 @@ public class TaskService(IService, ITaskProvider):
 		Context.Register(self)
 		print 'Task service initialized.'
 	
-	def StartTask(taskFunc as TaskCallable, args as (object)):
+	def StartTask(taskFunc as TaskCallable, *args):
 		context = Context.CurrentContext
 		thread = Thread() do:
 			Context.CurrentContext = context
-			if args == null:
-				taskFunc()
-			else:
-				taskFunc(*args)
+			taskFunc(*args)
 		thread.Start()
