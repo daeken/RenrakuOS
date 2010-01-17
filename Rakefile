@@ -79,11 +79,13 @@ end
 
 common = find do
 		include [
-				'Kernel/.../*.boo'
+				'Kernel/.../*.boo', 
+				'Apps/.../*.boo', 
 			]
 		exclude [
 				'Kernel/Platform', 
 				'Kernel/Services/Platform', 
+				'Apps/Platform', 
 			]
 	end
 
@@ -100,17 +102,16 @@ task :hosted => [:macros] do
 		include common
 		include [
 				'Obj/Kernel.Macros.dll', 
+				'SdlDotNet.dll', 
 				
 				'Kernel/Platform/Hosted/.../*.boo', 
 				'Kernel/Services/Platform/Hosted/.../*.boo', 
 				
-				'Apps/Application.boo', 
-				'Apps/Echo.boo', 
-				'Apps/Reverse.boo', 
-				'Apps/Shell/.../*.boo', 
-				'Apps/Task.boo', 
+				'Apps/Platform/Hosted/.../*.boo', 
 			]
 	end
+	
+	sh 'corflags', '/32bit+', 'Obj/Renraku.exe'
 end
 
 task :ia32 => [:macros] do

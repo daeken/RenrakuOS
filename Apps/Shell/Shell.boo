@@ -35,6 +35,7 @@ public class Shell(Application):
 				Task(), 
 				SetEnv(),
 				#Windows(),
+				Video(), 
 			)
 		CommandHistory = ArrayList()
 		
