@@ -81,11 +81,13 @@ common = find do
 		include [
 				'Kernel/.../*.boo', 
 				'Apps/.../*.boo', 
+				'Library/.../*.boo', 
 			]
 		exclude [
 				'Kernel/Platform', 
 				'Kernel/Services/Platform', 
 				'Apps/Platform', 
+				'Library/Platform', 
 			]
 	end
 
@@ -106,7 +108,7 @@ task :hosted => [:macros] do
 				
 				'Kernel/Platform/Hosted/.../*.boo', 
 				'Kernel/Services/Platform/Hosted/.../*.boo', 
-				
+				'Library/Platform/Hosted/.../*.boo', 
 				'Apps/Platform/Hosted/.../*.boo', 
 			]
 	end
@@ -127,7 +129,7 @@ task :ia32 => [:macros] do
 				
 				'Kernel/Platform/IA32/.../*.boo', 
 				'Kernel/Services/Platform/IA32/.../*.boo', 
-				'Library/.../*.boo', 
+				'Library/Platform/IA32/.../*.boo', 
 				'Apps/.../*.boo', 
 			]
 	end
