@@ -60,6 +60,10 @@ public class Window:
 	def Display():
 		pass
 
+class Font:
+	def constructor(fn as string):
+		pass
+
 public class GuiService(IService, IGuiProvider):
 	override ServiceId:
 		get:
@@ -141,23 +145,22 @@ public class GuiService(IService, IGuiProvider):
 			
 			Video.SwapBuffers()
 	
-	def InWindow(x as int, y as int) as Window:
+	def InWindow(x as int, y as int, titleBar as bool) as Window:
 		for window in Windows:
+			if not window.Visible:
+				continue
 			if window.Position[0] > x or window.Position[1] > y:
 				continue
 			if window.Position[0] + window.Dimensions[0] < x or window.Position[1] + window.Dimensions[1] + 25 < y:
+				continue
+			if titleBar and window.Position[1] + 25 < y:
 				continue
 			return window
 		return null
 	
 	def Button(down as bool, button as int):
 		if down and button == 1:
-			window = InWindow(Pointer[0], Pointer[1])
-			if window == null:
-				return
-			
-			if window.Position[1] + 25 >= Pointer[1]:
-				Dragging = window
+			Dragging = InWindow(Pointer[0], Pointer[1], true)
 		elif not down and button == 1:
 			Dragging = null
 	

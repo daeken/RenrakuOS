@@ -65,6 +65,8 @@ public class Shell(Application):
 			if line == 'exit' and not toplevel:
 				Renraku.Kernel.Context.Pop()
 				break
+			elif line == null:
+				break
 			
 			args = line.Split((char(' '), ), StringSplitOptions.RemoveEmptyEntries)
 			
