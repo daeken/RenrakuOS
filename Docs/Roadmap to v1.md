@@ -20,6 +20,7 @@ Compiler:
 Gui:
 
 - Basic toolkit for controls
+- Image rendering
 - Font rendering
 - Vector support?
 
@@ -53,4 +54,5 @@ Applications:
 
 - GUI console
 - File browser
+- Basic text editor
 - Some basic GUI game?

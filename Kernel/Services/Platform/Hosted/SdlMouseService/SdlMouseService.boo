@@ -1,8 +1,7 @@
 namespace Renraku.Kernel
 
 import SdlDotNet.Core
-import SdlDotNet.Input
-import System.Drawing
+#import SdlDotNet.Input
 
 public interface IMouseProvider:
 	event Motion as callable(int, int)

@@ -5,6 +5,35 @@ import SdlDotNet.Graphics
 import SdlDotNet.Graphics.Primitives
 import SdlDotNet.Input
 import System.Drawing
+import Boo.Lang.Builtins
+
+public class Image:
+	static def FromFile(fn as string):
+		bitmap = Bitmap(System.Drawing.Image.FromFile(fn))
+		
+		pixels = matrix(Color, bitmap.Width, bitmap.Height)
+		for y in range(bitmap.Height):
+			for x in range(bitmap.Width):
+				color = bitmap.GetPixel(x, y)
+				if color.A == 255:
+					pixels[x, y] = color
+				else:
+					ratio = color.A / 255.0
+					inv = 255 * (1.0 - ratio)
+					pixels[x, y] = Color.FromArgb(
+							cast(int, (color.R * ratio) + inv) % 256, 
+							cast(int, (color.G * ratio) + inv) % 256, 
+							cast(int, (color.B * ratio) + inv) % 256
+						)
+		return Image(bitmap.Width, bitmap.Height, pixels)
+	
+	public Width as int
+	public Height as int
+	public Pixels as (Color, 2)
+	def constructor(width as int, height as int, pixels as (Color, 2)):
+		Width = width
+		Height = height
+		Pixels = pixels
 
 public interface IVideoProvider:
 	event Tick as callable(IVideoProvider)
@@ -16,6 +45,9 @@ public interface IVideoProvider:
 		pass
 	
 	def DrawRect(x1 as int, y1 as int, x2 as int, y2 as int, lineColor as Color, fillColor as Color):	
+		pass
+	
+	def DrawImage(x as int, y as int, image as Renraku.Kernel.Image):
 		pass
 	
 	def SwapBuffers():
@@ -70,6 +102,12 @@ public class SdlVideoService(IService, IVideoProvider):
 						x2-x1-1, y2-y1-1
 					), 
 				fillColor
+			)
+	
+	def DrawImage(x as int, y as int, image as Renraku.Kernel.Image):
+		Screen.SetPixels(
+				Point(x, y), 
+				image.Pixels
 			)
 	
 	def SwapBuffers():

@@ -40,6 +40,13 @@ public class Window:
 			_Visible = value
 			Display()
 	
+	_Contents as object
+	public Contents as object:
+		get:
+			return _Contents
+		set:
+			_Contents = value
+	
 	def constructor():
 		Gui = GuiProvider.Service
 		Title = 'Untitled Renraku Window'
@@ -96,20 +103,30 @@ public class GuiService(IService, IGuiProvider):
 			Video.DrawRect(
 					window.Position[0], 
 					window.Position[1], 
-					window.Position[0] + window.Dimensions[0], 
-					window.Position[1] + window.Dimensions[1] + 25, 
-					Color.White, 
-					Color.Black
+					window.Position[0] + window.Dimensions[0] + 1, 
+					window.Position[1] + window.Dimensions[1] + 25 + 1, 
+					Color.Black, 
+					Color.White
 				)
-			# Line for titlebar
+			# Titlebar
 			Video.DrawRect(
 					window.Position[0], 
 					window.Position[1], 
-					window.Position[0] + window.Dimensions[0], 
+					window.Position[0] + window.Dimensions[0] + 1, 
 					window.Position[1] + 25, 
-					Color.White, 
+					Color.Black, 
 					Color.Blue
 				)
+			
+			if window.Contents == null:
+				continue
+			
+			if window.Contents.GetType() == Renraku.Kernel.Image:
+				Video.DrawImage(
+						window.Position[0] + 1, 
+						window.Position[1] + 26, 
+						cast(Renraku.Kernel.Image, window.Contents)
+					)
 		
 		Video.DrawRect(
 				Pointer[0]-5, 
