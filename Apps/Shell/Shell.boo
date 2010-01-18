@@ -92,8 +92,11 @@ public class Shell(Application):
 					CommandHistory = ArrayList()
 				else:
 					i = 0
-					while i < CommandHistory.Count:
+					while i < CommandHistory.Count:			
 						System.Console.WriteLine(CommandHistory[i++])
+	
+			elif args[0] == 'shutdown':
+				Environment.Exit(0)
 
 			else:
 				
