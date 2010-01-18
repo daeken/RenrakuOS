@@ -93,13 +93,19 @@ common = find do
 
 task :default => [:hosted]
 
-task :macros do
+task :obj do
+	if not FileTest::directory? 'Obj'
+		Dir::mkdir 'Obj'
+	end
+end
+
+task :macros => [:obj] do
 	boo 'Obj/Kernel.Macros.dll' do
 		include ['Kernel/Macros/.../*.boo']
 	end
 end
 
-task :hosted => [:macros] do
+task :hosted => [:obj, :macros] do
 	boo 'Obj/Renraku.exe' do
 		include common
 		include [
@@ -116,7 +122,7 @@ task :hosted => [:macros] do
 	sh 'corflags', '/32bit+', 'Obj/Renraku.exe'
 end
 
-task :ia32 => [:macros] do
+task :ia32 => [:obj, :macros] do
 	boo 'Obj/Core.dll' do
 		include ['Core/.../*.boo']
 	end
