@@ -52,4 +52,5 @@ BCL:
 Applications:
 
 - GUI console
+- File browser
 - Some basic GUI game?
