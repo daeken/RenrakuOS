@@ -1,7 +1,7 @@
 namespace Renraku.Kernel
 
 import SdlDotNet.Core
-#import SdlDotNet.Input
+import SdlDotNet.Graphics
 
 public interface IMouseProvider:
 	event Motion as callable(int, int)
@@ -26,6 +26,7 @@ public class SdlMouseService(IService, IMouseProvider):
 		initial = true
 		Events.MouseMotion += do(_, evt):
 			if initial:
+				Video.GrabInput = true
 				initial = false
 			else:
 				Motion(evt.RelativeX, evt.RelativeY)

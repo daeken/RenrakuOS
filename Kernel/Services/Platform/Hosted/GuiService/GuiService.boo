@@ -92,59 +92,61 @@ public class GuiService(IService, IGuiProvider):
 		window = Window()
 		if func != null:
 			func(window)
-		Windows.Add(window)
+		lock Windows:
+			Windows.Add(window)
 		return window
 	
 	def Tick():
-		for window in Windows:
-			if not window.Visible:
-				continue
-			
-			Video.DrawRect(
-					window.Position[0], 
-					window.Position[1], 
-					window.Position[0] + window.Dimensions[0] + 1, 
-					window.Position[1] + window.Dimensions[1] + 25 + 1, 
-					Color.Black, 
-					Color.White
-				)
-			# Titlebar
-			Video.DrawRect(
-					window.Position[0], 
-					window.Position[1], 
-					window.Position[0] + window.Dimensions[0] + 1, 
-					window.Position[1] + 25, 
-					Color.Black, 
-					Color.Blue
-				)
-			
-			if window.Contents == null:
-				continue
-			
-			if window.Contents.GetType() == Renraku.Kernel.Image:
-				Video.DrawImage(
-						window.Position[0] + 1, 
-						window.Position[1] + 26, 
-						cast(Renraku.Kernel.Image, window.Contents)
+		lock Windows:
+			for window in Windows:
+				if not window.Visible:
+					continue
+				
+				Video.DrawRect(
+						window.Position[0], 
+						window.Position[1], 
+						window.Position[0] + window.Dimensions[0] + 1, 
+						window.Position[1] + window.Dimensions[1] + 25 + 1, 
+						Color.Black, 
+						Color.White
 					)
-		
-		Video.DrawRect(
-				Pointer[0]-5, 
-				Pointer[1]-5, 
-				Pointer[0]+5, 
-				Pointer[1]+5, 
-				Color.Green, 
-				Color.Green
-			)
-		
-		Video.SwapBuffers()
+				# Titlebar
+				Video.DrawRect(
+						window.Position[0], 
+						window.Position[1], 
+						window.Position[0] + window.Dimensions[0] + 1, 
+						window.Position[1] + 25, 
+						Color.Black, 
+						Color.Blue
+					)
+				
+				if window.Contents == null:
+					continue
+				
+				if window.Contents.GetType() == Renraku.Kernel.Image:
+					Video.DrawImage(
+							window.Position[0] + 1, 
+							window.Position[1] + 26, 
+							cast(Renraku.Kernel.Image, window.Contents)
+						)
+			
+			Video.DrawRect(
+					Pointer[0]-5, 
+					Pointer[1]-5, 
+					Pointer[0]+5, 
+					Pointer[1]+5, 
+					Color.Green, 
+					Color.Green
+				)
+			
+			Video.SwapBuffers()
 	
 	def InWindow(x as int, y as int) as Window:
 		for window in Windows:
 			if window.Position[0] > x or window.Position[1] > y:
-				break
+				continue
 			if window.Position[0] + window.Dimensions[0] < x or window.Position[1] + window.Dimensions[1] + 25 < y:
-				break
+				continue
 			return window
 		return null
 	

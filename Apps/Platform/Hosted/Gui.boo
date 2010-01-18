@@ -15,5 +15,5 @@ class Gui(Application):
 		guiServ = GuiProvider.Service
 		guiServ.Start()
 		
-		#GraphicalConsole().Run(null)
+		GraphicalConsole().Run(null)
 		Logo().Run(null)
