@@ -60,6 +60,9 @@ public class Window:
 	
 	def Display():
 		pass
+	
+	def Close():
+		Visible = false
 
 class Font:
 	public Size as (int)
@@ -168,6 +171,30 @@ public class GuiService(IService, IGuiProvider):
 						Color.White
 					)
 				
+				# Close button
+				Video.DrawRect(
+						window.Position[0] + window.Dimensions[0] - 18, 
+						window.Position[1] + 4, 
+						window.Position[0] + window.Dimensions[0] - 2, 
+						window.Position[1] + 20,
+						Color.Black, 
+						Color.Red
+					)
+				Video.DrawLine(
+						window.Position[0] + window.Dimensions[0] - 16, 
+						window.Position[1] + 6, 
+						window.Position[0] + window.Dimensions[0] - 4, 
+						window.Position[1] + 18, 
+						Color.Black
+					)
+				Video.DrawLine(
+						window.Position[0] + window.Dimensions[0] - 4, 
+						window.Position[1] + 6, 
+						window.Position[0] + window.Dimensions[0] - 16, 
+						window.Position[1] + 18, 
+						Color.Black
+					)
+				
 				if window.Contents == null:
 					continue
 				
@@ -209,14 +236,24 @@ public class GuiService(IService, IGuiProvider):
 	
 	def Button(down as bool, button as int):
 		if down and button == 1:
-			Dragging = InWindow(Pointer[0], Pointer[1], true)
+			window = InWindow(Pointer[0], Pointer[1], true)
+			if (
+					window != null and 
+					Pointer[0] >= window.Position[0] + window.Dimensions[0] - 18 and
+					Pointer[0] < window.Position[0] + window.Dimensions[0] - 2 and
+					Pointer[1] >= window.Position[1] + 4 and
+					Pointer[1] < window.Position[1] + 20
+				):
+				window.Close()
+				return
 			
+			Dragging = window
 			if Dragging == null:
 				window = InWindow(Pointer[0], Pointer[1], false)
 				if window != null:
 					Focus(window)
 			else:
-				Focus(Dragging)
+				Focus(window)
 		elif not down and button == 1:
 			Dragging = null
 	
