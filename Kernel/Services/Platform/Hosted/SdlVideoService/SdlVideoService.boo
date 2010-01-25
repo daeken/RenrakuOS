@@ -41,6 +41,9 @@ public interface IVideoProvider:
 	def SetMode(width as int, height as int, bits as int) as void:
 		pass
 	
+	def SetPixel(x as int, y as int, color as Color):
+		pass
+	
 	def DrawLine(x1 as int, y1 as int, x2 as int, y2 as int, color as Color):
 		pass
 	
@@ -83,6 +86,14 @@ public class SdlVideoService(IService, IVideoProvider):
 			Events.Tick += do(sender, e):
 				Tick(self)
 			Events.Run()
+	
+	def SetPixel(x as int, y as int, color as Color):
+		Screen.Lock()
+		Screen.Draw(
+				Point(x, y), 
+				color
+			)
+		Screen.Unlock()
 	
 	def DrawLine(x1 as int, y1 as int, x2 as int, y2 as int, color as Color):
 		Screen.Draw(

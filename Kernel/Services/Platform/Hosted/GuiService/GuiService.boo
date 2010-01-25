@@ -2,6 +2,7 @@ namespace Renraku.Kernel
 
 import System.Collections.Generic
 import System.Drawing
+import System.IO
 
 public interface IGuiProvider:
 	def Start() as void:
@@ -61,8 +62,35 @@ public class Window:
 		pass
 
 class Font:
+	public Size as (int)
+	public Chars as ((byte))
+	
 	def constructor(fn as string):
-		pass
+		fp = File.OpenRead(fn)
+		br = BinaryReader(fp)
+		Size = (cast(int, br.ReadByte()), cast(int, br.ReadByte()))
+		
+		Chars = array [of (byte)](256)
+		for i in range(256):
+			Chars[i] = br.ReadBytes(Size[0]*Size[1])
+		
+		br.Close()
+	
+	def Draw(video as IVideoProvider, position as (int), str as string, color as Color):
+		for ch in str:
+			ich = cast(int, ch)
+			if ich > 0xFF:
+				position[0] += Size[0]
+				continue
+			
+			bitmap = Chars[ich]
+			i = 0
+			for y in range(Size[1]):
+				for x in range(Size[0]):
+					if bitmap[i] == 1:
+						video.SetPixel(position[0] + x, position[1] + y, color)
+					i += 1
+			position[0] += Size[0]
 
 public class GuiService(IService, IGuiProvider):
 	override ServiceId:
@@ -74,6 +102,8 @@ public class GuiService(IService, IGuiProvider):
 	Pointer as (int)
 	Dragging as Window = null
 	
+	CurrentFont as Font
+	
 	def constructor():
 		Context.Register(self)
 		print 'GUI service initialized.'
@@ -84,6 +114,8 @@ public class GuiService(IService, IGuiProvider):
 		
 		Windows = List [of Window]()
 		Pointer = (200, 300)
+		
+		CurrentFont = Font('Images/Dina.fbin')
 		
 		Video = VideoProvider.Service
 		Video.SetMode(800, 600, 24)
@@ -122,6 +154,15 @@ public class GuiService(IService, IGuiProvider):
 						window.Position[1] + 25, 
 						Color.Black, 
 						Color.Blue
+					)
+				CurrentFont.Draw(
+						Video, 
+						(
+							window.Position[0] + 5, 
+							window.Position[1] + 5
+						), 
+						window.Title, 
+						Color.White
 					)
 				
 				if window.Contents == null:
