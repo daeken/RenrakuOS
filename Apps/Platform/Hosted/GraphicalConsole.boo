@@ -12,8 +12,9 @@ class GraphicalConsole(Application):
 			return 'Console for the GUI'
 	
 	def Run(_ as (string)):
-		gui = GuiProvider.Service
+		pass
+		#gui = GuiProvider.Service
 		
-		gui.CreateWindow() do(window as Window):
-			window.Title = 'Graphical Console'
-			window.Visible = true
+		#gui.CreateWindow() do(window as Window):
+		#	window.Title = 'Graphical Console'
+		#	window.Visible = true

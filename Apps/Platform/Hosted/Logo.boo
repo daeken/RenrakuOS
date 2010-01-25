@@ -1,6 +1,7 @@
 namespace Renraku.Apps
 
-import Renraku.Kernel
+import System.Drawing
+import Renraku.Gui
 
 class Logo(Application):
 	override Name as string:
@@ -12,11 +13,10 @@ class Logo(Application):
 			return 'Logo for the GUI'
 	
 	def Run(_ as (string)):
-		gui = GuiProvider.Service
-		
-		gui.CreateWindow() do(window as Window):
+		Window() do(window as Window):
 			window.Title = 'Renraku!'
 			window.Visible = true
 			
-			window.Contents = Image.FromFile('Images/Logo.png')
-			window.Dimensions = (400, 150)
+			image = Bitmap.FromFile('Images/Logo.png')
+			window.Contents = image
+			window.Size = (image.Width, image.Height)
