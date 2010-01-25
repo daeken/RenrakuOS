@@ -99,6 +99,7 @@ public class GuiService(IService, IGuiProvider):
 	
 	Video as IVideoProvider = null
 	Windows as List [of Window]
+	DrawOrder as List [of Window]
 	Pointer as (int)
 	Dragging as Window = null
 	
@@ -113,6 +114,7 @@ public class GuiService(IService, IGuiProvider):
 			return
 		
 		Windows = List [of Window]()
+		DrawOrder = List [of Window]()
 		Pointer = (200, 300)
 		
 		CurrentFont = Font('Images/Dina.fbin')
@@ -130,11 +132,12 @@ public class GuiService(IService, IGuiProvider):
 			func(window)
 		lock Windows:
 			Windows.Add(window)
+			DrawOrder.Add(window)
 		return window
 	
 	def Tick():
 		lock Windows:
-			for window in Windows:
+			for window in DrawOrder:
 				if not window.Visible:
 					continue
 				
@@ -186,8 +189,13 @@ public class GuiService(IService, IGuiProvider):
 			
 			Video.SwapBuffers()
 	
+	def Focus(window as Window):
+		DrawOrder.Remove(window)
+		DrawOrder.Add(window)
+	
 	def InWindow(x as int, y as int, titleBar as bool) as Window:
-		for window in Windows:
+		match = null
+		for window in DrawOrder:
 			if not window.Visible:
 				continue
 			if window.Position[0] > x or window.Position[1] > y:
@@ -196,12 +204,19 @@ public class GuiService(IService, IGuiProvider):
 				continue
 			if titleBar and window.Position[1] + 25 < y:
 				continue
-			return window
-		return null
+			match = window
+		return match
 	
 	def Button(down as bool, button as int):
 		if down and button == 1:
 			Dragging = InWindow(Pointer[0], Pointer[1], true)
+			
+			if Dragging == null:
+				window = InWindow(Pointer[0], Pointer[1], false)
+				if window != null:
+					Focus(window)
+			else:
+				Focus(Dragging)
 		elif not down and button == 1:
 			Dragging = null
 	
