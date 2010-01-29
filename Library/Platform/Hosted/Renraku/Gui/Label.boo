@@ -26,8 +26,9 @@ public class Label(IWidget):
 		get:
 			return _Text
 		set:
-			_Text = value
-			Update()
+			if _Text != value:
+				_Text = value
+				Update()
 	
 	_FgColor as Color
 	public FgColor as Color:
@@ -59,6 +60,9 @@ public class Label(IWidget):
 		return CachedBitmap
 	
 	def Update():
+		if _Text == '':
+			return
+		
 		if DefaultFont == null:
 			DefaultFont = Font('Images/Dina.fbin')
 		

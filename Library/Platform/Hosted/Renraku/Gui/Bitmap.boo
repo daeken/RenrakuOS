@@ -7,7 +7,7 @@ public class Bitmap(IWidget):
 	public Height as int
 	public Pixels as (Color)
 	
-	static def FromFile(fn as string):
+	static def FromFile(fn as string) as Bitmap:
 		bitmap = System.Drawing.Bitmap(System.Drawing.Image.FromFile(fn))
 		
 		pixels = array [of Color](bitmap.Height * bitmap.Width)
@@ -16,6 +16,13 @@ public class Bitmap(IWidget):
 			for x in range(bitmap.Width):
 				pixels[i++] = bitmap.GetPixel(x, y)
 		return Bitmap(bitmap.Width, bitmap.Height, pixels)
+	
+	static def FromFile(fn as string, background as Color):
+		image = FromFile(fn)
+		
+		bg = Bitmap(image.Width, image.Height, background)
+		bg.Blit(0, 0, image)
+		return bg
 	
 	def constructor(width as int, height as int):
 		Width = width
@@ -55,10 +62,10 @@ public class Bitmap(IWidget):
 			destY = y
 			srcY = 0
 		
-		width = bitmap.Width
+		width = bitmap.Width - srcX
 		if destX + width >= Width:
 			width = Width - destX
-		height = bitmap.Height
+		height = bitmap.Height - srcY
 		if destY + height >= Height:
 			height = Height - destY
 		
@@ -71,18 +78,17 @@ public class Bitmap(IWidget):
 			for x in range(width):
 				color = bitmap.Pixels[srcOff++]
 				if color.A == 255:
-					Pixels[destOff++] = color
+					Pixels[destOff] = color
 				elif color.A != 0:
 					ratio = color.A / 255.0
 					inv = 1.0 - ratio
 					bottom = Pixels[destOff]
-					Pixels[destOff++] = Color.FromArgb(
+					Pixels[destOff] = Color.FromArgb(
 							cast(int, (color.R * ratio) + (bottom.R * inv)), 
 							cast(int, (color.G * ratio) + (bottom.G * inv)), 
 							cast(int, (color.B * ratio) + (bottom.B * inv))
 						)
-				else:
-					destOff++
+				destOff++
 	
 	def Render() as Bitmap:
 		return self

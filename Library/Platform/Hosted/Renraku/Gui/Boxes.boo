@@ -11,6 +11,15 @@ abstract class Box(IWidget):
 	def Add(widget as IWidget) as IWidget:
 		Children.Add(widget)
 		return widget
+	
+	def Remove(widget as IWidget):
+		Children.Remove(widget)
+	
+	def Clicked(x as int, y as int, down as bool, button as int):
+		for child in Children:
+			if child.Inside(x, y):
+				child.Clicked(x - child.Position[0], y - child.Position[1], down, button)
+				break
 
 class VBox(Box):
 	def Render() as Bitmap:
@@ -18,9 +27,11 @@ class VBox(Box):
 		height = 0
 		width = 0
 		for child in Children:
+			child.Position = (0, height)
 			bitmap = child.Render()
 			if bitmap == null:
 				continue
+			child.Size = bitmap.Width, bitmap.Height
 			height += bitmap.Height
 			if bitmap.Width > width:
 				width = bitmap.Width
@@ -39,10 +50,12 @@ class HBox(Box):
 		height = 0
 		width = 0
 		for child in Children:
+			child.Position = (width, 0)
 			bitmap = child.Render()
 			if bitmap == null:
 				continue
-			width += bitmap.Height
+			child.Size = bitmap.Width, bitmap.Height
+			width += bitmap.Width
 			if bitmap.Height > height:
 				height = bitmap.Height
 			rendered.Add(bitmap)

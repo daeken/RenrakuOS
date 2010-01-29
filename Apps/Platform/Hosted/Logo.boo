@@ -13,10 +13,9 @@ class Logo(Application):
 			return 'Logo for the GUI'
 	
 	def Run(_ as (string)):
-		Window() do(window as Window):
-			window.Title = 'Renraku!'
+		Window('Renraku!') do(window as Window):
 			window.Visible = true
 			
-			image = Bitmap.FromFile('Images/Logo.png')
+			image = Bitmap.FromFile('Images/Logo.png', Color.White)
 			window.Contents = image
 			window.Size = (image.Width, image.Height)

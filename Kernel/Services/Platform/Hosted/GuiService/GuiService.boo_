@@ -1,0 +1,266 @@
+namespace Renraku.Kernel
+
+import System.Collections.Generic
+import System.Drawing
+import System.IO
+
+public interface IGuiProvider:
+	def Start() as void:
+		pass
+	
+	def CreateWindow(func as callable) as Window:
+		pass
+
+public static class GuiProvider:
+	public Service as IGuiProvider:
+		get:
+			return cast(IGuiProvider, Context.Service['gui'])
+
+public class Window:
+	Gui as IGuiProvider
+	
+	public Title as string
+	_Dimensions as (int)
+	public Dimensions as (int):
+		get:
+			return _Dimensions
+		set:
+			_Dimensions = value
+			Reshape()
+	_Position as (int)
+	public Position as (int):
+		get:
+			return _Position
+		set:
+			_Position = value
+	_Visible as bool
+	public Visible as bool:
+		get:
+			return _Visible
+		set:
+			_Visible = value
+			Display()
+	
+	_Contents as object
+	public Contents as object:
+		get:
+			return _Contents
+		set:
+			_Contents = value
+	
+	def constructor():
+		Gui = GuiProvider.Service
+		Title = 'Untitled Renraku Window'
+		Dimensions = (400, 400)
+		Position = (100, 100)
+		Visible = false
+	
+	def Reshape():
+		pass
+	
+	def Display():
+		pass
+	
+	def Close():
+		Visible = false
+
+class Font:
+	public Size as (int)
+	public Chars as ((byte))
+	
+	def constructor(fn as string):
+		fp = File.OpenRead(fn)
+		br = BinaryReader(fp)
+		Size = (cast(int, br.ReadByte()), cast(int, br.ReadByte()))
+		
+		Chars = array [of (byte)](256)
+		for i in range(256):
+			Chars[i] = br.ReadBytes(Size[0]*Size[1])
+		
+		br.Close()
+	
+	def Draw(video as IVideoProvider, position as (int), str as string, color as Color):
+		for ch in str:
+			ich = cast(int, ch)
+			if ich > 0xFF:
+				position[0] += Size[0]
+				continue
+			
+			bitmap = Chars[ich]
+			i = 0
+			for y in range(Size[1]):
+				for x in range(Size[0]):
+					if bitmap[i] == 1:
+						video.SetPixel(position[0] + x, position[1] + y, color)
+					i += 1
+			position[0] += Size[0]
+
+public class GuiService(IService, IGuiProvider):
+	override ServiceId:
+		get:
+			return 'gui'
+	
+	Video as IVideoProvider = null
+	Windows as List [of Window]
+	DrawOrder as List [of Window]
+	Pointer as (int)
+	Dragging as Window = null
+	
+	CurrentFont as Font
+	
+	def constructor():
+		Context.Register(self)
+		print 'GUI service initialized.'
+	
+	def Start():
+		if Video != null:
+			return
+		
+		Windows = List [of Window]()
+		DrawOrder = List [of Window]()
+		Pointer = (200, 300)
+		
+		CurrentFont = Font('Images/Dina.fbin')
+		
+		Video = VideoProvider.Service
+		Video.SetMode(800, 600, 24)
+		Video.Tick += Tick
+		Mouse = MouseProvider.Service
+		Mouse.Button += Button
+		Mouse.Motion += Motion
+	
+	def CreateWindow(func as callable) as Window:
+		window = Window()
+		if func != null:
+			func(window)
+		lock Windows:
+			Windows.Add(window)
+			DrawOrder.Add(window)
+		return window
+	
+	def Tick():
+		lock Windows:
+			for window in DrawOrder:
+				if not window.Visible:
+					continue
+				
+				Video.DrawRect(
+						window.Position[0], 
+						window.Position[1], 
+						window.Position[0] + window.Dimensions[0] + 1, 
+						window.Position[1] + window.Dimensions[1] + 25 + 1, 
+						Color.Black, 
+						Color.White
+					)
+				# Titlebar
+				Video.DrawRect(
+						window.Position[0], 
+						window.Position[1], 
+						window.Position[0] + window.Dimensions[0] + 1, 
+						window.Position[1] + 25, 
+						Color.Black, 
+						Color.Blue
+					)
+				CurrentFont.Draw(
+						Video, 
+						(
+							window.Position[0] + 5, 
+							window.Position[1] + 5
+						), 
+						window.Title, 
+						Color.White
+					)
+				
+				# Close button
+				Video.DrawRect(
+						window.Position[0] + window.Dimensions[0] - 18, 
+						window.Position[1] + 4, 
+						window.Position[0] + window.Dimensions[0] - 2, 
+						window.Position[1] + 20,
+						Color.Black, 
+						Color.Red
+					)
+				Video.DrawLine(
+						window.Position[0] + window.Dimensions[0] - 16, 
+						window.Position[1] + 6, 
+						window.Position[0] + window.Dimensions[0] - 4, 
+						window.Position[1] + 18, 
+						Color.Black
+					)
+				Video.DrawLine(
+						window.Position[0] + window.Dimensions[0] - 4, 
+						window.Position[1] + 6, 
+						window.Position[0] + window.Dimensions[0] - 16, 
+						window.Position[1] + 18, 
+						Color.Black
+					)
+				
+				if window.Contents == null:
+					continue
+				
+				if window.Contents.GetType() == Renraku.Kernel.Image:
+					Video.DrawImage(
+							window.Position[0] + 1, 
+							window.Position[1] + 26, 
+							cast(Renraku.Kernel.Image, window.Contents)
+						)
+			
+			Video.DrawRect(
+					Pointer[0]-5, 
+					Pointer[1]-5, 
+					Pointer[0]+5, 
+					Pointer[1]+5, 
+					Color.Green, 
+					Color.Green
+				)
+			
+			Video.SwapBuffers()
+	
+	def Focus(window as Window):
+		DrawOrder.Remove(window)
+		DrawOrder.Add(window)
+	
+	def InWindow(x as int, y as int, titleBar as bool) as Window:
+		match = null
+		for window in DrawOrder:
+			if not window.Visible:
+				continue
+			if window.Position[0] > x or window.Position[1] > y:
+				continue
+			if window.Position[0] + window.Dimensions[0] < x or window.Position[1] + window.Dimensions[1] + 25 < y:
+				continue
+			if titleBar and window.Position[1] + 25 < y:
+				continue
+			match = window
+		return match
+	
+	def Button(down as bool, button as int):
+		if down and button == 1:
+			window = InWindow(Pointer[0], Pointer[1], true)
+			if (
+					window != null and 
+					Pointer[0] >= window.Position[0] + window.Dimensions[0] - 18 and
+					Pointer[0] < window.Position[0] + window.Dimensions[0] - 2 and
+					Pointer[1] >= window.Position[1] + 4 and
+					Pointer[1] < window.Position[1] + 20
+				):
+				window.Close()
+				return
+			
+			Dragging = window
+			if Dragging == null:
+				window = InWindow(Pointer[0], Pointer[1], false)
+				if window != null:
+					Focus(window)
+			else:
+				Focus(window)
+		elif not down and button == 1:
+			Dragging = null
+	
+	def Motion(x as int, y as int):
+		Pointer[0] += x
+		Pointer[1] += y
+		
+		if Dragging != null:
+			Dragging.Position[0] += x
+			Dragging.Position[1] += y

@@ -1,6 +1,6 @@
 namespace Renraku.Apps
 
-#import Renraku.Kernel
+import Renraku.Gui
 
 class GraphicalConsole(Application):
 	override Name as string:
@@ -12,9 +12,6 @@ class GraphicalConsole(Application):
 			return 'Console for the GUI'
 	
 	def Run(_ as (string)):
-		pass
-		#gui = GuiProvider.Service
-		
-		#gui.CreateWindow() do(window as Window):
-		#	window.Title = 'Graphical Console'
-		#	window.Visible = true
+		Window() do(window as IWindow):
+			window.Visible = true
+			window.Title = 'Graphical console'
