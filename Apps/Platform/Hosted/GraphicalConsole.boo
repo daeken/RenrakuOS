@@ -1,6 +1,6 @@
 namespace Renraku.Apps
 
-import Renraku.Kernel
+#import Renraku.Kernel
 
 class GraphicalConsole(Application):
 	override Name as string:

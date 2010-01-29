@@ -48,5 +48,14 @@ public class SdlVideoService(IService, IVideoProvider):
 			Events.Run()
 	
 	def Update(bitmap as Bitmap):
-		Screen.SetPixels(Point(0, 0), bitmap.Pixels)
+		Screen.Lock()
+		i = 0
+		unsafe screen as uint = Screen.Pixels:
+			for y in range(bitmap.Height):
+				for x in range(bitmap.Width):
+					unchecked:
+						*screen = bitmap.Pixels[i++].ToArgb()
+					++screen
+		Screen.Unlock()
+		
 		Screen.Update()

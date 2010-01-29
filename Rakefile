@@ -46,7 +46,7 @@ def find(&block)
 	Find.new(block).find
 end
 
-def boo(out, files=[], &block)
+def boo(out, flags=[], files=[], &block)
 	if block != nil
 		files += find &block
 	end
@@ -72,7 +72,7 @@ def boo(out, files=[], &block)
 	references.map! { |file| "-reference:#{file}" }
 	
 	file out => files do
-		sh 'booc', "-o:#{out}", "-target:#{target}", *references, *files
+		sh 'booc', "-o:#{out}", "-target:#{target}", *references, *flags, *files
 	end
 	Rake::Task[out].invoke
 end
@@ -106,7 +106,7 @@ task :macros => [:obj] do
 end
 
 task :hosted => [:obj, :macros] do
-	boo 'Obj/Renraku.exe' do
+	boo 'Obj/Renraku.exe', ['-unsafe'] do
 		include common
 		include [
 				'Obj/Kernel.Macros.dll', 

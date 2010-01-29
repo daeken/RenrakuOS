@@ -4,9 +4,6 @@ import System.Drawing
 import Renraku.Kernel
 
 public interface IWindow(IWidget):
-	HasDecorations as bool:
-		get
-		set
 	Position as (int):
 		get
 		set
@@ -15,12 +12,6 @@ public interface IWindow(IWidget):
 		set
 
 class Window(IWindow):
-	_HasDecorations as bool
-	public HasDecorations as bool:
-		get:
-			return _HasDecorations
-		set:
-			_HasDecorations = value
 	_Position as (int)
 	public Position as (int):
 		get:

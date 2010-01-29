@@ -51,8 +51,8 @@ public class Label(IWidget):
 	
 	def constructor(text as string):
 		_Text = text
-		_FgColor = Color.Green
-		_BgColor = Color.White
+		_FgColor = Color.Black
+		_BgColor = Color.Transparent
 		Update()
 	
 	def Render() as Bitmap:
@@ -75,9 +75,10 @@ public class Label(IWidget):
 			
 			i = 0
 			for y in range(DefaultFont.Size[1]):
+				row = y * CachedBitmap.Width + off
 				for x in range(DefaultFont.Size[0]):
 					if bitmap[i++] == 1:
-						CachedBitmap.Pixels[off+x, y] = _FgColor
+						CachedBitmap.Pixels[row++] = _FgColor
 					else:
-						CachedBitmap.Pixels[off+x, y] = _BgColor
+						CachedBitmap.Pixels[row++] = _BgColor
 			off += DefaultFont.Size[0]
