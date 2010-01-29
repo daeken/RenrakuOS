@@ -11,61 +11,55 @@ class Pair [of T1, T2]:
 		V2 = v2
 
 class Grid(IWidget):
-	public Children as Dictionary [of int, Dictionary [of int, IWidget]]
+	public Children as List [of List [of IWidget]]
 	
 	def constructor():
 		self(null)
 	
 	def constructor(func as callable(Grid)):
-		Children = Dictionary [of int, Dictionary [of int, IWidget]]()
+		Children = List [of List [of IWidget]]()
 		
 		if func != null:
 			func(self)
 	
 	public def Add(column as int, row as int, widget as IWidget):
-		if not Children.ContainsKey(row):
-			Children.Add(row, Dictionary [of int, IWidget]())
+		if Children.Count <= row:
+			for i in range(row - Children.Count):
+				Children.Add(null)
+			Children.Add(List [of IWidget]())
 		
-		Children[row][column] = widget
+		rowList = Children[row]
+		if rowList == null:
+			Children[row] = rowList = List [of IWidget]()
+		if rowList.Count <= column:
+			for i in range(column - rowList.Count + 1):
+				rowList.Add(null)
+		rowList[column] = widget
 	
 	def Render() as Bitmap:
 		grid = List [of List [of Pair [of IWidget, Bitmap]]]()
 		
 		columnCount = 0
-		lastRow = -1
 		for row in Children:
-			gap = row.Key - lastRow - 1
-			if gap > 0:
-				for i in range(gap):
-					grid.Add(null)
-			lastRow = row.Key
+			if row == null:
+				continue
 			
 			gridRow = List [of Pair [of IWidget, Bitmap]]()
 			grid.Add(gridRow)
 			
-			if row.Value.Count > columnCount:
-				columnCount = row.Value.Count
-			
-			lastColumn = -1
-			for column in row.Value:
-				gap = column.Key - lastColumn - 1
-				if gap > 0:
-					for i in range(gap):
-						gridRow.Add(null)
-				lastColumn = column.Key
-				
-				widget = column.Value
-				bitmap = widget.Render()
-				gridRow.Add(Pair [of IWidget, Bitmap](widget, bitmap))
+			count = row.Count
+			if count > columnCount:
+				columnCount = count
+			for column in row:
+				if column == null:
+					gridRow.Add(null)
+				else:
+					gridRow.Add(Pair [of IWidget, Bitmap](column, column.Render()))
 		
 		rowHeights = array [of int](grid.Count)
 		columnWidths = array [of int](columnCount)
 		i = 0
 		for row in grid:
-			if row == null:
-				rowHeights[i++] = 0
-				continue
-			
 			height = 0
 			j = 0
 			for pair in row:
@@ -100,10 +94,15 @@ class Grid(IWidget):
 			j = 0
 			for pair in row:
 				if pair != null:
-					pair.V1.Position = (x, y)
-					bitmap.Blit(x, y, pair.V2)
+					widget = pair.V1
+					wbitmap = pair.V2
+					widget.Position = (x, y)
+					
+					if widget.Expandable and (wbitmap.Width < columnWidths[j] or wbitmap.Height < rowHeights[i]):
+						wbitmap = widget.Render(columnWidths[j], rowHeights[i])
+					widget.Size = (wbitmap.Width, wbitmap.Height)
+					bitmap.Blit(x, y, wbitmap)
 				x += columnWidths[j++]
-			
 			y += rowHeights[i++]
 		
 		return bitmap

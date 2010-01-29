@@ -7,6 +7,10 @@ public class Bitmap(IWidget):
 	public Height as int
 	public Pixels as (Color)
 	
+	public override Expandable as bool:
+		set:
+			_Expandable = value
+	
 	static def FromFile(fn as string) as Bitmap:
 		bitmap = System.Drawing.Bitmap(System.Drawing.Image.FromFile(fn))
 		
@@ -92,3 +96,19 @@ public class Bitmap(IWidget):
 	
 	def Render() as Bitmap:
 		return self
+	
+	def Render(width as int, height as int) as Bitmap:
+		if not Expandable:
+			return self
+		
+		bitmap = Bitmap(width, height)
+		destOff = 0
+		for y in range(height):
+			srcOff = (y % Height) * Width
+			xOff = 0
+			for x in range(width):
+				bitmap.Pixels[destOff++] = Pixels[srcOff + xOff++]
+				if xOff == Width:
+					xOff = 0
+		
+		return bitmap

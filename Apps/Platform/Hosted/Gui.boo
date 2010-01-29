@@ -17,4 +17,4 @@ class Gui(Application):
 		
 		Tasks().Run(null)
 		Logo().Run(null)
-		GuiTest().Run(null)
+		#GuiTest().Run(null)

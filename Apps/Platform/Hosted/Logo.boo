@@ -19,3 +19,4 @@ class Logo(Application):
 			image = Bitmap.FromFile('Images/Logo.png', Color.White)
 			window.Contents = image
 			window.Size = (image.Width, image.Height)
+			window.Position = (200, 200)

@@ -15,6 +15,13 @@ public abstract class IWidget:
 		set:
 			_Size = value
 	
+	_Expandable as bool = false
+	virtual Expandable as bool:
+		get:
+			return _Expandable
+		set:
+			pass
+	
 	virtual def Clicked(x as int, y as int, down as bool, button as int) as void:
 		pass
 	
@@ -23,6 +30,9 @@ public abstract class IWidget:
 	
 	abstract def Render() as Bitmap:
 		pass
+	
+	virtual def Render(width as int, height as int) as Bitmap:
+		return Render()
 	
 	def Inside(x as int, y as int):
 		if Position == null or Size == null:

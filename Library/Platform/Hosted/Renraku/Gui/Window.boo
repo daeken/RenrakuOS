@@ -20,6 +20,23 @@ public abstract class IWindow(IWidget):
 		set:
 			pass
 
+static class WindowTheme:
+	public TopLeft as IWidget = Bitmap.FromFile('Images/Theme/window_corner_top_left.png')
+	public TopRight as IWidget = Bitmap.FromFile('Images/Theme/window_corner_top_right.png')
+	public BottomLeft as IWidget = Bitmap.FromFile('Images/Theme/window_corner_bottom_left.png')
+	public BottomRight as IWidget = Bitmap.FromFile('Images/Theme/window_corner_bottom_right.png')
+	
+	_Left as IWidget = Bitmap.FromFile('Images/Theme/window_side_left.png')
+	public Left as IWidget:
+		get:
+			_Left.Expandable = true
+			return _Left
+	_Right as IWidget = Bitmap.FromFile('Images/Theme/window_side_right.png')
+	public Right as IWidget:
+		get:
+			_Right.Expandable = true
+			return _Right
+
 class Window(IWindow):
 	_Title as string
 	public Title as string:
@@ -33,13 +50,11 @@ class Window(IWindow):
 		get:
 			return _Contents
 		set:
-			if _Contents != null:
-				Body.Remove(_Contents)
 			_Contents = value
-			Body.Add(_Contents)
+			Body.Add(1, 1, _Contents)
 	
 	TitleLabel as Label
-	Body as VBox
+	Body as Grid
 	
 	def constructor():
 		self(null)
@@ -53,9 +68,16 @@ class Window(IWindow):
 		Visible = false
 		Frameless = false
 		
-		Body = VBox()
+		Body = Grid()
 		TitleLabel.FgColor = Color.White
-		Body.Add(TitleLabel)
+		Body.Add(0, 0, WindowTheme.TopLeft)
+		Body.Add(1, 0, TitleLabel)
+		Body.Add(2, 0, WindowTheme.TopRight)
+		Body.Add(0, 2, WindowTheme.BottomLeft)
+		Body.Add(2, 2, WindowTheme.BottomRight)
+		
+		Body.Add(0, 1, WindowTheme.Left)
+		Body.Add(2, 1, WindowTheme.Right)
 		
 		if func != null:
 			func(self)
