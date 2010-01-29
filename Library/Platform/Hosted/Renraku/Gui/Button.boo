@@ -10,7 +10,7 @@ public class Button(IWidget):
 		set:
 			ButtonLabel.Text = value
 	
-	event Click as callable(bool, int)
+	event Click as callable(int)
 	
 	def constructor():
 		self('')
@@ -22,4 +22,5 @@ public class Button(IWidget):
 		return ButtonLabel.Render()
 	
 	def Clicked(x as int, y as int, down as bool, button as int):
-		Click(down, button)
+		if not down:
+			Click(button)

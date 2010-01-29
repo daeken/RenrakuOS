@@ -25,8 +25,8 @@ class Tasks(Application):
 			def AddWindow(_window as IWindow):
 				if _window != window:
 					button = Button(_window.Title)
-					button.Click += do(down, button):
-						if not down and button == 1:
+					button.Click += do(button):
+						if button == 1:
 							gui.Focus(_window)
 					windowbox.Add(button)
 			

@@ -24,6 +24,5 @@ class GuiTest(Application):
 			hbox.Add(button)
 			vbox.Add(hbox)
 			
-			button.Click += do(down, button):
-				if down:
-					print 'Foo clicked!'
+			button.Click += do(button):
+				print 'Foo clicked!'
