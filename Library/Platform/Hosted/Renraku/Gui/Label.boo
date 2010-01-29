@@ -66,23 +66,32 @@ public class Label(IWidget):
 		if DefaultFont == null:
 			DefaultFont = Font('Images/Dina.fbin')
 		
-		CachedBitmap = Bitmap(DefaultFont.Size[0] * Text.Length, DefaultFont.Size[1], _BgColor)
+		lines = _Text.Split(char('\n'))
+		width = 0
+		for line in lines:
+			if line.Length > width:
+				width = line.Length
 		
-		off = 0
-		for ch in _Text:
-			ich = cast(int, ch)
-			if ich > 0xFF:
-				off += DefaultFont.Size[0]
-				continue
-			
-			bitmap = DefaultFont.Chars[ich]
-			
-			i = 0
-			for y in range(DefaultFont.Size[1]):
-				row = y * CachedBitmap.Width + off
-				for x in range(DefaultFont.Size[0]):
-					if bitmap[i++] == 1:
-						CachedBitmap.Pixels[row++] = _FgColor
-					else:
-						CachedBitmap.Pixels[row++] = _BgColor
-			off += DefaultFont.Size[0]
+		CachedBitmap = Bitmap(DefaultFont.Size[0] * width, DefaultFont.Size[1] * lines.Length, _BgColor)
+		
+		offY = 0
+		for line in lines:
+			offX = 0
+			for ch in line:
+				ich = cast(int, ch)
+				if ich > 0xFF:
+					offX += DefaultFont.Size[0]
+					continue
+				
+				bitmap = DefaultFont.Chars[ich]
+				
+				i = 0
+				for y in range(DefaultFont.Size[1]):
+					row = (offY + y) * CachedBitmap.Width + offX
+					for x in range(DefaultFont.Size[0]):
+						if bitmap[i++] == 1:
+							CachedBitmap.Pixels[row++] = _FgColor
+						else:
+							CachedBitmap.Pixels[row++] = _BgColor
+				offX += DefaultFont.Size[0]
+			offY += DefaultFont.Size[1]

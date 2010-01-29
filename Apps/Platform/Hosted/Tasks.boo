@@ -1,6 +1,5 @@
 namespace Renraku.Apps
 
-import System.Drawing
 import Renraku.Kernel
 import Renraku.Gui
 
